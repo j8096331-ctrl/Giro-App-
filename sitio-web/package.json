@@ -1,0 +1,12 @@
+{
+  "name": "gr-software-tc-sitio",
+  "private": true,
+  "scripts": {
+    "build": "esbuild src/main.js --bundle --minify --format=esm --target=es2020 --outfile=assets/app.js"
+  },
+  "devDependencies": {
+    "esbuild": "0.24.0",
+    "lenis": "1.1.13",
+    "three": "0.160.0"
+  }
+}
