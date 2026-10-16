@@ -547,6 +547,82 @@ select.inp{-webkit-appearance:none;appearance:none;background-image:url("data:im
 @media (max-width:380px){.avo{width:calc((100% - 16px) / 3)}}
 .avme{display:grid;grid-template-columns:72px minmax(0,1fr) auto;gap:14px;align-items:center}
 .avme svg{display:block}.avme b{display:block;font-size:18px;font-family:var(--display)}.avme span{display:block;font-size:13.5px;color:var(--ink-2)}
+/* ===== v6: panel clínico, gráficas e historia clínica ===== */
+:root{--viz-1:#2a78d6;--viz-grid:#e1e0d9;--viz-axis:#c3c2b7;--viz-muted:#898781;--ok-ink:#006300;--bad-ink:#d03b3b}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--viz-1:#3987e5;--viz-grid:#22324a;--viz-axis:#33445f;--ok-ink:#3DDC97;--bad-ink:#FF6B78}}
+:root[data-theme="dark"]{--viz-1:#3987e5;--viz-grid:#22324a;--viz-axis:#33445f;--ok-ink:#3DDC97;--bad-ink:#FF6B78}
+.tabs .ind{width:calc(100% / 6)}
+.tabs button{font-size:11.5px}
+.chart{position:relative;width:100%;margin:8px 0 4px}.chart svg{display:block;overflow:visible}
+.vz-grid{stroke:var(--viz-grid);stroke-width:1}.vz-base{stroke:var(--viz-axis);stroke-width:1}
+.vz-tick{fill:var(--viz-muted);font-size:11px;font-family:var(--body);font-variant-numeric:tabular-nums}
+.vz-line{fill:none;stroke:var(--viz-1);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.vz-area{fill:var(--viz-1);opacity:.1}.vz-dot{fill:var(--viz-1);stroke:var(--surface);stroke-width:2}
+.vz-bar{fill:var(--viz-1);transition:opacity .15s}.vz-hit{fill:transparent;cursor:pointer}
+.vz-g{outline:none}.vz-g:hover .vz-bar,.vz-g:focus .vz-bar{opacity:.75}.vz-g:hover .vz-dot,.vz-g:focus .vz-dot{r:6}
+.vz-g:focus-visible .vz-hit{stroke:var(--cyan);stroke-width:2}
+.vz-lab{fill:var(--ink);font-size:12px;font-weight:700;font-family:var(--body)}
+.vtip{position:fixed;z-index:70;pointer-events:none;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:6px 10px;box-shadow:var(--shadow);display:flex;flex-direction:column;max-width:260px}
+.vtip b{font-size:15px;line-height:1.2}.vtip span{font-size:12.5px;color:var(--ink-2)}
+.hbs{display:grid;gap:4px;margin-top:6px}
+.hb{display:grid;grid-template-columns:minmax(0,40%) minmax(0,1fr) auto;gap:10px;align-items:center;padding:4px 0;outline:none}
+.hb-l{font-size:13.5px;color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hb-t{height:12px}.hb-t i{display:block;height:100%;background:var(--viz-1);border-radius:0 4px 4px 0;transition:opacity .15s}
+.hb:hover .hb-t i,.hb:focus .hb-t i{opacity:.75}.hb b{font-size:13.5px;font-variant-numeric:tabular-nums;min-width:2.5em;text-align:right}
+.up{color:var(--ok-ink)!important}.down{color:var(--bad-ink)!important}
+/* panel */
+.pexp{display:flex;gap:8px}
+.rng{margin:0 0 12px}
+.kpi4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:12px}
+.ktile{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:12px 14px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.ktile .kl{font-size:13px;color:var(--ink-2)}.ktile b{font-family:var(--display);font-size:30px;line-height:1.1}
+.kd{font-size:12px;color:var(--ink-2);font-weight:700}
+@media (max-width:620px){.kpi4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.cnt{background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:1px 10px;font-weight:700;font-size:13px}
+.alerts{display:grid;gap:8px;margin-top:10px}
+.alert{display:grid;grid-template-columns:30px minmax(0,1fr) 16px;gap:12px;align-items:center;width:100%;text-align:left;border:1px solid var(--line);border-left:4px solid var(--a);background:var(--surface);border-radius:14px;padding:10px 12px;cursor:pointer}
+.alert .sv{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:14px;background:var(--a);color:#fff}
+.alert.crit{--a:#d03b3b}.alert.warn{--a:#fab219}.alert.warn .sv{color:#3a2a00}.alert.info{--a:var(--viz-1)}
+.alert .t b{display:block;font-size:14.5px;line-height:1.3}.alert .t span{display:block;font-size:13px;color:var(--ink-2);line-height:1.35}
+.alert .go{color:var(--ink-2);font-size:22px}
+.more summary{cursor:pointer;color:var(--cyan);font-weight:700;margin-top:10px}
+.pgrid2{display:grid;grid-template-columns:1fr;gap:12px;margin:12px 0}.pgrid2 .card{margin:0}
+@media (min-width:760px){.pgrid2{grid-template-columns:1fr 1fr}}
+.tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:6px -4px 0;padding:0 4px}
+.ptab{width:100%;border-collapse:collapse;font-size:14px;min-width:640px}
+.ptab th{text-align:left;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--line);padding:0}
+.ptab th button{background:none;border:0;padding:8px 6px;font-weight:700;color:inherit;cursor:pointer;font-size:12.5px;white-space:nowrap}
+.ptab td{padding:9px 6px;border-bottom:1px solid var(--line);vertical-align:middle}
+.ptab tbody tr{cursor:pointer}.ptab tbody tr:hover,.ptab tbody tr:focus{background:var(--surface-2);outline:none}
+.ptab .num{font-variant-numeric:tabular-nums;text-align:right}
+.pcell{display:flex;align-items:center;gap:8px}.pcell svg{flex:none}
+.adot{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;background:#d03b3b;color:#fff;font-size:11px;font-weight:800}
+.adh2{display:inline-block;width:56px;height:6px;border-radius:3px;background:var(--line);overflow:hidden;vertical-align:middle;margin-right:6px}.adh2 i{display:block;height:100%;background:var(--viz-1)}
+.tr0{color:var(--ink-2)}
+.feeds{display:grid;gap:2px}
+.feed{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:10px;align-items:center;background:none;border:0;border-top:1px solid var(--line);padding:9px 0;text-align:left;cursor:pointer;width:100%}
+.feed:first-child{border-top:0}.feed .t b{display:block}.feed .t span{font-size:13px;color:var(--ink-2)}.feed .end{font-size:12.5px;color:var(--ink-2);white-space:nowrap}
+/* evolución, constancia, campo e historia clínica */
+.evoPick{margin:6px 0 10px}
+.evk{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.evk div{background:var(--surface-2);border-radius:12px;padding:8px 10px;min-width:0}.evk span{display:block;font-size:12px;color:var(--ink-2)}.evk b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:420px){.evk{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.vtable{margin-top:6px}.vtable summary{cursor:pointer;color:var(--cyan);font-weight:700;font-size:14px;padding:4px 0}
+.xt{width:100%;border-collapse:collapse;font-size:14px;margin-top:6px}.xt th,.xt td{text-align:left;padding:7px 6px;border-bottom:1px solid var(--line)}.xt th{font-weight:700}.xt small{color:var(--ink-2);font-weight:400}
+.xt.cmp td:nth-child(2),.xt.cmp td:nth-child(3){font-variant-numeric:tabular-nums}.xt.cmp td:last-child{white-space:nowrap}.vz-g:hover .vz-dot,.vz-g:focus .vz-dot{r:6}
+.days28{display:grid;grid-template-columns:repeat(14,minmax(0,1fr));gap:4px}
+.days28 i{aspect-ratio:1;border-radius:5px;background:var(--surface-2);border:1px solid var(--line);outline:none}.days28 i.on{background:var(--viz-1);border-color:var(--viz-1)}
+.days28 i:focus-visible{box-shadow:0 0 0 2px var(--cyan)}
+.campos{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:8px}.campos>div{text-align:center}.campos b{display:block}.campos span{display:block;font-size:13px;color:var(--ink-2);margin-bottom:4px}
+.campo-w{color:var(--ink)}.campo-w.dk{color:#E8EEF6;margin:10px 0 4px}.campo{width:100%;max-width:320px;height:auto;display:block;margin:0 auto}
+.campo-lg{display:flex;justify-content:center;flex-wrap:wrap;gap:12px;font-size:12.5px;margin-top:4px}.campo-w.dk .campo-lg{color:#C9D4E2}
+.campo-lg i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px;font-style:normal}
+.campo-lg i.g{background:#0ca30c}.campo-lg i.y{border:2px solid #fab219;width:6px;height:6px}.campo-lg i.r{color:#d03b3b;width:auto;height:auto;font-weight:800}
+.xrow{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center;border-top:1px solid var(--line);padding:10px 0}
+.xrow .t b{display:block}.xrow .t>span{display:block;font-size:13px;color:var(--ink-2)}
+.xchips{display:flex!important;flex-wrap:wrap;gap:5px;margin-top:5px}.xchips i{font-style:normal;font-size:12px;background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:1px 8px;color:var(--ink)}
+.fsec .grid2>.field:last-child:nth-child(odd){grid-column:1/-1}
+.equip{background:rgba(123,92,255,.2)!important}
 </style>
 </head>
 <body>
@@ -597,6 +673,7 @@ select.inp{-webkit-appearance:none;appearance:none;background-image:url("data:im
     <div id="prog"></div>
   </section>
 
+  <section id="v-panel" hidden><div id="panel"></div></section>
   <section id="v-pats" hidden><div id="pats"></div></section>
   <section id="v-set" hidden><div id="sets"></div></section>
 </div>
@@ -605,6 +682,7 @@ select.inp{-webkit-appearance:none;appearance:none;background-image:url("data:im
   <button data-tab="home" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>Hoy</button>
   <button data-tab="games"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><circle cx="17.5" cy="17.5" r="3.5"/></svg>Ejercicios</button>
   <button data-tab="prog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 20h18M6 16l4-5 3 3 5-7"/></svg>Progreso</button>
+  <button data-tab="panel"><span class="lk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M7.5 16.5v-3M12 16.5v-7M16.5 16.5v-5"/></svg>Panel</button>
   <button data-tab="pats"><span class="lk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><circle cx="17.5" cy="9" r="2.6"/><path d="M16.5 14.6c2.6.1 4.4 1.8 5 4.6"/></svg>Pacientes</button>
   <button data-tab="set"><span class="lk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>Ajustes</button>
 </div></nav>
@@ -664,7 +742,14 @@ if(!DB||!Array.isArray(DB.patients)||!DB.patients.length){const p=newPatient('Yo
 DB.cfg=Object.assign({pxPerCm:37.8,calibrated:false,distCm:40,sound:true,haptics:true,theme:'system',ambient:true,breaks:true,voice:false},DB.cfg||{});
 DB.sessions=DB.sessions||[];DB.best=DB.best||{};DB.last=DB.last||{};
 if(!DB.patients.find(p=>p.id===DB.active))DB.active=DB.patients[0].id;
-const save=()=>store.set(KEY,DB);
+/* base de datos local: IndexedDB (gran capacidad) con copia rápida en localStorage */
+const IDB={db:null,
+ open(){return this.db?Promise.resolve(this.db):new Promise((res,rej)=>{try{const r=indexedDB.open('giro',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>{this.db=r.result;res(r.result);};r.onerror=()=>rej(r.error);}catch(e){rej(e);}});},
+ async get(k){const d=await this.open();return new Promise((res,rej)=>{const q=d.transaction('kv','readonly').objectStore('kv').get(k);q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error);});},
+ async set(k,v){const d=await this.open();return new Promise((res,rej)=>{const tx=d.transaction('kv','readwrite');tx.objectStore('kv').put(v,k);tx.oncomplete=()=>res(true);tx.onerror=()=>rej(tx.error);});}};
+let saveT=0,lsFull=false,idbOk=!!window.indexedDB;
+function flushIDB(){if(idbOk)IDB.set(KEY,DB).catch(()=>{idbOk=false;});}
+function save(){DB.savedAt=Date.now();lsFull=!store.set(KEY,DB);clearTimeout(saveT);saveT=setTimeout(flushIDB,200);return !lsFull||idbOk;}
 const P=()=>DB.patients.find(p=>p.id===DB.active);
 const mySessions=()=>DB.sessions.filter(s=>s.pid===DB.active);
 function applyTheme(){const r=document.documentElement;if(DB.cfg.theme==='system')r.removeAttribute('data-theme');else r.setAttribute('data-theme',DB.cfg.theme);}
@@ -1923,10 +2008,206 @@ GAMES.push({id:'grua',name:'Grúa',skill:'Profundidad y orientación',cat:'bino'
   };
  }});
 
+/* ================= biblioteca clínica ampliada (v6) ================= */
+CATS.splice(CATS.findIndex(c=>c.id==='bino'),0,{id:'acom',name:'Acomodación',sub:'Enfoque de cerca y flexibilidad acomodativa. Necesita flippers'});
+const SLOAN='CDHKNORSVZ'.split('');
+/* diana de fusión con control de supresión: cada ojo ve una marca propia */
+function fuseTarget(c,x,y,R,col,isL){
+  c.strokeStyle=col;c.fillStyle=col;c.lineWidth=3;c.beginPath();c.arc(x,y,R,0,TAU);c.stroke();c.lineWidth=2;c.beginPath();c.arc(x,y,R*.6,0,TAU);c.stroke();
+  for(let i=0;i<8;i++){const a=i/8*TAU;c.beginPath();c.moveTo(x+Math.cos(a)*R*.68,y+Math.sin(a)*R*.68);c.lineTo(x+Math.cos(a)*R*.9,y+Math.sin(a)*R*.9);c.stroke();}
+  c.font=`700 ${Math.max(12,R*.32)}px ${FONT}`;c.textAlign='center';c.textBaseline='middle';c.fillText('E',x,y+1);
+  const s=R*.13,my=y-R*1.32;
+  if(isL){c.beginPath();c.moveTo(x-R*.5,my-s);c.lineTo(x-R*.5+s,my+s);c.lineTo(x-R*.5-s,my+s);c.closePath();c.fill();}else c.fillRect(x+R*.5-s,my-s,2*s,2*s);
+}
+
+/* ---------- Flexibilidad de vergencias (facilidad de vergencias) ---------- */
+GAMES.push({id:'vfac',name:'Flexibilidad de vergencias',skill:'Facilidad de vergencias',cat:'bino',anaglyph:true,
+ how:'Con las gafas puestas, junta la diana en una sola imagen nítida y toca el botón. La diana cambia entre convergencia y divergencia: cada vez que vuelvas a verla una y nítida, tócalo otra vez. Arriba debes ver un triángulo y un cuadrado; si falta alguno, toca «Falta una marca».',
+ opts:[{k:'dem',label:'Demanda',ch:[['auto','Según nivel'],['3-12','3Δ BI / 12Δ BO (prueba clínica)'],['2-8','2Δ BI / 8Δ BO'],['4-16','4Δ BI / 16Δ BO']]}],
+ lvDesc:(lv,o)=>{if(o&&o.dem&&o.dem!=='auto'){const [a,b]=o.dem.split('-');return `Alterna ${a} Δ de divergencia y ${b} Δ de convergencia. El nivel no cambia la demanda fija.`;}const t=T_(lv);return `Alterna ${lerp(1.5,4,t).toFixed(1).replace('.',',')} Δ de divergencia y ${lerp(6,16,t).toFixed(1).replace('.',',')} Δ de convergencia.`;},
+ create(api){
+  const ec=eyeColors(),lc=rgb(ec.L),rcol=rgb(ec.R),o=api.opt.dem||'auto';
+  const dem=()=>o==='auto'?{bi:lerp(1.5,4,api.T),bo:lerp(6,16,api.T)}:{bi:+o.split('-')[0],bo:+o.split('-')[1]};
+  let dir='bo',t0=0,taps=0,lat={bo:[],bi:[]},supp=0,clamped=false,flash=0;
+  const btn=()=>{const w=Math.min(300,api.W*.66),h=58;return {x:(api.W-w)/2,y:api.H-h-16,w,h};};
+  const sbtn=()=>{const w=Math.min(220,api.W*.52),h=40;return {x:(api.W-w)/2,y:api.H-58-16-h-10,w,h};};
+  api.info('Junta la diana: convergencia');
+  return {
+   update(dt){if(flash>0)flash-=dt;},
+   draw(c){const d0=dem(),pr=dir==='bo'?d0.bo:d0.bi;let px=prismToPx(pr);const mx=api.W*.55;if(px>mx){px=mx;clamped=true;}
+    const d=px*(dir==='bo'?1:-1),R=Math.min(api.W*.2,api.H*.16),x=api.W/2,y=api.H*.4;
+    c.globalCompositeOperation='lighter';fuseTarget(c,x+d/2,y,R,lc,true);fuseTarget(c,x-d/2,y,R,rcol,false);c.globalCompositeOperation='source-over';
+    c.fillStyle='rgba(255,255,255,.6)';c.font=`600 13px ${FONT}`;c.textBaseline='top';c.textAlign='left';c.fillText(`${pr.toFixed(1).replace('.',',')} Δ ${dir==='bo'?'BO':'BI'}`,14,12);
+    c.textAlign='right';c.fillText(`${Math.floor(taps/2)} ciclos`,api.W-14,12);
+    button(c,btn(),'La veo una y nítida',{fill:flash>0?'rgba(61,220,151,.95)':'rgba(255,255,255,.92)',ink:'#000',size:18});
+    button(c,sbtn(),'Falta una marca',{fill:'rgba(255,255,255,.14)',size:15});},
+   down(x,y){
+    if(inBox(sbtn(),x,y)){supp++;api.bad(api.W/2,api.H*.2);api.info('Parpadea y busca las dos marcas');return;}
+    if(!inBox(btn(),x,y))return;const l=api.elapsed-t0,b=btn();if(l<.3)return;lat[dir].push(l);taps++;flash=.18;t0=api.elapsed;
+    api.good(b.x+b.w/2,b.y,{noFloat:true,n:10});if(l<2)api.adapt(.25);else if(l>5)api.adapt(-.25);
+    dir=dir==='bo'?'bi':'bo';api.info(dir==='bo'?'Ahora convergencia':'Ahora divergencia');},
+   result(){const mins=Math.max(api.elapsed,1)/60,cyc=Math.floor(taps/2),cpm=+(cyc/mins).toFixed(1),av=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:0,d0=dem(),f=v=>v.toFixed(1).replace('.',',');
+    return {score:cpm,unit:'cpm',rating:clamp(cpm/15,0,1)*(supp?Math.max(.4,1-supp*.1):1),
+     stat:`${cyc} ciclos en ${durLabel(Math.round(api.elapsed))} con ${f(d0.bi)} Δ BI / ${f(d0.bo)} Δ BO.${supp?` Avisó ${supp} ${supp===1?'vez':'veces'} de que le faltaba una marca.`:''}${clamped?' La pantalla limitó la demanda: usa una pantalla más grande o acércala.':''}`,
+     metrics:[['Ciclos por minuto',f(cpm)],['Fusión en convergencia',lat.bo.length?`${f(av(lat.bo))} s de media`:'—'],['Fusión en divergencia',lat.bi.length?`${f(av(lat.bi))} s de media`:'—'],['Avisos de supresión',supp]],clin:{vfac:cpm}};}
+  };
+ }});
+
+/* ---------- Flippers (facilidad acomodativa) ---------- */
+GAMES.push({id:'afac',name:'Flippers',skill:'Facilidad acomodativa',cat:'acom',equip:'unos flippers de ±2,00 D (o la potencia que indique tu especialista)',sup:true,
+ how:'Sujeta los flippers delante de los ojos a la distancia de trabajo. Mira las letras por el lado que indica la pantalla y, en cuanto las veas nítidas, toca «Nítido» y da la vuelta a los flippers. Repite lo más rápido que puedas sin perder nitidez.',
+ opts:[{k:'eye',label:'Ojo',ch:[['AO','Ambos ojos'],['OD','Ojo derecho (tapa el izquierdo)'],['OI','Ojo izquierdo (tapa el derecho)']]},
+       {k:'pow',label:'Potencia',ch:[['2','±2,00 D'],['1.5','±1,50 D'],['1','±1,00 D']]},
+       {k:'size',label:'Tamaño de letra',ch:[['40','20/40'],['30','20/30'],['60','20/60']]}],
+ lvDesc:()=>'El nivel no cambia esta prueba: usa la potencia y el tamaño de letra que indique el especialista.',
+ create(api){
+  const o=api.opt,eye=o.eye||'AO',pow=o.pow||'2',den=+(o.size||'40');let side='+',t0=0,times={'+':[],'-':[]},taps=0,stuck=0,rows=[],small=false,flash=0;
+  const letterPx=()=>{const mm=DB.cfg.distCm*10*Math.tan((5/60)*(den/20)*Math.PI/180);let px=mm/10*DB.cfg.pxPerCm;if(px<7){small=true;px=7;}return px;};
+  const gen=()=>{rows=[0,1,2].map(()=>[...Array(5)].map(()=>pick(SLOAN)).join(' '));};gen();
+  const btn=()=>{const w=Math.min(300,api.W*.66),h=60;return {x:(api.W-w)/2,y:api.H-h-16,w,h};};
+  const sbtn=()=>{const w=Math.min(220,api.W*.52),h=40;return {x:(api.W-w)/2,y:api.H-60-16-h-10,w,h};};
+  const eyeTxt={AO:'Ambos ojos',OD:'Ojo derecho',OI:'Ojo izquierdo'}[eye];
+  api.info('Mira por el lado +');
+  return {
+   update(dt){if(flash>0)flash-=dt;},
+   draw(c){const px=letterPx(),cx=api.W/2,cy=api.H*.38,bw=Math.max(240,px*13),bh=px*7.2;
+    c.fillStyle=side==='+'?'rgba(61,220,151,.18)':'rgba(255,90,95,.18)';rr(c,cx-90,24,180,64,18);c.fill();
+    c.fillStyle=side==='+'?C.grn:C.red;c.font=`700 34px ${FONT}`;c.textAlign='center';c.textBaseline='middle';c.fillText(`${side==='+'?'+':'−'}${pow.replace('.',',')}`,cx,57);
+    c.fillStyle='#fff';rr(c,cx-bw/2,cy-bh/2,bw,bh,14);c.fill();
+    c.fillStyle='#0B1424';c.font=`700 ${px}px 'Atkinson Hyperlegible',${FONT}`;rows.forEach((r,i)=>c.fillText(r,cx,cy+(i-1)*px*2.1));
+    c.fillStyle='rgba(255,255,255,.6)';c.font=`600 13px ${FONT}`;c.fillText(`${eyeTxt} · ${Math.floor(taps/2)} ciclos`,cx,cy+bh/2+22);
+    button(c,btn(),'Nítido',{fill:flash>0?'rgba(61,220,151,.95)':'rgba(255,255,255,.92)',ink:'#000',size:22});
+    button(c,sbtn(),'No consigo enfocar',{fill:'rgba(255,255,255,.14)',size:15});},
+   down(x,y){
+    if(inBox(sbtn(),x,y)){stuck++;api.bad(api.W/2,api.H*.38);api.info('Parpadea, respira y vuelve a intentarlo');return;}
+    if(!inBox(btn(),x,y))return;const l=api.elapsed-t0,b=btn();if(l<.3)return;times[side].push(l);taps++;t0=api.elapsed;flash=.15;
+    api.good(b.x+b.w/2,b.y,{noFloat:true,n:8});side=side==='+'?'-':'+';gen();api.info(`Da la vuelta: mira por el lado ${side==='+'?'+':'−'}`);},
+   result(){const mins=Math.max(api.elapsed,1)/60,cyc=Math.floor(taps/2),cpm=+(cyc/mins).toFixed(1),av=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:0,mp=av(times['+']),mm=av(times['-']),f=v=>v.toFixed(1).replace('.',',');
+    let obs='';if(times['+'].length>=2&&times['-'].length>=2){if(mm>mp*1.3)obs=' Tarda más en enfocar con el lado negativo.';else if(mp>mm*1.3)obs=' Tarda más en enfocar con el lado positivo.';}
+    return {score:cpm,unit:'cpm',rating:clamp(cpm/(eye==='AO'?10:12),0,1)*(stuck?Math.max(.4,1-stuck*.15):1),
+     stat:`${cyc} ciclos en ${durLabel(Math.round(api.elapsed))} con ±${pow.replace('.',',')} D (${eyeTxt.toLowerCase()}).${obs}${small?' Las letras se agrandaron al mínimo legible en esta pantalla.':''}`,
+     metrics:[['Ciclos por minuto',f(cpm)],['Tiempo medio con +',times['+'].length?`${f(mp)} s`:'—'],['Tiempo medio con −',times['-'].length?`${f(mm)} s`:'—'],['Bloqueos',stuck]],clin:{afac:{e:eye,cpm}}};}
+  };
+ }});
+
+/* ---------- Tabla de Hart con metrónomo ---------- */
+GAMES.push({id:'hart',name:'Tabla de Hart',skill:'Sacádicos con metrónomo',cat:'mov',untimed:()=>true,sup:true,
+ how:'Lee en voz alta las letras siguiendo el ritmo del metrónomo, una letra por cada «tic», sin mover la cabeza. Quien acompaña toca «Error» si se equivoca o se pierde. Al terminar la tabla, toca «Tabla terminada».',
+ opts:[{k:'pat',label:'Recorrido',ch:[['bordes','Primera y última de cada fila'],['todas','Todas, de izquierda a derecha'],['col','Columnas alternas']]},
+       {k:'guia',label:'Guía de fila',ch:[['si','Sí'],['no','No (más difícil)']]}],
+ lvDesc:lv=>`Metrónomo a ${Math.round(lerp(40,100,T_(lv)))} pulsaciones por minuto.`,
+ create(api){
+  const o=api.opt,pat=o.pat||'bordes',guide=(o.guia||'si')==='si',N=10;
+  let bpm=Math.round(lerp(40,100,api.T)),grid=[],beat=0,next=0,errs=0,tErr=0,startT=0,done=[];
+  const seq=[];for(let r=0;r<N;r++){if(pat==='bordes')seq.push([r,0],[r,N-1]);else if(pat==='todas'){for(let k=0;k<N;k++)seq.push([r,k]);}else for(let k=0;k<5;k++)seq.push([r,k],[r,k+5]);}
+  function newTable(){grid=[...Array(N)].map(()=>[...Array(N)].map(()=>pick(SLOAN)));beat=0;tErr=0;startT=api.elapsed;next=api.elapsed+.6;api.info(`${bpm} ppm: lee al ritmo`);}
+  newTable();
+  const L=()=>{const top=40,bot=api.H-90,s=Math.min((api.W-40)/N,(bot-top)/N);return {s,ox:(api.W-s*N)/2,oy:top+(bot-top-s*N)/2};};
+  const bE=()=>{const g=10,w=(Math.min(api.W,520)-32-g)/2,h=58,ox=(api.W-(w*2+g))/2;return [{x:ox,y:api.H-h-14,w,h},{x:ox+w+g,y:api.H-h-14,w,h}];};
+  return {
+   update(){if(api.elapsed>=next){next+=60/bpm;beat++;tone(beat%2?880:660,.04,'sine',.06);}},
+   draw(c){const l=L(),row=seq[Math.min(seq.length-1,Math.max(0,beat-1))][0];
+    if(guide){c.fillStyle='rgba(255,201,60,.12)';rr(c,l.ox-6,l.oy+row*l.s,l.s*N+12,l.s,8);c.fill();}
+    c.fillStyle=C.wht;c.font=`600 ${l.s*.62}px ${FONT}`;c.textAlign='center';c.textBaseline='middle';
+    for(let r=0;r<N;r++)for(let k=0;k<N;k++)c.fillText(grid[r][k],l.ox+(k+.5)*l.s,l.oy+(r+.5)*l.s+1);
+    const ph=(api.elapsed-(next-60/bpm))/(60/bpm);c.fillStyle=`rgba(255,201,60,${Math.max(0,1-ph*2)})`;c.beginPath();c.arc(api.W-24,22,7,0,TAU);c.fill();
+    c.fillStyle='rgba(255,255,255,.6)';c.font=`600 13px ${FONT}`;c.textAlign='left';c.fillText(`${bpm} ppm · tabla ${done.length+1}`,14,22);
+    const [e,d]=bE();button(c,e,'Error',{fill:'rgba(255,90,95,.85)',size:19});button(c,d,'Tabla terminada',{fill:'rgba(255,255,255,.92)',ink:'#000',size:17});},
+   down(x,y){const [e,d]=bE();
+    if(inBox(e,x,y)){errs++;tErr++;api.bad(e.x+e.w/2,e.y);return;}
+    if(!inBox(d,x,y))return;done.push({t:api.elapsed-startT,err:tErr,bpm});api.good(d.x+d.w/2,d.y,{pts:Math.max(1,10-tErr*2)});
+    if(api.adaptive&&tErr<=1){bpm=Math.min(140,bpm+8);floatText(api.W/2,api.H/2,`¡Más rápido! ${bpm} ppm`,C.yel);}else if(api.adaptive&&tErr>=4)bpm=Math.max(30,bpm-8);
+    if(done.length>=4){api.end();return;}newTable();},
+   result(){const clean=done.filter(d=>d.err<=1),best=clean.reduce((m,d)=>Math.max(m,d.bpm),0);
+    return {score:best,unit:'ppm',rating:done.length?(clean.length/done.length)*clamp(.5+best/160,.5,1):0,
+     stat:done.length?`${done.length} ${done.length===1?'tabla':'tablas'} con ${errs} ${errs===1?'error':'errores'}${best?`; ritmo máximo sin errores: ${best} ppm`:''}.`:'No se terminó ninguna tabla.',
+     metrics:[['Ritmo máximo limpio',best?`${best} ppm`:'—'],['Errores',errs],['Tablas',done.length]],clin:best?{hart:best}:{}};}
+  };
+ }});
+
+/* ---------- Mapa del campo (campo visual periférico) ---------- */
+GAMES.push({id:'campo',name:'Mapa del campo',skill:'Campo visual periférico',cat:'aten',untimed:()=>true,
+ how:'Mira fijamente la cruz del centro durante toda la prueba. Cuando veas aparecer un punto en cualquier lugar, toca la pantalla. Si la cruz se convierte en un círculo, toca también. No muevas los ojos para buscar los puntos.',
+ opts:[{k:'eye',label:'Ojo',ch:[['AO','Ambos ojos'],['OD','Ojo derecho (tapa el izquierdo)'],['OI','Ojo izquierdo (tapa el derecho)']]},{k:'pts',label:'Posiciones',ch:[['24','24'],['16','16 (más rápida)'],['32','32 (más detallada)']]}],
+ lvDesc:lv=>`Puntos de ${Math.round(lerp(7,3,T_(lv)))} px; los niveles altos usan el punto tenue más débil.`,
+ create(api){
+  const o=api.opt,eye=o.eye||'AO',NP=+(o.pts||24),rings=NP===16?2:NP===32?4:3,per=NP/rings,locs=[];
+  for(let r=0;r<rings;r++)for(let k=0;k<per;k++)locs.push({a:(k+(r%2?.5:0))/per*TAU,ecc:(r+1)/rings,res:0});
+  let queue=shuffle(locs.map((_,i)=>({i,dim:false}))),cur=null,phase='wait',t=1.4,fp=0,catches=0,fixN=0,fixOk=0;
+  const R=()=>Math.max(3,Math.round(lerp(7,3,api.T))),dimA=lerp(.45,.18,api.T);
+  const pos=l=>({x:api.W/2+Math.cos(l.a)*(api.W/2-24)*l.ecc,y:api.H/2+Math.sin(l.a)*(api.H/2-24)*l.ecc});
+  function nextTrial(){
+   if(!queue.length){api.end();return;}
+   const roll=Math.random();
+   if(roll<.1){cur={catch:true};catches++;}else if(roll<.2){cur={fix:true};fixN++;}else cur=queue.shift();
+   cur.ans=false;cur.t0=api.elapsed;phase='show';t=cur.fix?.6:.2;
+  }
+  api.info('Mira la cruz y toca al ver un punto');
+  return {
+   update(dt){t-=dt;if(!api.elapsed&&t>0)return;
+    if(phase==='wait'&&t<=0)nextTrial();else if(phase==='show'&&t<=0){phase='resp';t=1;}else if(phase==='resp'&&t<=0){phase='wait';t=rand(.5,1.1);}
+    if(cur&&!cur.catch&&!cur.fix)api.info(`Quedan ${queue.length} puntos`);},
+   draw(c){const mx=api.W/2,my=api.H/2,s=api.M*.03,circ=phase==='show'&&cur&&cur.fix;
+    c.strokeStyle=C.wht;c.lineWidth=3;c.beginPath();if(circ)c.arc(mx,my,s*.8,0,TAU);else{c.moveTo(mx-s,my);c.lineTo(mx+s,my);c.moveTo(mx,my-s);c.lineTo(mx,my+s);}c.stroke();
+    if(phase==='show'&&cur&&cur.i!=null){const p=pos(locs[cur.i]);c.fillStyle=`rgba(255,255,255,${cur.dim?dimA:1})`;c.beginPath();c.arc(p.x,p.y,R(),0,TAU);c.fill();}
+    c.fillStyle='rgba(255,255,255,.4)';c.font=`600 13px ${FONT}`;c.textAlign='left';c.textBaseline='top';c.fillText({AO:'Ambos ojos',OD:'Ojo derecho',OI:'Ojo izquierdo'}[eye],14,12);},
+   down(){
+    if(!cur||cur.ans||(phase!=='show'&&phase!=='resp'))return;cur.ans=true;sfx.tick();
+    if(cur.catch)fp++;else if(cur.fix)fixOk++;
+    else{const l=locs[cur.i];if(cur.dim)l.res=2;else{l.res=Math.max(l.res,1);queue.splice(randi(0,queue.length),0,{i:cur.i,dim:true});}}
+    phase='wait';t=rand(.5,1.1);},
+   result(){const seen=locs.filter(l=>l.res>0).length,dim=locs.filter(l=>l.res===2).length,pct=Math.round(seen/locs.length*100),q=[0,0,0,0],qn=[0,0,0,0];
+    locs.forEach(l=>{const qi=(Math.sin(l.a)<0?0:2)+(Math.cos(l.a)<0?0:1);qn[qi]++;if(l.res>0)q[qi]++;});
+    const qp=q.map((v,i)=>qn[i]?Math.round(v/qn[i]*100):0),deg=px=>Math.round(Math.atan((px/DB.cfg.pxPerCm)/DB.cfg.distCm)*180/Math.PI);
+    const data={e:eye,pct,q:qp,map:locs.map(l=>l.res),rings,per};
+    return {score:pct,unit:'%',ulabel:'de las posiciones vistas',rating:pct/100*(fp>1?.8:1)*(fixN&&fixOk/fixN<.5?.8:1),
+     stat:`Vio ${seen} de ${locs.length} posiciones (${dim} también con el punto tenue). Cubre unos ±${deg(api.W/2-24)}° en horizontal y ±${deg(api.H/2-24)}° en vertical a ${DB.cfg.distCm} cm. Prueba orientativa: no sustituye una campimetría.`,
+     metrics:[['Posiciones vistas',`${pct}%`],['Falsos positivos',`${fp} de ${catches}`],['Pérdidas de fijación',`${fixN-fixOk} de ${fixN}`],['Ojo',{AO:'Ambos',OD:'Derecho',OI:'Izquierdo'}[eye]]],
+     clin:{campo:data},html:campoMapSvg(data,true)};}
+  };
+ }});
+
+/* ---------- Letras escondidas (control de supresión) ---------- */
+GAMES.push({id:'escondidas',name:'Letras escondidas',skill:'Control de supresión',cat:'bino',anaglyph:true,
+ how:'Con las gafas puestas, busca y toca todas las letras iguales a la de arriba. La mitad de las letras las ve un ojo y la otra mitad el otro: si un ojo «se apaga», sus letras desaparecen. Al terminar la página pasarás a otra.',
+ opts:[{k:'set',label:'Símbolos',ch:[['var','Letras variadas'],['sim','Letras parecidas (b d p q)'],['num','Números']]},{k:'mix',label:'Reparto entre los ojos',ch:[['alt','Alterno'],['col','Por columnas'],['rnd','Al azar']]}],
+ lvDesc:lv=>`${Math.round(lerp(4,8,T_(lv)))} filas de ${Math.round(lerp(6,11,T_(lv)))} símbolos.`,
+ create(api){
+  const POOL={var:'ABCDEFGHKLMNPRSTUVXZ',sim:'bdpqnu',num:'0123456789'}[api.opt.set||'var'].split(''),mix=api.opt.mix||'alt',ec=eyeColors(),col={L:rgb(ec.L),R:rgb(ec.R)};
+  let rows,cols,cells=[],target,need=0,L,appear=0,nextT=0,pages=0;const st={L:{f:0,n:0},R:{f:0,n:0}};
+  function layout(){const top=58,ah=api.H-top-16,cw=(api.W-32)/cols,ch=Math.min(ah/rows,cw*1.4);L={ox:(api.W-cw*cols)/2,oy:top+(ah-ch*rows)/2,cw,ch};}
+  function page(){
+   rows=Math.round(lerp(4,8,api.T));cols=Math.round(lerp(6,11,api.T));target=pick(POOL);const others=POOL.filter(x=>x!==target);cells=[];
+   for(let r=0;r<rows;r++)for(let k=0;k<cols;k++){const e=mix==='alt'?((r+k)%2?'R':'L'):mix==='col'?(k%2?'R':'L'):(Math.random()<.5?'L':'R'),t=Math.random()<.18;cells.push({ch:t?target:pick(others),isT:t,e,done:false,bad:0,anim:0});}
+   for(const e of ['L','R'])if(!cells.some(q=>q.isT&&q.e===e)){const q=pick(cells.filter(x=>x.e===e&&!x.isT));q.ch=target;q.isT=true;}
+   const ts=cells.filter(q=>q.isT);need=ts.length;ts.forEach(q=>st[q.e].n++);layout();appear=0;api.info(`Busca la ${target}: faltan ${need}`);}
+  page();
+  return {
+   resize(){layout();},
+   update(dt){appear+=dt;for(const q of cells){if(q.done)q.anim=Math.min(1,q.anim+dt*4);if(q.bad>0)q.bad-=dt;}if(nextT>0){nextT-=dt;if(nextT<=0){pages++;page();}}},
+   draw(c){c.strokeStyle='rgba(255,255,255,.45)';c.lineWidth=2;c.strokeRect(8,8,api.W-16,api.H-16);
+    c.fillStyle='#fff';c.font=`700 22px ${FONT}`;c.textAlign='center';c.textBaseline='middle';c.fillText(`Busca: ${target}`,api.W/2,32);
+    const fs=Math.min(L.cw*.62,L.ch*.6);c.font=`700 ${fs}px ${FONT}`;
+    cells.forEach((q,i)=>{const r=Math.floor(i/cols),k=i%cols,x=L.ox+(k+.5)*L.cw,y=L.oy+(r+.5)*L.ch,a=clamp((appear-r*.05)/.3,0,1);if(a<=0)return;
+     c.globalAlpha=a*(q.done?.35:1);c.fillStyle=col[q.e];c.fillText(q.ch,x,y+1);c.globalAlpha=1;
+     if(q.done){c.strokeStyle='#fff';c.lineWidth=2.5;c.beginPath();c.arc(x,y,fs*.62,-Math.PI/2,-Math.PI/2+TAU*easeOut(q.anim));c.stroke();}
+     if(q.bad>0){c.strokeStyle='#fff';c.lineWidth=2;c.setLineDash([4,4]);c.strokeRect(x-L.cw*.4,y-L.ch*.4,L.cw*.8,L.ch*.8);c.setLineDash([]);}});},
+   down(x,y){if(nextT>0)return;const k=Math.floor((x-L.ox)/L.cw),r=Math.floor((y-L.oy)/L.ch);if(k<0||r<0||k>=cols||r>=rows)return;const q=cells[r*cols+k];if(!q||q.done)return;
+    const cx2=L.ox+(k+.5)*L.cw,cy2=L.oy+(r+.5)*L.ch;
+    if(q.isT){q.done=true;need--;st[q.e].f++;api.good(cx2,cy2,{noFloat:true,n:8});api.info(need?`Faltan ${need}`:'¡Página completa!');if(!need){floatText(api.W/2,api.H/2,'¡Página completa!','#fff');api.adapt(.5);nextT=.8;}}
+    else{q.bad=.45;api.bad(cx2,cy2);}},
+   result(){const pc=e=>st[e].n?Math.round(st[e].f/st[e].n*100):null,l=pc('L'),r=pc('R'),tot=st.L.n+st.R.n,f=st.L.f+st.R.f;
+    let obs='';if(l!=null&&r!=null&&Math.abs(l-r)>=25)obs=` Encontró menos letras del ojo ${eyeName(l<r?'left':'right')}: puede estar suprimiendo ese ojo.`;
+    return {score:tot?Math.round(f/tot*100):0,unit:'%',ulabel:'de las letras encontradas',rating:tot?(f/tot)*clamp(1-Math.abs((l||0)-(r||0))/200,.6,1):0,
+     stat:`Ojo izquierdo: ${l??'—'}% de sus letras; ojo derecho: ${r??'—'}%.${obs}`,
+     metrics:[['Letras del ojo izquierdo',l!=null?`${l}%`:'—'],['Letras del ojo derecho',r!=null?`${r}%`:'—'],['Páginas completas',pages]],clin:(l!=null&&r!=null)?{supp:{L:l,R:r}}:{}};}
+  };
+ }});
+
 /* ================= para qué terapia es cada ejercicio ================= */
-const CATCOL={mov:'#0E9CC0',aten:'#C98500',coord:'#1C9A6C',bino:'#E0303F'};
-const CATCOL_D={mov:'#4CC9F0',aten:'#FFC93C',coord:'#3DDC97',bino:'#FF6B78'};
-const CATSHORT={mov:'Motilidad ocular',aten:'Percepción visual',coord:'Visomotora',bino:'Binocular'};
+const CATCOL={mov:'#0E9CC0',aten:'#C98500',coord:'#1C9A6C',bino:'#E0303F',acom:'#7B5CFF'};
+const CATCOL_D={mov:'#4CC9F0',aten:'#FFC93C',coord:'#3DDC97',bino:'#FF6B78',acom:'#B49CFF'};
+const CATSHORT={mov:'Motilidad ocular',aten:'Percepción visual',coord:'Visomotora',bino:'Binocular',acom:'Acomodación'};
 const THER={
  seguimiento:['Seguimientos suaves, fijación, coordinación ojo-mano',['Movimientos oculares','Dificultades de aprendizaje','Rehabilitación neurovisual','Entrenamiento deportivo']],
  sacadicos:['Movimientos sacádicos, fijación, tiempo de reacción',['Movimientos oculares','Dificultades de aprendizaje','Rehabilitación neurovisual','Entrenamiento deportivo']],
@@ -1951,7 +2232,12 @@ const THER={
  estereo:['Estereopsis, visión binocular, percepción de profundidad',['Ambliopía','Estrabismo','Insuficiencia de convergencia']],
  grua:['Visión binocular, sentido de la orientación, coordinación, precisión',['Ambliopía','Estrabismo','Insuficiencia de convergencia']],
  vergencias:['Vergencias fusionales, convergencia, divergencia',['Insuficiencia de convergencia','Exceso de convergencia','Estrabismo']],
- worth:['Fusión, detección de supresión, visión doble',['Estrabismo','Ambliopía']]
+ worth:['Fusión, detección de supresión, visión doble',['Estrabismo','Ambliopía']],
+ vfac:['Facilidad de vergencias, fusión, control de supresión',['Insuficiencia de convergencia','Exceso de convergencia','Estrabismo']],
+ afac:['Facilidad acomodativa, enfoque de cerca, flexibilidad',['Disfunción acomodativa','Insuficiencia de convergencia','Dificultades de aprendizaje']],
+ hart:['Sacádicos, ritmo de lectura, integración auditivo-visual',['Movimientos oculares','Dificultades de aprendizaje','Entrenamiento deportivo']],
+ campo:['Campo visual periférico, fijación, detección',['Rehabilitación neurovisual','Baja visión']],
+ escondidas:['Control de supresión, visión simultánea, búsqueda visual',['Ambliopía','Estrabismo']]
 };
 GAMES.forEach(g=>{const t=THER[g.id];g.ther=t?t[0]:g.skill;g.ind=t?t[1]:[];});
 const catCol=g=>CATCOL[g.cat]||'#13B5D6',catColD=g=>CATCOL_D[g.cat]||'#4CC9F0';
@@ -1992,6 +2278,11 @@ Object.assign(GLY,{
  parejas:'<rect x="3" y="4" width="13" height="13" rx="3" fill="#F2F5F9"/><rect x="20" y="4" width="13" height="13" rx="3" fill="#22385A"/><rect x="3" y="20" width="13" height="13" rx="3" fill="#22385A"/><rect x="20" y="20" width="13" height="13" rx="3" fill="#F2F5F9"/><path d="M9.5 6.5l1.4 2.9 3.1.4-2.3 2.2.6 3.1-2.8-1.5-2.8 1.5.6-3.1-2.3-2.2 3.1-.4z" fill="#FFC93C"/><path class="a-pulse" d="M26.5 22.5l1.4 2.9 3.1.4-2.3 2.2.6 3.1-2.8-1.5-2.8 1.5.6-3.1-2.3-2.2 3.1-.4z" fill="#FFC93C"/>',
  burbujas:'<circle class="a-bob" cx="12" cy="22" r="7" fill="none" stroke="#FF2A2A" stroke-width="2.2"/><circle cx="25" cy="11" r="5" fill="none" stroke="#FF2A2A" stroke-width="2"/><circle cx="26" cy="27" r="4" fill="#00F0FF"/>',
  worth:'<circle cx="18" cy="7" r="4.5" fill="#FF2A2A"/><circle cx="8" cy="18" r="4.5" fill="#00F0FF"/><circle cx="28" cy="18" r="4.5" fill="#00F0FF"/><circle class="a-pulse" cx="18" cy="29" r="4.5" fill="#fff"/>',
+ vfac:'<circle cx="13" cy="19" r="8" fill="none" stroke="#FF2A2A" stroke-width="2.2"/><circle class="a-shift" cx="23" cy="19" r="8" fill="none" stroke="#00F0FF" stroke-width="2.2"/><path d="M4 6h9M7 3L4 6l3 3M32 6h-9M29 3l3 3-3 3" stroke="#F2F5F9" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+ afac:'<rect x="2" y="16" width="32" height="4" rx="2" fill="#5E718E"/><circle cx="10" cy="18" r="7" fill="#13233D" stroke="#3DDC97" stroke-width="2.2"/><circle class="a-blink" cx="26" cy="18" r="7" fill="#13233D" stroke="#FF5A5F" stroke-width="2.2"/><path d="M7 18h6M10 15v6" stroke="#3DDC97" stroke-width="2" stroke-linecap="round"/><path d="M23 18h6" stroke="#FF5A5F" stroke-width="2" stroke-linecap="round"/>',
+ hart:'<g font-family="sans-serif" font-weight="700" font-size="6.6" fill="#C9D4E2"><text x="3" y="9">D K O R V</text><text x="3" y="17">N S Z C H</text><text x="3" y="25">O V D K R</text><text x="3" y="33">H C N S Z</text></g><rect class="a-blink" x="1.5" y="11.5" width="33" height="7" rx="2" fill="#FFC93C" opacity=".28"/>',
+ campo:'<ellipse cx="18" cy="18" rx="16" ry="12" fill="none" stroke="#5E718E" stroke-width="1.2"/><ellipse cx="18" cy="18" rx="9" ry="6.8" fill="none" stroke="#5E718E" stroke-width="1.2"/><path d="M15 18h6M18 15v6" stroke="#F2F5F9" stroke-width="1.8"/><circle cx="29" cy="12" r="2.2" fill="#3DDC97"/><circle class="a-blink" cx="7" cy="23" r="2.2" fill="#FFC93C"/><circle cx="24" cy="27" r="2.2" fill="#3DDC97"/>',
+ escondidas:'<g font-family="sans-serif" font-weight="800" font-size="10"><text x="3" y="14" fill="#FF2A2A">A</text><text x="13" y="14" fill="#00F0FF">b</text><text x="23" y="14" fill="#FF2A2A">A</text><text x="3" y="28" fill="#00F0FF">d</text><text x="13" y="28" fill="#FF2A2A">p</text><text x="23" y="28" fill="#00F0FF">A</text></g><circle class="a-pulse" cx="26.5" cy="24.5" r="6" fill="none" stroke="#FFC93C" stroke-width="1.6"/>',
  grua:'<path d="M5 4.5h26" stroke="#F2F5F9" stroke-width="2" stroke-linecap="round"/><g class="a-bob"><path d="M17.2 5v7" stroke="#FF2A2A" stroke-width="1.6"/><path d="M18.8 5v7" stroke="#00F0FF" stroke-width="1.6"/><path d="M12 16l3-3.5h6l3 3.5" fill="none" stroke="#F2F5F9" stroke-width="1.6" stroke-linejoin="round"/><rect x="11.5" y="14.5" width="11" height="9" rx="1.2" fill="#FF2A2A"/><rect x="13.5" y="14.5" width="11" height="9" rx="1.2" fill="#00F0FF" style="mix-blend-mode:screen"/></g><rect x="10" y="25.5" width="11" height="8" rx="1.2" fill="#FF2A2A"/><rect x="12.4" y="25.5" width="11" height="8" rx="1.2" fill="#00F0FF" style="mix-blend-mode:screen"/>'
 });
 const glyphSvg=id=>{gid_++;return `<svg viewBox="0 0 36 36" aria-hidden="true">${(GLY[id]||'').replace(/ID/g,'_'+gid_)}</svg>`;};
@@ -2002,9 +2293,9 @@ const starsRow=n=>`<span class="stars" aria-label="${n} de 3 estrellas">${[0,1,2
 /* ================= formato ================= */
 function fmt(score,unit){
   if(score==null||score==='')return '—';
-  switch(unit){case 's':return `${(+score).toFixed(1)} s`;case '%':return `${score}%`;case 'log':return `${(+score).toFixed(2)}`;case 'arcsec':return `${score}″`;case 'Δ':return `${score} Δ`;default:return `${score}`;}
+  switch(unit){case 's':return `${(+score).toFixed(1)} s`;case '%':return `${score}%`;case 'log':return `${(+score).toFixed(2)}`;case 'arcsec':return `${score}″`;case 'Δ':return `${score} Δ`;case 'cpm':return `${String(score).replace('.',',')} cpm`;case 'ppm':return `${score} ppm`;default:return `${score}`;}
 }
-const unitLabel=u=>({s:'segundos',  '%':'en el objetivo',log:'log de sensibilidad al contraste',arcsec:'segundos de arco','Δ':'dioptrías prismáticas',pts:'puntos'}[u]||'puntos');
+const unitLabel=u=>({s:'segundos',  '%':'en el objetivo',log:'log de sensibilidad al contraste',arcsec:'segundos de arco','Δ':'dioptrías prismáticas',pts:'puntos',cpm:'ciclos por minuto',ppm:'pulsaciones por minuto'}[u]||'puntos');
 const durLabel=s=>s<60?`${s} s`:s%60?`${Math.floor(s/60)} min ${s%60} s`:`${s/60} min`;
 const dayKey=d=>{const x=new Date(d);return `${x.getFullYear()}-${x.getMonth()+1}-${x.getDate()}`;};
 const isUntimed=(def,opt)=>!!(def.untimed&&def.untimed(opt||{}));
@@ -2103,12 +2394,12 @@ function launch(gid,conf,plan){
   const un=isUntimed(def,conf.opt);setText('#hudTime',un?'0':conf.dur>=60?`${conf.dur/60}:00`:conf.dur);$('#ringP').style.strokeDashoffset=0;$('#ringP').style.stroke=un?'#4CC9F0':'#FFC93C';
   resize();paintBg();
   const step=plan?`<p class="sk">Ejercicio ${plan.i+1} de ${plan.items.length} del plan</p>`:'';
-  const needCal=['estereo','vergencias','contraste','grua'].includes(gid)&&!DB.cfg.calibrated,canSpeak=!!window.speechSynthesis;
+  const needCal=['estereo','vergencias','contraste','grua','vfac','afac','campo'].includes(gid)&&!DB.cfg.calibrated,canSpeak=!!window.speechSynthesis;
   const daily=gid===dailyId()&&!dailyDone();
   showOv(`<div class="panel">${glyph(def.id,def.anaglyph)}<h2>${def.name}</h2><p class="th-line" style="--acc:${catColD(def)}">${def.ther}</p>${step}
     ${daily?'<p><span class="rec-b" style="animation-delay:.2s">Reto del día: doble de experiencia</span></p>':''}
     <div class="mbox"><canvas class="mcv sm" id="mIntro"></canvas><div class="bubble" id="bIntro"></div></div><p class="sk">${confText(def,conf)}</p>
-    ${def.anaglyph?`<p class="glasses">Ponte las gafas rojo/cian con el lente rojo en el ojo ${eyeName(P().redEye)}.</p>`:''}
+    ${def.anaglyph?`<p class="glasses">Ponte las gafas rojo/cian con el lente rojo en el ojo ${eyeName(P().redEye)}.</p>`:''}${def.equip?`<p class="glasses equip">Necesitas ${def.equip}.</p>`:''}${def.sup?'<p class="sk">Conviene que lo acompañe un adulto o el especialista.</p>':''}
     ${needCal?'<p class="sk">Pantalla sin calibrar: las medidas clínicas serán aproximadas. Puedes calibrarla en Clínica.</p>':''}
     <div class="btns"><button class="btn btn-go" data-act="go">Empezar</button>${canSpeak?'<button class="btn btn-line" data-act="speak">Escuchar instrucciones</button>':''}${plan?'':'<button class="btn btn-line" data-act="cfg">Cambiar nivel u opciones</button>'}</div></div>`);
   {const gi=new Mascot($('#mIntro'),{mood:'thinking'});setTimeout(()=>gi.setMood(def.anaglyph?'surprised':'happy',1.5),1600);setTimeout(()=>typeSay($('#bIntro'),def.how,14),350);}
@@ -2151,7 +2442,7 @@ const sessXP=s=>(10+10*(s.stars||0))*(s.daily?2:1);
 const playerXP=()=>mySessions().reduce((a,s)=>a+sessXP(s),0);
 const needXP=L=>50*L*(L-1);
 function lvlOf(xp){let L=1;while(needXP(L+1)<=xp)L++;return {level:L,pct:Math.round((xp-needXP(L))/(needXP(L+1)-needXP(L))*100),xp,next:needXP(L+1)};}
-function dailyId(){const pool=GAMES.filter(g=>!g.anaglyph&&!(g.untimed&&g.untimed({})));const k=dayKey(new Date());let h=7;for(const ch of k)h=(h*31+ch.charCodeAt(0))>>>0;return pool[h%pool.length].id;}
+function dailyId(){const pool=GAMES.filter(g=>!g.anaglyph&&!g.equip&&!g.sup&&!(g.untimed&&g.untimed({})));const k=dayKey(new Date());let h=7;for(const ch of k)h=(h*31+ch.charCodeAt(0))>>>0;return pool[h%pool.length].id;}
 const dailyDone=()=>mySessions().some(s=>s.daily&&dayKey(s.date)===dayKey(new Date()));
 const ACH=[
  {id:'primer',name:'Primer paso',desc:'Completa tu primer ejercicio',col:'#4CC9F0',test:c=>c.ss.length>=1},
@@ -2189,7 +2480,7 @@ function finishGame(){
   if(isBest&&prev){DB.recs=DB.recs||{};DB.recs[pid]=(DB.recs[pid]||0)+1;}
   const xpB=playerXP(),daily=def.id===dailyId()&&!dailyDone();
   const sess={id:uid(),pid,g:def.id,date:new Date().toISOString(),dur:Math.round(cur.elapsed),lv:cur.lv0,lvEnd:cur.lv,adaptive:cur.adaptive,score,unit,acc,stars,clin:r.clin||{},opt:cur.opt,daily,tf:cur.tf,rt:cur.rt,ex:cur.ex};
-  DB.sessions.push(sess);if(DB.sessions.length>4000)DB.sessions=DB.sessions.slice(-4000);
+  DB.sessions.push(sess);if(DB.sessions.length>60000)DB.sessions=DB.sessions.slice(-60000);
   DB.last[pid]=DB.last[pid]||{};DB.last[pid][def.id]={lv:cur.adaptive?clamp(Math.round(cur.lv),1,10):cur.lv0,dur:cur.limit,adaptive:cur.adaptive,opt:cur.opt,tf:cur.tf,rt:cur.rt,ex:cur.ex};
   const gained=sessXP(sess),lb=lvlOf(xpB),la=lvlOf(xpB+gained),newAch=checkAch(cur.maxCombo);
   save();renderAll();
@@ -2212,8 +2503,8 @@ function finishGame(){
     <div class="res-stars${stars>=2?' shine':''}">${[0,1,2].map(i=>`<span style="display:contents">${starSvg(i<stars,46).replace('<svg ',`<svg style="animation-delay:${.15+i*.18}s" `)}</span>`).join('')}</div>
     ${isBest&&prev?'<span class="rec-b">Nuevo récord</span>':isBest?'<span class="rec-b">Primera marca</span>':`<p class="sk" style="margin:0">${def.name}</p>`}
     <div class="big" id="bigScore" data-v="${score}" data-u="${unit}">${fmt(score,unit)}</div>
-    <p class="sk" style="margin-top:-2px">${unitLabel(unit)}${prev&&!isBest?`. Tu récord: ${fmt(prev.score,prev.unit)}`:''}</p>
-    <p>${esc(r.stat||'')}</p>
+    <p class="sk" style="margin-top:-2px">${r.ulabel||unitLabel(unit)}${prev&&!isBest?`. Tu récord: ${fmt(prev.score,prev.unit)}`:''}</p>
+    <p>${esc(r.stat||'')}</p>${r.html||''}
     <div class="xpbox"><div class="xpl"><span>Nivel ${la.level}</span><b>+${gained} XP${daily?', reto del día ×2':''}</b></div><div class="bar"><i id="xpFill" style="width:${startPct}%" data-to="${la.pct}"></i></div>${la.level>lb.level?`<p class="lvup">¡Subiste al nivel ${la.level}!</p>`:''}</div>
     ${newAch.map((a,i)=>`<div class="unlock" style="animation-delay:${.9+i*.25}s">${medal(a,true)}<div><b>Logro desbloqueado: ${a.name}</b><span>${a.desc}</span></div></div>`).join('')}
     <div class="metrics">${mt.map(([a,b])=>`<div><b>${esc(b)}</b><span>${esc(a)}</span></div>`).join('')}</div>
@@ -2343,6 +2634,7 @@ function renderProgress(){
   if(lc.verg){const v=lc.verg.v;if(v.bo&&v.bo[0]!=null)cl.push([`${v.bo[0]} / ${v.bo[1]??'—'} Δ`,'Convergencia (rotura / recobro)']);if(v.bi&&v.bi[0]!=null)cl.push([`${v.bi[0]} / ${v.bi[1]??'—'} Δ`,'Divergencia (rotura / recobro)']);}
   if(lc.cs)cl.push([`${lc.cs.v.lcs}`,`logCS a ${lc.cs.v.cpd} c/g`]);
   if(lc.ufov)cl.push([`${lc.ufov.v} ms`,'Umbral campo visual útil']);
+  if(lc.vfac)cl.push([`${fnum(lc.vfac.v)} cpm`,'Facilidad de vergencias']);if(lc.afac)cl.push([`${fnum(lc.afac.v.cpm)} cpm`,`Facilidad acomodativa (${lc.afac.v.e})`]);if(lc.campo)cl.push([`${lc.campo.v.pct}%`,`Campo periférico visto (${lc.campo.v.e})`]);if(lc.supp)cl.push([`${lc.supp.v.L}% / ${lc.supp.v.R}%`,'Letras por ojo (izq. / der.)']);if(lc.hart)cl.push([`${lc.hart.v} ppm`,'Tabla de Hart sin errores']);
   if(lc.saccRT)cl.push([`${lc.saccRT.v} ms`,'Latencia sacádica']);
   if(lc.reactRT)cl.push([`${lc.reactRT.v} ms`,'Tiempo de reacción']);
   if(lc.pursuit)cl.push([`${lc.pursuit.v}%`,'Seguimiento suave']);
@@ -2355,14 +2647,16 @@ function renderProgress(){
   $('#prog').innerHTML=achCard()+`<div class="card"><p class="h4" style="font-weight:700;margin:0">Minutos de entrenamiento</p><span class="sub">Últimos 7 días</span>
     <div class="week">${days.map(d=>`<div><i class="${d.m?'':'zero'}" style="height:${Math.max(4,d.m/mx*100)}%"></i><span>${d.l}</span></div>`).join('')}</div></div>
     ${cl.length?`<div class="card"><p class="h4" style="font-weight:700;margin:0 0 10px">Medidas clínicas recientes</p><div class="clin">${cl.map(([v,l])=>`<div><b>${esc(v)}</b><span>${l}</span></div>`).join('')}</div>${DB.cfg.calibrated?'':'<p class="sub" style="margin:10px 0 0">Pantalla sin calibrar: los valores en segundos de arco y dioptrías son aproximados.</p>'}</div>`:''}
+    ${evoCard(P(),'Tu evolución')}${constancyCard(P())}
     <div class="card"><p class="h4" style="font-weight:700;margin:0 0 4px">Por ejercicio</p>${rows}</div>
     <div class="card hist"><p class="h4" style="font-weight:700;margin:0 0 4px">Últimas sesiones</p>${hist}</div>`;
+  requestAnimationFrame(()=>drawCharts($('#prog')));
 }
 let dl=null;
 function seg(attr,opts,val){return `<div class="seg" data-n="${opts.length}" role="group">${opts.map(([v,l])=>`<button ${attr}="${v}" aria-pressed="${String(val)===String(v)}">${l}</button>`).join('')}</div>`;}
 /* ================= registro de pacientes ================= */
 const DIAGS=['Ambliopía','Estrabismo','Insuficiencia de convergencia','Exceso de convergencia','Disfunción acomodativa','Movimientos oculares','Rehabilitación neurovisual','Baja visión','Dificultades de aprendizaje','Entrenamiento deportivo','Otro'];
-function pfix(p){return Object.assign({birth:'',phone:'',email:'',tutor:'',diag:'',ambEye:'',domEye:'',avOD:'',avOI:'',notesLog:[],archived:false,tf:1,rt:0,ex:0},p);}
+function pfix(p){return Object.assign({birth:'',phone:'',email:'',tutor:'',diag:'',ambEye:'',domEye:'',avOD:'',avOI:'',notesLog:[],exams:[],archived:false,tf:1,rt:0,ex:0},p);}
 DB.patients=DB.patients.map(pfix);
 DB.cfg=Object.assign({opticName:'',proName:'',pin:'1234',idleMin:5,setupDone:false},DB.cfg);
 function ageOf(p){if(p.birth){const b=new Date(p.birth+'T12:00');if(!isNaN(b)){const n=new Date();let a=n.getFullYear()-b.getFullYear();if(n.getMonth()<b.getMonth()||(n.getMonth()===b.getMonth()&&n.getDate()<b.getDate()))a--;return a;}}return p.age||'';}
@@ -2482,7 +2776,7 @@ const isActive7=p=>{const l=lastSess(p.id);return !!l&&Date.now()-new Date(l.dat
 let patView=null,patF='all',patQ='';
 function renderPats(){
   const el=$('#pats');if(!el)return;if(patView&&!DB.patients.find(p=>p.id===patView))patView=null;
-  if(patView){if(DB.active!==patView){DB.active=patView;save();}el.innerHTML=patDetail();return;}
+  if(patView){if(DB.active!==patView){DB.active=patView;save();}el.innerHTML=patDetail();requestAnimationFrame(()=>drawCharts(el));return;}
   const all=DB.patients.filter(p=>!p.archived),today=dayKey(new Date());
   el.innerHTML=`<div class="ph"><h1 class="viewh" style="margin:0">Pacientes</h1><button class="btn btn-main btn-sm" data-pc="new">+ Nuevo paciente</button></div>
    <div class="strip" style="margin:14px 0 12px"><div><b>${all.length}</b><span>pacientes</span></div><div><b>${all.filter(isActive7).length}</b><span>activos 7 días</span></div><div><b>${DB.sessions.filter(s=>dayKey(s.date)===today).length}</b><span>sesiones hoy</span></div></div>
@@ -2532,7 +2826,7 @@ function patDetail(){
   <div class="card phead">${avatarSvg(p,66)}<div class="t"><h2>${esc(showName(p,true))}</h2><span class="sub" style="margin:0">${[ag!==''?ag+' años':'',p.diag].filter(Boolean).map(esc).join(', ')||'Sin ficha clínica'}</span>${p.phone||p.email?`<span class="sub" style="margin:0">${esc([p.phone,p.email].filter(Boolean).join('   '))}</span>`:''}${p.archived?'<span class="sub" style="margin:0;color:var(--red)">Archivado</span>':''}</div></div>
   <div class="pbtns"><button class="btn btn-go" data-pc="train">Entrenar ahora</button><button class="btn btn-soft" data-pc="ficha">Editar ficha</button><button class="btn btn-soft" data-c="report">Informe</button></div>
   <div class="kpis"><div><b>${ss.length}</b><span>sesiones</span></div><div><b>${mins}</b><span>minutos</span></div><div><b>${adherence(p.id)}%</b><span>adherencia 14 días</span></div><div><b>${l?ago(l.date):'—'}</b><span>última sesión</span></div></div>
-  ${evolCard()}
+  ${evoCard(p)}${examCard(p)}${constancyCard(p)}${campoCard(p)}
   <div class="card"><p class="h4b">Ficha clínica</p>${fi.length?`<dl class="ficha">${fi.map(([a,b])=>`<div><dt>${a}</dt><dd>${esc(b)}</dd></div>`).join('')}</dl>`:'<p class="sub">Sin datos clínicos. Toca «Editar ficha».</p>'}${p.notes?`<p class="sub" style="white-space:pre-wrap;margin:10px 0 0">${esc(p.notes)}</p>`:''}</div>
   <div class="card"><p class="h4b">Notas de evolución</p><textarea class="inp" id="noteTxt" placeholder="Observaciones de la sesión de hoy…"></textarea><button class="btn btn-main btn-sm" style="margin-top:8px" data-pc="note">Añadir nota</button>
     <div class="notes">${(p.notesLog||[]).slice().reverse().map(n=>`<div class="note-i"><span>${new Date(n.d).toLocaleString('es',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}</span><p>${esc(n.t)}</p></div>`).join('')}</div></div>
@@ -2605,13 +2899,14 @@ function renderSettings(){
     <div class="toggle"><div><b>Leer instrucciones en voz alta</b><div class="sub" style="margin:0">Útil con niños o con baja visión.</div></div><button class="sw" data-sw="voice" role="switch" aria-checked="${DB.cfg.voice}" aria-label="Leer instrucciones"></button></div>
     <div class="toggle"><b>Vibración</b><button class="sw" data-sw="haptics" role="switch" aria-checked="${DB.cfg.haptics}" aria-label="Vibración"></button></div>
     <div class="field"><span class="lab">Apariencia</span>${seg('data-theme-v',[['system','Sistema'],['light','Claro'],['dark','Oscuro']],DB.cfg.theme)}</div></div>
-  <div class="card"><p class="h4b">Datos</p><p class="sub">Todo se guarda solo en esta tableta. Haz copias de seguridad con frecuencia.</p>
-    <div style="display:grid;gap:8px"><button class="btn btn-main" data-c="backup">Copia de seguridad completa</button>
+  <div class="card"><p class="h4b">Datos</p><p class="sub">Todo se guarda en esta tableta, sin internet. Haz copias de seguridad con frecuencia.</p><p class="sub" id="stoInfo"></p>
+    <div style="display:grid;gap:8px"><button class="btn btn-main" data-c="backup">Copia de seguridad completa</button><button class="btn btn-soft" data-c="clinicCsv">Exportar toda la consulta (CSV)</button>
     <label class="btn btn-soft" style="cursor:pointer">Restaurar copia de seguridad<input type="file" accept="application/json,.json" id="restore" hidden></label></div></div>
-  <div class="card" style="text-align:center"><svg class="logo" viewBox="0 0 40 40" style="width:44px;height:44px"><circle cx="15" cy="20" r="12" fill="var(--red)"/><circle cx="25" cy="20" r="12" fill="var(--cyan)"/></svg><p style="margin:6px 0 0;font-family:var(--display);font-weight:700;font-size:20px">GiRo 5.1</p><p class="sub" style="margin:0">Terapia visual por GR Software TC</p></div>`;
+  <div class="card" style="text-align:center"><svg class="logo" viewBox="0 0 40 40" style="width:44px;height:44px"><circle cx="15" cy="20" r="12" fill="var(--red)"/><circle cx="25" cy="20" r="12" fill="var(--cyan)"/></svg><p style="margin:6px 0 0;font-family:var(--display);font-weight:700;font-size:20px">GiRo 6.0</p><p class="sub" style="margin:0">Terapia visual por GR Software TC</p></div>`;
+  storageInfo();
 }
 function renderClinic(){renderPats();renderSettings();}
-function renderAll(){renderWho();renderHome();renderGames();renderProgress();renderPats();renderSettings();}
+function renderAll(){renderWho();renderHome();renderGames();renderProgress();renderPats();renderSettings();renderPanel();}
 
 /* ---------- eventos ---------- */
 $('#startPlan').addEventListener('click',startPlan);
@@ -2646,6 +2941,9 @@ function clinicClick(e){
   }
   else switch(b.dataset.c){
     case 'add':openPickGame();break;
+    case 'exam':openExam();break;
+    case 'exedit':openExam(b.dataset.x);break;
+    case 'exdel':{const x=(p.exams||[]).find(q=>q.id===b.dataset.x);if(!x||!confirm(`¿Eliminar la evaluación del ${fdate(x.d)}?`))return;p.exams=p.exams.filter(q=>q.id!==x.id);save();renderAll();toast('Evaluación eliminada');break;}
     case 'suggest':{const rec=recFor(p.diag);if(!rec.length)return;if(p.plan.length&&!confirm(`¿Reemplazar el plan actual por ${Math.min(5,rec.length)} ejercicios indicados para ${p.diag.toLowerCase()}?`))return;
       p.plan=planFrom(rec,p);save();renderAll();toast('Plan sugerido aplicado');break;}
     case 'edit':openConfig(p.plan[i].g,'planEdit',i,p.plan[i]);break;
@@ -2656,7 +2954,8 @@ function clinicClick(e){
     case 'welcome':showWelcome();break;
     case 'report':saveFile(`informe-${slug(p.name)}-${new Date().toISOString().slice(0,10)}.html`,reportHtml());break;
     case 'csv':saveFile(`sesiones-${slug(p.name)}.csv`,csv());break;
-    case 'backup':saveFile(`giro-copia-${new Date().toISOString().slice(0,10)}.json`,JSON.stringify(DB,null,1));break;
+    case 'backup':doBackup();renderSettings();break;
+    case 'clinicCsv':saveFile(`giro-consulta-${new Date().toISOString().slice(0,10)}.csv`,csvClinic());break;
   }
 }
 function clinicInput(e){
@@ -2697,7 +2996,7 @@ function reportHtml(){
   const cl=[];if(bs)cl.push(['Estereoagudeza (mejor)',`${bs}″ de arco`]);if(lc.crane)cl.push(['Error de profundidad en la grúa',`${lc.crane.v}″ de arco`]);
   if(lc.verg){const v=lc.verg.v;if(v.bo&&v.bo[0]!=null)cl.push(['Convergencia rotura/recobro',`${v.bo[0]} / ${v.bo[1]??'—'} Δ`]);if(v.bi&&v.bi[0]!=null)cl.push(['Divergencia rotura/recobro',`${v.bi[0]} / ${v.bi[1]??'—'} Δ`]);}
   if(lc.cs)cl.push([`Sensibilidad al contraste (${lc.cs.v.cpd} c/g)`,`${lc.cs.v.lcs} logCS`]);
-  if(lc.ufov)cl.push(['Umbral de campo visual útil',`${lc.ufov.v} ms`]);if(lc.saccRT)cl.push(['Latencia sacádica',`${lc.saccRT.v} ms`]);
+  if(lc.ufov)cl.push(['Umbral de campo visual útil',`${lc.ufov.v} ms`]);if(lc.vfac)cl.push(['Facilidad de vergencias',`${fnum(lc.vfac.v)} cpm`]);if(lc.afac)cl.push([`Facilidad acomodativa (${lc.afac.v.e})`,`${fnum(lc.afac.v.cpm)} cpm`]);if(lc.campo)cl.push([`Campo periférico visto (${lc.campo.v.e}, orientativo)`,`${lc.campo.v.pct}%`]);if(lc.supp)cl.push(['Letras encontradas por ojo (izq. / der.)',`${lc.supp.v.L}% / ${lc.supp.v.R}%`]);if(lc.hart)cl.push(['Tabla de Hart, ritmo sin errores',`${lc.hart.v} ppm`]);if(lc.saccRT)cl.push(['Latencia sacádica',`${lc.saccRT.v} ms`]);
   if(lc.reactRT)cl.push(['Tiempo de reacción',`${lc.reactRT.v} ms`]);if(lc.pursuit)cl.push(['Seguimiento suave',`${lc.pursuit.v}% en objetivo`]);
   if(lc.span)cl.push(['Memoria visual',`${lc.span.v} casillas`]);if(lc.tach)cl.push(['Amplitud perceptiva',`${lc.tach.v} símbolos`]);if(lc.worth)cl.push(['Prueba de Worth (orientativa)',esc(lc.worth.v)]);
   const per=GAMES.map(g=>{const hs=ss.filter(s=>s.g===g.id);if(!hs.length)return '';const b=(DB.best[DB.active]||{})[g.id];const avg=(hs.reduce((a,s)=>a+(s.stars||0),0)/hs.length).toFixed(1);
@@ -2705,13 +3004,15 @@ function reportHtml(){
   const hist=ss.slice(-80).reverse().map(s=>`<tr><td>${new Date(s.date).toLocaleString('es')}</td><td>${G(s.g)?G(s.g).name:s.g}</td><td>${s.lv}${s.lvEnd!==s.lv?' → '+s.lvEnd:''}</td><td>${durLabel(s.dur)}</td><td>${fmt(s.score,s.unit)}</td><td>${s.acc!=null?s.acc+'%':'—'}</td><td>${'★'.repeat(s.stars||0)}${'☆'.repeat(3-(s.stars||0))}</td></tr>`).join('');
   const mins=Math.round(ss.reduce((a,s)=>a+s.dur,0)/60),days=new Set(ss.map(s=>dayKey(s.date))).size;
   return `<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Informe de terapia visual: ${esc(p.name)}</title>
-<style>body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:#0F1B2E;max-width:860px;margin:32px auto;padding:0 20px;line-height:1.45}h1{margin:0;font-size:26px}h2{font-size:18px;margin:28px 0 8px;border-bottom:2px solid #13B5D6;padding-bottom:4px}.m{color:#56657C}table{width:100%;border-collapse:collapse;font-size:14px}td,th{text-align:left;padding:6px 8px;border-bottom:1px solid #D6DDE7}th{background:#F1F4F8}.k{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.k div{background:#F1F4F8;border-radius:10px;padding:10px}.k b{display:block;font-size:22px}.logo{display:flex;gap:10px;align-items:center}@media print{body{margin:0}}</style></head><body>
+<style>body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:#0F1B2E;max-width:860px;margin:32px auto;padding:0 20px;line-height:1.45}h1{margin:0;font-size:26px}h2{font-size:18px;margin:28px 0 8px;border-bottom:2px solid #13B5D6;padding-bottom:4px}.m{color:#56657C}table{width:100%;border-collapse:collapse;font-size:14px}td,th{text-align:left;padding:6px 8px;border-bottom:1px solid #D6DDE7}th{background:#F1F4F8}.k{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.k div{background:#F1F4F8;border-radius:10px;padding:10px}.k b{display:block;font-size:22px}.logo{display:flex;gap:10px;align-items:center}@media print{body{margin:0}}${REPORT_VIZ_CSS}</style></head><body>
+<button class="noprint" onclick="print()">Imprimir o guardar en PDF</button>
 <div class="logo"><svg width="34" height="34" viewBox="0 0 40 40"><circle cx="15" cy="20" r="12" fill="#F0384B"/><circle cx="25" cy="20" r="12" fill="#13B5D6" style="mix-blend-mode:multiply"/></svg><div><h1>Informe de terapia visual</h1><div class="m">${esc(DB.cfg.opticName||'')}${DB.cfg.proName?' · '+esc(DB.cfg.proName):''}</div><div class="m">Generado con GiRo (GR Software TC) el ${new Date().toLocaleString('es')}</div></div></div>
 <h2>Paciente</h2><table><tr><th>Nombre</th><td>${esc(p.name)}</td><th>Edad</th><td>${ageOf(p)!==''?ageOf(p)+' años':'—'}</td></tr><tr><th>Diagnóstico</th><td>${esc(p.diag)||'—'}</td><th>Tutor</th><td>${esc(p.tutor)||'—'}</td></tr><tr><th>Agudeza visual OD</th><td>${esc(p.avOD)||'—'}</td><th>Agudeza visual OI</th><td>${esc(p.avOI)||'—'}</td></tr><tr><th>Ojo ambliope</th><td>${esc(p.ambEye)||'—'}</td><th>Ojo dominante</th><td>${esc(p.domEye)||'—'}</td></tr><tr><th>Contacto</th><td colspan="3">${esc([p.phone,p.email].filter(Boolean).join('  '))||'—'}</td></tr><tr><th>Lente rojo</th><td>Ojo ${eyeName(p.redEye)}</td><th>Ojo entrenado</th><td>${p.trainEye==='none'?'Ninguno':'Ojo '+eyeName(p.trainEye)+` (brillo del otro ojo ${p.balance}%)`}</td></tr><tr><th>Periodo</th><td colspan="3">${first?new Date(first.date).toLocaleDateString('es')+' a '+new Date(last.date).toLocaleDateString('es'):'Sin sesiones'}</td></tr>${p.notes?`<tr><th>Notas</th><td colspan="3" style="white-space:pre-wrap">${esc(p.notes)}</td></tr>`:''}</table>
 <h2>Resumen</h2><div class="k"><div><b>${ss.length}</b>ejercicios</div><div><b>${days}</b>días con práctica</div><div><b>${mins}</b>minutos</div><div><b>${streak()}</b>días de racha</div></div>
 ${(p.notesLog||[]).length?`<h2>Notas de evolución</h2><table>${p.notesLog.slice().reverse().map(n=>`<tr><th style="width:170px">${new Date(n.d).toLocaleString('es')}</th><td style="white-space:pre-wrap">${esc(n.t)}</td></tr>`).join('')}</table>`:''}
 <h2>Medidas clínicas más recientes</h2>${cl.length?`<table>${cl.map(([a,b])=>`<tr><th>${a}</th><td>${b}</td></tr>`).join('')}</table>`:'<p class="m">Sin medidas registradas.</p>'}
 <p class="m">Distancia de trabajo: ${DB.cfg.distCm} cm. Pantalla ${DB.cfg.calibrated?`calibrada (${DB.cfg.pxPerCm.toFixed(1)} px/cm)`:'sin calibrar: las medidas angulares son aproximadas'}.</p>
+${reportExtras(p)}
 <h2>Evolución por ejercicio</h2><table><tr><th>Ejercicio</th><th>Terapia</th><th>Sesiones</th><th>Nivel</th><th>Mejor</th><th>Última</th><th>Estrellas medias</th></tr>${per}</table>
 <h2>Plan actual</h2><table>${p.plan.map((it,i)=>`<tr><td>${i+1}</td><td>${G(it.g).name}</td><td>${confText(G(it.g),it)}</td></tr>`).join('')}</table>
 <h2>Historial (últimas 80 sesiones)</h2><table><tr><th>Fecha</th><th>Ejercicio</th><th>Nivel</th><th>Duración</th><th>Resultado</th><th>Precisión</th><th>Estrellas</th></tr>${hist}</table>
@@ -2719,14 +3020,14 @@ ${(p.notesLog||[]).length?`<h2>Notas de evolución</h2><table>${p.notesLog.slice
 }
 
 /* ---------- pestañas ---------- */
-const TABS=['home','games','prog','pats','set'];let curTab='home';
+const TABS=['home','games','prog','panel','pats','set'];let curTab='home';
 function goTab(t){
-  if((t==='pats'||t==='set')&&role!=='pro'){askPin(()=>{role='pro';updateRole();goTab(t);});return;}
+  if((t==='pats'||t==='set'||t==='panel')&&role!=='pro'){askPin(()=>{role='pro';updateRole();goTab(t);});return;}
   curTab=t;
   document.querySelectorAll('.tabs button').forEach(x=>{if(x.dataset.tab===t)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current');});
   $('#tabInd').style.transform=`translateX(${TABS.indexOf(t)*100}%)`;
   TABS.forEach(v=>$('#v-'+v).hidden=v!==t);window.scrollTo(0,0);
-  if(t==='pats')renderPats();if(t==='set')renderSettings();if(t==='home')renderHome();
+  if(t==='pats')renderPats();if(t==='set')renderSettings();if(t==='panel')renderPanel();requestAnimationFrame(()=>drawCharts());if(t==='home')renderHome();
   const v=$('#v-'+t);v.classList.remove('enter');void v.offsetWidth;v.classList.add('enter');stagger(v);
   if(t==='home')irisStart();mascotRun();
 }
@@ -2900,7 +3201,7 @@ function enterPatient(id,el){
 function leaveWelcome(tab){const w=$('#welcome');w.classList.add('leave');setTimeout(()=>{w.hidden=true;w.classList.remove('leave','show');},500);document.body.style.overflow='';if(heroGi)heroGi.wave=2;const b=$('#bHero');if(b)b.dataset.msg='';renderAll();goTab(tab||'home');}
 $('#welcome').addEventListener('click',e=>{
   const c=e.target.closest('[data-enter]');if(c){enterPatient(c.dataset.enter,c);return;}
-  if(e.target.closest('#wlPro')){askPin(()=>{role='pro';updateRole();leaveWelcome('pats');});return;}
+  if(e.target.closest('#wlPro')){askPin(()=>{role='pro';updateRole();leaveWelcome('panel');});return;}
   if(e.target.closest('#su_go')){const n=$('#su_name').value.trim(),pin=$('#su_pin').value.trim();if(!/^\d{4}$/.test(pin)){toast('El PIN debe tener 4 cifras');$('#su_pin').focus();return;}
     DB.cfg.opticName=n;DB.cfg.pin=pin;DB.cfg.setupDone=true;save();role='pro';updateRole();welGi.setMood('celebrate',1.4);toast('¡Óptica configurada!');setTimeout(()=>leaveWelcome('pats'),700);}
 });
@@ -2923,11 +3224,277 @@ function pinPress(k){
 $('#pinKeys').innerHTML=['1','2','3','4','5','6','7','8','9','x','0','b'].map(k=>`<button data-k="${k}" class="${k==='x'||k==='b'?'sm':''}" aria-label="${k==='x'?'Cancelar':k==='b'?'Borrar':k}">${k==='x'?'Cancelar':k==='b'?'⌫':k}</button>`).join('');
 $('#pinKeys').addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(b)pinPress(b.dataset.k);});
 document.addEventListener('keydown',e=>{if($('#pin').hidden)return;if(/^\d$/.test(e.key))pinPress(e.key);else if(e.key==='Backspace')pinPress('b');else if(e.key==='Escape')pinPress('x');});
-$('#proBadge').addEventListener('click',()=>{role='patient';updateRole();if(['pats','set'].includes(curTab))goTab('home');toast('Modo especialista cerrado');});
+$('#proBadge').addEventListener('click',()=>{role='patient';updateRole();if(['pats','set','panel'].includes(curTab))goTab('home');toast('Modo especialista cerrado');});
 $('#who').addEventListener('click',showWelcome);
 /* ---------- inactividad ---------- */
 ['pointerdown','keydown'].forEach(ev=>document.addEventListener(ev,()=>{lastAct=Date.now();},{passive:true,capture:true}));
 setInterval(()=>{const m=+DB.cfg.idleMin;if(!m||!$('#welcome').hidden||!$('#splash').hidden||!$('#pin').hidden)return;if(cur&&cur.running)return;if(Date.now()-lastAct>m*60000)showWelcome();},10000);
+
+/* ================= v6: historia clínica, evolución y panel del especialista ================= */
+EVOL.push(
+ {n:'Facilidad de vergencias',b:'high',g:c=>c.vfac,f:v=>`${String(v).replace('.',',')} cpm`},
+ {n:'Facilidad acomodativa (ambos ojos)',b:'high',g:c=>c.afac&&c.afac.e==='AO'?c.afac.cpm:null,f:v=>`${String(v).replace('.',',')} cpm`},
+ {n:'Facilidad acomodativa (OD)',b:'high',g:c=>c.afac&&c.afac.e==='OD'?c.afac.cpm:null,f:v=>`${String(v).replace('.',',')} cpm`},
+ {n:'Facilidad acomodativa (OI)',b:'high',g:c=>c.afac&&c.afac.e==='OI'?c.afac.cpm:null,f:v=>`${String(v).replace('.',',')} cpm`},
+ {n:'Campo periférico visto (ambos ojos)',b:'high',g:c=>c.campo&&c.campo.e==='AO'?c.campo.pct:null,f:v=>`${v}%`},
+ {n:'Campo periférico visto (OD)',b:'high',g:c=>c.campo&&c.campo.e==='OD'?c.campo.pct:null,f:v=>`${v}%`},
+ {n:'Campo periférico visto (OI)',b:'high',g:c=>c.campo&&c.campo.e==='OI'?c.campo.pct:null,f:v=>`${v}%`},
+ {n:'Diferencia entre ojos (supresión)',b:'low',g:c=>c.supp?Math.abs(c.supp.L-c.supp.R):null,f:v=>`${v} puntos`},
+ {n:'Tabla de Hart (ritmo sin errores)',b:'high',g:c=>c.hart,f:v=>`${v} ppm`}
+);
+/* ---------- evaluaciones clínicas en consulta ---------- */
+const EXAM=[
+ {g:'Agudeza visual y estereopsis',items:[{k:'avOD',n:'AV lejos OD',t:'av',ph:'20/20',b:'high'},{k:'avOI',n:'AV lejos OI',t:'av',ph:'20/20',b:'high'},{k:'avNear',n:'AV cerca AO',t:'av',ph:'20/20',b:'high'},{k:'stereo',n:'Estereopsis',u:'″',ph:'segundos de arco',b:'low'}]},
+ {g:'Convergencia y vergencias',items:[{k:'ppcR',n:'PPC rotura',u:'cm',ph:'cm',b:'low'},{k:'ppcB',n:'PPC recobro',u:'cm',ph:'cm',b:'low'},{k:'boN',n:'BO cerca, rotura',u:'Δ',ph:'Δ',b:'high'},{k:'biN',n:'BI cerca, rotura',u:'Δ',ph:'Δ',b:'high'},{k:'phN',n:'Foria de cerca',u:'Δ',ph:'exo −, endo +',b:'zero',neg:true},{k:'vfac',n:'Facilidad de vergencias',u:'cpm',ph:'cpm',b:'high'}]},
+ {g:'Acomodación',items:[{k:'aaOD',n:'Amplitud OD',u:'D',ph:'D',b:'high'},{k:'aaOI',n:'Amplitud OI',u:'D',ph:'D',b:'high'},{k:'afMono',n:'Flexibilidad monocular',u:'cpm',ph:'cpm',b:'high'},{k:'afBino',n:'Flexibilidad binocular',u:'cpm',ph:'cpm',b:'high'}]},
+ {g:'Motilidad y síntomas',items:[{k:'nsuco',n:'NSUCO sacádicos',u:'pts',ph:'1 a 5',b:'high'},{k:'dem',n:'DEM, cociente',ph:'p. ej. 1,15',b:'low'},{k:'ciss',n:'CISS (síntomas)',u:'pts',ph:'0 a 60',b:'low'}]}
+];
+const EXITEMS=EXAM.flatMap(g=>g.items);
+function examVal(m,raw){if(raw==null||raw==='')return null;const s=String(raw).trim().replace(',','.');
+  if(m.t==='av'){const fr=s.match(/^(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)$/);if(fr)return +(+fr[1]/+fr[2]).toFixed(3);const d=parseFloat(s);return isFinite(d)?d:null;}
+  const n=parseFloat(s);return isFinite(n)?n:null;}
+const fnum=v=>String(+(+v).toFixed(2)).replace('.',',');
+const fexam=m=>v=>m.t==='av'?fnum(v):`${fnum(v)}${m.u?(m.u==='″'?'″':' '+m.u):''}`;
+const fdate=d=>new Date(String(d).length===10?d+'T12:00':d).toLocaleDateString('es',{day:'numeric',month:'short',year:'numeric'});
+function metricSeries(p){
+  const ss=DB.sessions.filter(s=>s.pid===p.id),out=[];
+  for(const e of EVOL){const pts=ss.map(s=>({t:+new Date(s.date),v:s.clin?e.g(s.clin):null,src:'GiRo'})).filter(x=>x.v!=null&&x.v!==''&&x.v!==false&&isFinite(x.v)).map(x=>({...x,v:+x.v}));if(pts.length)out.push({key:'app:'+e.n,n:e.n,b:e.b,f:e.f,pts,src:'GiRo'});}
+  for(const m of EXITEMS){const pts=(p.exams||[]).map(x=>({t:+new Date(x.d+'T12:00'),v:examVal(m,x.vals[m.k]),src:'Consulta'})).filter(x=>x.v!=null).sort((a,b)=>a.t-b.t);if(pts.length)out.push({key:'ex:'+m.k,n:m.n+(m.t==='av'?' (decimal)':''),b:m.b,f:fexam(m),pts,src:'Consulta'});}
+  return out;}
+const isBetter=(b,a,n)=>b==='low'?n<a:b==='zero'?Math.abs(n)<Math.abs(a):n>a;
+
+/* ---------- gráficas (una serie, color de serie 1, rejilla discreta, tooltip) ---------- */
+const CHARTS=new Map();let chartN=0;
+function chartSlot(kind,data,opt){const id='ch'+(++chartN);CHARTS.set(id,{kind,data,opt:opt||{}});return `<div class="chart" data-chart="${id}" style="height:${(opt&&opt.h)||170}px"></div>`;}
+function drawCharts(root){
+  (root||document).querySelectorAll('[data-chart]').forEach(el=>{const s=CHARTS.get(el.dataset.chart);if(!s)return;const w=Math.round(el.clientWidth);if(w<=0||el._w===w)return;el._w=w;
+    el.innerHTML=(s.kind==='time'?svgTime:svgCols)(s.data,{...s.opt,w});});
+  if(CHARTS.size>200)for(const k of [...CHARTS.keys()])if(!document.querySelector(`[data-chart="${k}"]`))CHARTS.delete(k);
+}
+window.addEventListener('resize',()=>{clearTimeout(drawCharts._t);drawCharts._t=setTimeout(()=>drawCharts(),160);});
+function niceStep(r){const p=Math.pow(10,Math.floor(Math.log10(r||1))),f=r/p;return (f<=1?1:f<=2?2:f<=5?5:10)*p;}
+function vticks(lo,hi,n){if(hi===lo){hi=lo+1;lo=lo-1;}const st=niceStep((hi-lo)/n),a=Math.floor(lo/st)*st,b=Math.ceil(hi/st)*st,out=[];for(let v=a;v<=b+st*1e-6;v+=st)out.push(+v.toFixed(6));return out;}
+const tk=v=>Math.abs(v)>=1000?fnum(v/1000)+'K':fnum(v);
+const dShort=t=>new Date(t).toLocaleDateString('es',{day:'numeric',month:'short'});
+function svgTime(pts,o){
+  const W=o.w,H=o.h||170,pl=42,pr=70,pt=12,pb=24,t0=pts[0].t,t1=pts[pts.length-1].t,sp=Math.max(1,t1-t0),vs=pts.map(p=>p.v),T=vticks(Math.min(...vs),Math.max(...vs),3),lo=T[0],hi=T[T.length-1];
+  const X=t=>pts.length===1?pl+(W-pl-pr)/2:pl+(t-t0)/sp*(W-pl-pr),Y=v=>pt+(1-(v-lo)/((hi-lo)||1))*(H-pt-pb),fv=o.fmt||tk;
+  const dense=pts.length>18;
+  let s=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.label||'Evolución')}">`;
+  T.forEach(v=>{const y=Y(v).toFixed(1);s+=`<line class="vz-grid" x1="${pl}" x2="${W-pr+8}" y1="${y}" y2="${y}"/><text class="vz-tick" x="${pl-6}" y="${+y+4}" text-anchor="end">${tk(v)}</text>`;});
+  const lastP=pts[pts.length-1],gap=70,xl=[];
+  if(pts.length===1)xl.push([pts[0],'middle']);
+  else{if(X(lastP.t)-X(t0)>=gap)xl.push([pts[0],'start']);const mid=pts[Math.floor(pts.length/2)];if(pts.length>2&&X(mid.t)-X(t0)>=gap&&X(lastP.t)-X(mid.t)>=gap)xl.push([mid,'middle']);xl.push([lastP,'end']);}
+  xl.forEach(([p,an])=>{s+=`<text class="vz-tick" x="${X(p.t).toFixed(1)}" y="${H-6}" text-anchor="${an}">${dShort(p.t)}</text>`;});
+  if(pts.length>1){const d=pts.map((p,i)=>`${i?'L':'M'}${X(p.t).toFixed(1)} ${Y(p.v).toFixed(1)}`).join(' ');s+=`<path class="vz-area" d="${d} L${X(t1).toFixed(1)} ${Y(lo).toFixed(1)} L${X(t0).toFixed(1)} ${Y(lo).toFixed(1)} Z"/><path class="vz-line" d="${d}"/>`;}
+  pts.forEach(p=>{const x=X(p.t).toFixed(1),y=Y(p.v).toFixed(1);s+=`<g class="vz-g" tabindex="0" data-tip="${esc(fv(p.v))}|${esc(new Date(p.t).toLocaleDateString('es',{day:'numeric',month:'long',year:'numeric'})+(p.src?' · '+p.src:''))}"><circle class="vz-hit" cx="${x}" cy="${y}" r="14"/><circle class="vz-dot" cx="${x}" cy="${y}" r="${dense&&p!==pts[pts.length-1]?0:4.5}"/></g>`;});
+  const lp=pts[pts.length-1];s+=`<text class="vz-lab" x="${(X(lp.t)+9).toFixed(1)}" y="${(Y(lp.v)+4).toFixed(1)}">${esc(fv(lp.v))}</text>`;
+  return s+'</svg>';}
+function svgCols(data,o){
+  const W=o.w,H=o.h||150,pl=34,pr=8,pt=10,pb=22,n=data.length,mx=Math.max(1,...data.map(d=>d.v)),T=vticks(0,mx,3),hi=T[T.length-1];
+  const slot=(W-pl-pr)/n,bw=Math.min(24,Math.max(3,slot*.62)),Y=v=>pt+(1-v/hi)*(H-pt-pb),base=Y(0),every=Math.ceil(n/Math.max(1,Math.floor((W-pl)/52)));
+  let s=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.label||'Gráfica de barras')}">`;
+  T.forEach(v=>{if(!v)return;const y=Y(v).toFixed(1);s+=`<line class="vz-grid" x1="${pl}" x2="${W-pr}" y1="${y}" y2="${y}"/><text class="vz-tick" x="${pl-6}" y="${+y+4}" text-anchor="end">${tk(v)}</text>`;});
+  data.forEach((d,i)=>{const x=pl+slot*i+(slot-bw)/2,y=Y(d.v),h=base-y,r=Math.min(4,h/2,bw/2);
+    s+=`<g class="vz-g" tabindex="0" data-tip="${esc(d.tip||String(d.v))}"><rect class="vz-hit" x="${(pl+slot*i).toFixed(1)}" y="${pt}" width="${slot.toFixed(1)}" height="${H-pt-pb}"/>${h>.5?`<path class="vz-bar" d="M${x.toFixed(1)} ${base.toFixed(1)}V${(y+r).toFixed(1)}Q${x.toFixed(1)} ${y.toFixed(1)} ${(x+r).toFixed(1)} ${y.toFixed(1)}H${(x+bw-r).toFixed(1)}Q${(x+bw).toFixed(1)} ${y.toFixed(1)} ${(x+bw).toFixed(1)} ${(y+r).toFixed(1)}V${base.toFixed(1)}Z"/>`:''}</g>`;
+    if(i%every===0)s+=`<text class="vz-tick" x="${(pl+slot*(i+.5)).toFixed(1)}" y="${H-6}" text-anchor="middle">${esc(d.l)}</text>`;});
+  return s+`<line class="vz-base" x1="${pl}" x2="${W-pr}" y1="${base.toFixed(1)}" y2="${base.toFixed(1)}"/></svg>`;}
+function hbars(items,unit){if(!items.length)return '<p class="sub" style="margin:4px 0 0">Sin datos en este periodo.</p>';const mx=Math.max(1,...items.map(i=>i.v));
+  return `<div class="hbs">${items.map(i=>`<div class="hb" tabindex="0" data-tip="${esc(i.vs||String(i.v))}${unit?' '+esc(unit):''}|${esc(i.l)}"><span class="hb-l">${esc(i.l)}</span><span class="hb-t"><i style="width:${Math.max(1.5,i.v/mx*100).toFixed(1)}%"></i></span><b>${esc(i.vs||String(i.v))}</b></div>`).join('')}</div>`;}
+/* tooltip único: el valor primero, la etiqueta después; también con el foco del teclado */
+(()=>{const d=document.createElement('div');d.className='vtip';d.hidden=true;d.setAttribute('role','tooltip');document.body.appendChild(d);
+  const show=(el,x,y)=>{const t=el.getAttribute('data-tip');if(!t)return;const [v,l]=t.split('|');d.textContent='';const b=document.createElement('b');b.textContent=v;d.appendChild(b);if(l){const s=document.createElement('span');s.textContent=l;d.appendChild(s);}
+    d.hidden=false;const r=d.getBoundingClientRect();d.style.left=clamp(x-r.width/2,8,innerWidth-r.width-8)+'px';d.style.top=(y-r.height-14<8?y+18:y-r.height-14)+'px';};
+  const at=e=>{const el=e.target.closest&&e.target.closest('[data-tip]');if(el&&!el.closest('#stage'))show(el,e.clientX,e.clientY);else d.hidden=true;};
+  document.addEventListener('pointermove',at,{passive:true});document.addEventListener('pointerdown',at,{passive:true});
+  document.addEventListener('focusin',e=>{const el=e.target.closest&&e.target.closest('[data-tip]');if(el){const r=el.getBoundingClientRect();show(el,r.left+r.width/2,r.top);}else d.hidden=true;});
+  document.addEventListener('scroll',()=>{d.hidden=true;},{passive:true,capture:true});})();
+
+/* ---------- mapa del campo visual ---------- */
+function campoMapSvg(c,dark){
+  const W=300,H=200,cx=150,cy=100,ax=136,ay=86,rings=c.rings||3,per=c.per||8,ink=dark?'#C9D4E2':'currentColor',grid=dark?'rgba(255,255,255,.2)':'rgba(127,127,127,.35)';
+  let s=`<svg class="campo" viewBox="0 0 ${W} ${H}" role="img" aria-label="Mapa del campo visual: ${c.pct}% de posiciones vistas">`;
+  for(let r=1;r<=rings;r++)s+=`<ellipse cx="${cx}" cy="${cy}" rx="${(ax*r/rings).toFixed(1)}" ry="${(ay*r/rings).toFixed(1)}" fill="none" stroke="${grid}"/>`;
+  s+=`<path d="M${cx-ax} ${cy}H${cx+ax}M${cx} ${cy-ay}V${cy+ay}" stroke="${grid}"/>`;
+  let i=0;for(let r=0;r<rings;r++)for(let k=0;k<per;k++){const a=(k+(r%2?.5:0))/per*TAU,e=(r+1)/rings,x=(cx+Math.cos(a)*ax*e).toFixed(1),y=(cy+Math.sin(a)*ay*e).toFixed(1),v=c.map[i++];
+    s+=v===2?`<circle cx="${x}" cy="${y}" r="5" fill="#0ca30c"/>`:v===1?`<circle cx="${x}" cy="${y}" r="4.2" fill="none" stroke="#fab219" stroke-width="2.4"/>`:`<path d="M${x-4} ${y-4}l8 8m0 -8l-8 8" stroke="#d03b3b" stroke-width="2.4" stroke-linecap="round"/>`;}
+  const q=c.q||[];[[12,16,'start',0],[W-12,16,'end',1],[12,H-6,'start',2],[W-12,H-6,'end',3]].forEach(([x,y,an,j])=>{if(q[j]!=null)s+=`<text x="${x}" y="${y}" text-anchor="${an}" font-size="12" font-weight="700" fill="${ink}">${q[j]}%</text>`;});
+  s+=`<path d="M${cx-6} ${cy}H${cx+6}M${cx} ${cy-6}V${cy+6}" stroke="${ink}" stroke-width="2"/></svg>`;
+  return `<div class="campo-w${dark?' dk':''}">${s}<div class="campo-lg"><span><i class="g"></i>Visto tenue</span><span><i class="y"></i>Solo brillante</span><span><i class="r">✕</i>No visto</span></div></div>`;}
+
+/* ---------- tarjetas de la ficha del paciente ---------- */
+let evoSel={};
+function evoCard(p,title){
+  const series=metricSeries(p);if(!series.length)return '';let k=evoSel[p.id];if(!series.find(s=>s.key===k))k=series[0].key;evoSel[p.id]=k;
+  const s=series.find(x=>x.key===k),v=s.pts,f=v[0].v,l=v[v.length-1].v,same=l===f,good=isBetter(s.b,f,l),pct=f?Math.round(Math.abs(l-f)/Math.abs(f)*100):null;
+  const best=v.map(x=>x.v).reduce((a,b)=>isBetter(s.b,a,b)?b:a);
+  return `<div class="card"><p class="h4b">${title||'Evolución'}</p><p class="sub">Medidas de los ejercicios (GiRo) y de las evaluaciones en consulta, a lo largo del tiempo.</p>
+   <select class="inp evoPick" aria-label="Medida que se muestra">${series.map(x=>`<option value="${esc(x.key)}" ${x.key===k?'selected':''}>${esc(x.n)} · ${x.src} (${x.pts.length})</option>`).join('')}</select>
+   <div class="evk"><div><span>Primera</span><b>${esc(s.f(f))}</b></div><div><span>Última</span><b>${esc(s.f(l))}</b></div><div><span>Cambio</span><b class="${v.length<2||same?'':good?'up':'down'}">${v.length<2?'—':same?'= Igual':`${good?'▲ Mejora':'▼ Empeora'}${pct!=null?' '+pct+'%':''}`}</b></div><div><span>Mejor</span><b>${esc(s.f(best))}</b></div></div>
+   ${chartSlot('time',v,{h:180,fmt:s.f,label:s.n})}
+   <details class="vtable"><summary>Ver los datos en tabla</summary><table class="xt">${v.slice().reverse().map(x=>`<tr><th>${new Date(x.t).toLocaleDateString('es')}</th><td>${esc(s.f(x.v))}</td><td>${x.src}</td></tr>`).join('')}</table></details></div>`;}
+function weekStart(t){const x=new Date(t);x.setHours(0,0,0,0);x.setDate(x.getDate()-((x.getDay()+6)%7));return +x;}
+function constancyCard(p){
+  const ss=DB.sessions.filter(s=>s.pid===p.id);if(!ss.length)return '';const m0=weekStart(Date.now()),wk=[];
+  for(let i=11;i>=0;i--){const a=m0-i*7*864e5,b=a+7*864e5,m=Math.round(ss.filter(s=>{const t=+new Date(s.date);return t>=a&&t<b;}).reduce((x,s)=>x+(s.dur||0),0)/60);wk.push({l:dShort(a),v:m,tip:`${m} min|Semana del ${new Date(a).toLocaleDateString('es',{day:'numeric',month:'long'})}`});}
+  const set=new Set(ss.map(s=>dayKey(s.date)));let cells='',n=0;
+  for(let i=27;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const on=set.has(dayKey(d));if(on)n++;cells+=`<i class="${on?'on':''}" tabindex="0" data-tip="${on?'Entrenó':'Sin entrenar'}|${d.toLocaleDateString('es',{weekday:'long',day:'numeric',month:'short'})}"></i>`;}
+  return `<div class="card"><p class="h4b">Constancia</p><p class="sub">Minutos de terapia por semana, últimas 12 semanas.</p>${chartSlot('cols',wk,{h:150,label:'Minutos por semana'})}
+   <p class="h4b" style="font-size:15px;margin:14px 0 8px">Días con práctica en los últimos 28 días: ${n}</p><div class="days28" role="img" aria-label="${n} de 28 días con práctica">${cells}</div></div>`;}
+function campoCard(p){
+  const ss=DB.sessions.filter(s=>s.pid===p.id&&s.clin&&s.clin.campo);if(!ss.length)return '';const by={};ss.forEach(s=>by[s.clin.campo.e]=s);
+  return `<div class="card"><p class="h4b">Campo visual periférico</p><p class="sub">Última prueba de cada ojo con «Mapa del campo». Orientativa: no sustituye una campimetría.</p><div class="campos">${['OD','OI','AO'].filter(e=>by[e]).map(e=>{const s=by[e],c=s.clin.campo;return `<div><b>${{AO:'Ambos ojos',OD:'Ojo derecho',OI:'Ojo izquierdo'}[e]}</b><span>${new Date(s.date).toLocaleDateString('es')} · ${c.pct}% visto</span>${campoMapSvg(c,false)}</div>`;}).join('')}</div></div>`;}
+function examCompare(a,b){
+  const rows=EXITEMS.filter(m=>a.vals[m.k]!=null||b.vals[m.k]!=null).map(m=>{const va=examVal(m,a.vals[m.k]),vb=examVal(m,b.vals[m.k]);let ch='';
+    if(va!=null&&vb!=null)ch=va===vb?'<span>= Igual</span>':isBetter(m.b,va,vb)?'<span class="up">▲ Mejora</span>':'<span class="down">▼ Empeora</span>';
+    return `<tr><th>${m.n}${m.u?` <small>(${m.u})</small>`:''}</th><td>${esc(a.vals[m.k]??'—')}</td><td>${esc(b.vals[m.k]??'—')}</td><td>${ch}</td></tr>`;}).join('');
+  return `<div class="tscroll"><table class="xt cmp"><tr><th>Medida</th><th>${fdate(a.d)}</th><th>${fdate(b.d)}</th><th>Cambio</th></tr>${rows}</table></div>`;}
+function examCard(p){
+  const ex=(p.exams||[]).slice().reverse(),ico=d=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="${d}"/></svg>`;
+  return `<div class="card"><div class="ph"><p class="h4b" style="margin:0">Historia clínica</p><button class="btn btn-main btn-sm" data-c="exam">+ Evaluación</button></div>
+   <p class="sub">Medidas tomadas en consulta. Aparecen en las gráficas de evolución, en las alertas del panel y en el informe.</p>
+   ${ex.length>=2?`<p class="h4b" style="font-size:15px;margin:12px 0 6px">Comparación con la evaluación anterior</p>${examCompare(ex[1],ex[0])}`:''}
+   <div>${ex.map(x=>{const keys=Object.keys(x.vals);return `<div class="xrow"><div class="t"><b>${fdate(x.d)}</b><span>${keys.length} ${keys.length===1?'medida':'medidas'}${x.by?' · '+esc(x.by):''}</span><span class="xchips">${keys.slice(0,4).map(k=>{const m=EXITEMS.find(q=>q.k===k);return `<i>${esc(m?m.n:k)}: ${esc(x.vals[k])}${m&&m.u&&m.t!=='av'?(m.u==='″'?'″':' '+m.u):''}</i>`;}).join('')}${keys.length>4?`<i>+${keys.length-4}</i>`:''}</span></div>
+     <button class="ib" data-c="exedit" data-x="${x.id}" aria-label="Editar evaluación">${ico('M4 20h4L19 9l-4-4L4 16v4z')}</button><button class="ib" data-c="exdel" data-x="${x.id}" aria-label="Eliminar evaluación">${ico('M6 6l12 12M18 6L6 18')}</button></div>`;}).join('')||'<p class="sub" style="margin:8px 0 0">Aún no hay evaluaciones. Registra la primera para comparar la evolución en consulta.</p>'}</div></div>`;}
+let EXF=null;
+function openExam(id){
+  const p=P(),ex=id?(p.exams||[]).find(x=>x.id===id):null,v=ex?ex.vals:{};EXF={id:ex?ex.id:null};
+  openSheet(`<h2 style="text-align:center">${ex?'Editar evaluación':'Nueva evaluación clínica'}</h2><p class="sub" style="text-align:center">${esc(showName(p,true))}. Rellena solo lo que hayas medido.</p>
+   <section class="fsec"><h3>Datos de la consulta</h3><div class="grid2"><div class="field"><label for="x_d">Fecha</label><input class="inp" type="date" id="x_d" value="${ex?ex.d:new Date().toISOString().slice(0,10)}"></div><div class="field"><label for="x_by">Profesional</label><input class="inp" id="x_by" value="${esc(ex?ex.by:DB.cfg.proName||'')}" placeholder="Opcional"></div></div></section>
+   ${EXAM.map(g=>`<section class="fsec"><h3>${g.g}</h3><div class="grid2">${g.items.map(m=>`<div class="field"><label for="x_${m.k}">${m.n}${m.u?` (${m.u})`:''}</label><input class="inp" id="x_${m.k}" data-ex="${m.k}" inputmode="${m.t==='av'||m.neg?'text':'decimal'}" autocomplete="off" placeholder="${m.ph||''}" value="${esc(v[m.k]??'')}"></div>`).join('')}</div></section>`).join('')}
+   <section class="fsec"><h3>Observaciones</h3><div class="field"><label class="vh" for="x_note">Observaciones</label><textarea class="inp" id="x_note" placeholder="Cover test, motilidad, síntomas, prescripción…">${esc(ex?ex.note:'')}</textarea></div></section>
+   <div class="cf-btns"><button class="btn btn-soft" id="sheetX">Cancelar</button><button class="btn btn-main" id="examSave">Guardar evaluación</button></div>`);}
+$('#sheetBody').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b||b.id!=='examSave')return;
+  const p=P(),vals={},bad=[];document.querySelectorAll('#sheetBody [data-ex]').forEach(i=>{const t=i.value.trim();if(!t)return;const m=EXITEMS.find(q=>q.k===i.dataset.ex);if(examVal(m,t)==null)bad.push(m.n);vals[i.dataset.ex]=t;});
+  if(bad.length){toast(`Revisa: ${bad.slice(0,2).join(', ')}${bad.length>2?'…':''}`);return;}
+  const note=$('#x_note').value.trim();if(!Object.keys(vals).length&&!note){toast('Escribe al menos una medida');return;}
+  const rec={id:EXF&&EXF.id||uid(),d:$('#x_d').value||new Date().toISOString().slice(0,10),by:$('#x_by').value.trim(),vals,note};
+  p.exams=p.exams||[];const i=p.exams.findIndex(x=>x.id===rec.id);if(i>=0)p.exams[i]=rec;else p.exams.push(rec);p.exams.sort((a,b)=>a.d.localeCompare(b.d));
+  save();closeSheet();renderAll();toast('Evaluación guardada');
+});
+document.addEventListener('change',e=>{if(e.target.classList&&e.target.classList.contains('evoPick')){evoSel[P().id]=e.target.value;renderPats();renderProgress();}});
+
+/* ---------- panel del especialista ---------- */
+let panR=30,panSort='alert',panDir=1;
+function panelAlerts(pats){
+  const out=[],now=Date.now(),D=864e5;
+  for(const p of pats){
+    const mine=DB.sessions.filter(s=>s.pid===p.id),l=mine[mine.length-1],days=l?Math.floor((now-new Date(l.date))/D):null;
+    if(p.plan&&p.plan.length){if(days==null){if(p.created&&now-p.created>3*D)out.push({sev:'warn',p,t:'Aún no ha empezado su plan',d:`Registrado hace ${Math.floor((now-p.created)/D)} días`});}
+      else if(days>=7)out.push({sev:days>=14?'crit':'warn',p,t:`Sin entrenar desde hace ${days} días`,d:`Última sesión: ${G(l.g)?G(l.g).name:l.g}`});}
+    for(const s of metricSeries(p)){const v=s.pts;if(v.length<2)continue;const a=v[v.length-2].v,b=v[v.length-1].v,rel=Math.abs(b-a)/Math.max(Math.abs(a),1e-9);
+      if(isBetter(s.b,b,a)&&rel>=.15&&now-v[v.length-1].t<45*D){out.push({sev:'warn',p,t:`Empeora: ${s.n}`,d:`${s.f(a)} → ${s.f(b)} (${s.src})`});break;}}
+    const w=mine.filter(s=>s.clin&&s.clin.worth).slice(-1)[0];if(w&&w.clin.worth!=='Fusión'&&now-new Date(w.date)<60*D)out.push({sev:'crit',p,t:'Prueba de Worth sin fusión',d:String(w.clin.worth).slice(0,110)});
+    const sp=mine.filter(s=>s.clin&&s.clin.supp).slice(-1)[0];if(sp&&Math.abs(sp.clin.supp.L-sp.clin.supp.R)>=25&&now-new Date(sp.date)<60*D)out.push({sev:'warn',p,t:'Posible supresión',d:`Letras encontradas: ojo izquierdo ${sp.clin.supp.L}%, ojo derecho ${sp.clin.supp.R}%`});
+    const l5=mine.slice(-5);if(l5.length===5&&l5.reduce((a,s)=>a+(s.stars||0),0)/5<1)out.push({sev:'info',p,t:'Le está costando',d:'Menos de 1 estrella de media en sus 5 últimas sesiones: valora bajar el nivel.'});
+    const le=(p.exams||[]).slice(-1)[0];if(mine.length>=10&&(!le||now-new Date(le.d+'T12:00')>60*D))out.push({sev:'info',p,t:'Toca revaluación clínica',d:le?`Última evaluación: ${fdate(le.d)}`:'Sin evaluaciones en consulta'});
+  }
+  const lb=DB.cfg.lastBackup;if(!lb||now-lb>14*D)out.push({sev:'warn',t:'Haz una copia de seguridad',d:lb?`Última copia: ${fdate(new Date(lb).toISOString().slice(0,10))}`:'Aún no hay ninguna copia de seguridad',act:'backup'});
+  const rk={crit:0,warn:1,info:2};return out.sort((a,b)=>rk[a.sev]-rk[b.sev]);}
+const SEV={crit:['!','Urgente'],warn:['▲','Atención'],info:['i','Aviso']};
+function renderPanel(){
+  const el=$('#panel');if(!el)return;
+  const now=Date.now(),D=864e5,from=now-panR*D,prev=from-panR*D,pats=DB.patients.filter(p=>!p.archived&&!(isPlaceholder(p)&&!DB.sessions.some(s=>s.pid===p.id))),ids=new Set(pats.map(p=>p.id));
+  const ss=DB.sessions.filter(s=>ids.has(s.pid)),inR=ss.filter(s=>+new Date(s.date)>=from),inP=ss.filter(s=>{const t=+new Date(s.date);return t>=prev&&t<from;});
+  const mins=a=>a.reduce((x,s)=>x+(s.dur||0),0)/60,dl=(a,b)=>b?Math.round((a-b)/b*100):null,act=new Set(inR.map(s=>s.pid)).size;
+  const wp=pats.filter(p=>p.plan&&p.plan.length),adh=wp.length?Math.round(wp.reduce((a,p)=>a+adherence(p.id),0)/wp.length):0;
+  const kd=d=>d==null?'<span class="kd">Sin periodo anterior</span>':`<span class="kd ${d>0?'up':d<0?'down':''}">${d>0?'▲':d<0?'▼':'='} ${Math.abs(d)}% frente al periodo anterior</span>`;
+  const tiles=[[act,'Pacientes activos',`<span class="kd">de ${pats.length} en tratamiento</span>`],[inR.length,'Sesiones',kd(dl(inR.length,inP.length))],[fnum(mins(inR)/60),'Horas de terapia',kd(dl(mins(inR),mins(inP)))],[adh+'%','Adherencia media',`<span class="kd">${wp.length} con plan, últimos 14 días</span>`]];
+  const alerts=panelAlerts(pats),alertIds=new Set(alerts.filter(a=>a.p).map(a=>a.p.id));
+  // sesiones por día o por semana
+  let cols=[];if(panR<=30){for(let i=panR-1;i>=0;i--){const d=new Date(now-i*D),k=dayKey(d),n=inR.filter(s=>dayKey(s.date)===k).length;cols.push({l:dShort(d),v:n,tip:`${n} ${n===1?'sesión':'sesiones'}|${d.toLocaleDateString('es',{weekday:'long',day:'numeric',month:'long'})}`});}}
+  else{const w0=weekStart(now);for(let i=12;i>=0;i--){const a=w0-i*7*D,b=a+7*D,n=inR.filter(s=>{const t=+new Date(s.date);return t>=a&&t<b;}).length;cols.push({l:dShort(a),v:n,tip:`${n} ${n===1?'sesión':'sesiones'}|Semana del ${new Date(a).toLocaleDateString('es',{day:'numeric',month:'long'})}`});}}
+  const byDiag={};pats.forEach(p=>{const k=p.diag||'Sin diagnóstico';byDiag[k]=(byDiag[k]||0)+1;});
+  const diag=Object.entries(byDiag).sort((a,b)=>b[1]-a[1]).map(([l,v])=>({l,v,vs:`${v}`}));
+  const area=CATS.map(c=>{const m=Math.round(mins(inR.filter(s=>G(s.g)&&G(s.g).cat===c.id)));return {l:c.name,v:m,vs:`${m} min`};}).filter(x=>x.v>0).sort((a,b)=>b.v-a.v);
+  const cnt={};inR.forEach(s=>cnt[s.g]=(cnt[s.g]||0)+1);const top=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,6).map(([g,v])=>({l:G(g)?G(g).name:g,v,vs:`${v}`}));
+  // tabla de pacientes
+  const rows=pats.map(p=>{const all=DB.sessions.filter(s=>s.pid===p.id),l=all[all.length-1],avg=x=>x.length?x.reduce((q,s)=>q+(s.stars||0),0)/x.length:null,ta=avg(all.slice(-5)),tb=avg(all.slice(-10,-5));
+    return {p,name:showName(p,true),diag:p.diag||'',last:l?+new Date(l.date):0,n:inR.filter(s=>s.pid===p.id).length,adh:adherence(p.id),tr:ta!=null&&tb!=null&&all.length>=10?(ta-tb>=.4?1:tb-ta>=.4?-1:0):null,al:alertIds.has(p.id)?1:0};});
+  const key={alert:r=>-r.al*1e13-r.last,name:r=>r.name.toLowerCase(),diag:r=>r.diag.toLowerCase()||'~',last:r=>-r.last,n:r=>-r.n,adh:r=>-r.adh,tr:r=>-(r.tr??-2)}[panSort]||(r=>-r.last);
+  rows.sort((a,b)=>{const x=key(a),y=key(b);return (x<y?-1:x>y?1:0)*panDir;});
+  const th=(k,l,cl)=>`<th class="${cl||''}" aria-sort="${panSort===k?(panDir>0?'ascending':'descending'):'none'}"><button data-psort="${k}">${l}${panSort===k?(panDir>0?' ↓':' ↑'):''}</button></th>`;
+  const trTxt=t=>t==null?'<span class="tr0">—</span>':t>0?'<span class="up">▲ Mejora</span>':t<0?'<span class="down">▼ Baja</span>':'<span class="tr0">= Estable</span>';
+  const feed=ss.slice(-8).reverse().map(s=>{const p=DB.patients.find(x=>x.id===s.pid),g=G(s.g);if(!p)return '';return `<button class="feed" data-pv="${p.id}">${avatarSvg(p,34)}<span class="t"><b>${esc(showName(p,true))}</b><span>${g?g.name:s.g} · ${starsRow(s.stars||0)} ${fmt(s.score,s.unit)}</span></span><span class="end">${ago(s.date)}</span></button>`;}).join('');
+  el.innerHTML=`<div class="ph"><h1 class="viewh" style="margin:0">Panel clínico</h1><div class="pexp"><button class="btn btn-soft btn-sm" data-c="clinicCsv">CSV</button><button class="btn btn-soft btn-sm" data-c="clinicReport">Informe</button></div></div>
+   <p class="sub" style="margin:2px 0 14px">${esc(DB.cfg.opticName||'Tu consulta')} · ${new Date().toLocaleDateString('es',{weekday:'long',day:'numeric',month:'long'})}</p>
+   <div class="seg rng" data-n="3" role="group" aria-label="Periodo">${[[7,'7 días'],[30,'30 días'],[90,'90 días']].map(([v,l])=>`<button data-panr="${v}" aria-pressed="${panR===v}">${l}</button>`).join('')}</div>
+   <div class="kpi4">${tiles.map(([v,l,d])=>`<div class="ktile"><span class="kl">${l}</span><b>${v}</b>${d}</div>`).join('')}</div>
+   <div class="card"><div class="ph"><p class="h4b" style="margin:0">Necesitan atención</p><span class="cnt">${alerts.length}</span></div>
+    ${alerts.length?`<div class="alerts">${alerts.slice(0,8).map(a=>`<button class="alert ${a.sev}" ${a.act?`data-c="${a.act}"`:`data-pv="${a.p.id}"`}><span class="sv" aria-hidden="true">${SEV[a.sev][0]}</span><span class="t"><b>${a.p?esc(showName(a.p,true))+': ':''}${esc(a.t)}</b><span>${SEV[a.sev][1]} · ${esc(a.d)}</span></span><span class="go" aria-hidden="true">›</span></button>`).join('')}</div>${alerts.length>8?`<details class="more"><summary>Ver ${alerts.length-8} más</summary><div class="alerts">${alerts.slice(8).map(a=>`<button class="alert ${a.sev}" ${a.act?`data-c="${a.act}"`:`data-pv="${a.p.id}"`}><span class="sv" aria-hidden="true">${SEV[a.sev][0]}</span><span class="t"><b>${a.p?esc(showName(a.p,true))+': ':''}${esc(a.t)}</b><span>${SEV[a.sev][1]} · ${esc(a.d)}</span></span><span class="go" aria-hidden="true">›</span></button>`).join('')}</div></details>`:''}`:'<p class="sub" style="margin:6px 0 0">Todo en orden: ningún paciente necesita atención ahora.</p>'}</div>
+   <div class="pgrid2">
+    <div class="card"><p class="h4b">${panR<=30?'Sesiones por día':'Sesiones por semana'}</p><p class="sub">Toda la consulta, últimos ${panR} días.</p>${chartSlot('cols',cols,{h:160,label:'Sesiones'})}</div>
+    <div class="card"><p class="h4b">Pacientes por diagnóstico</p><p class="sub">Pacientes en tratamiento.</p>${hbars(diag,'pacientes')}</div>
+    <div class="card"><p class="h4b">Tiempo por área de terapia</p><p class="sub">Minutos en el periodo.</p>${hbars(area)}</div>
+    <div class="card"><p class="h4b">Ejercicios más usados</p><p class="sub">Sesiones en el periodo.</p>${hbars(top,'sesiones')}</div></div>
+   <div class="card"><p class="h4b">Pacientes</p><p class="sub">Toca una fila para abrir la ficha. Toca una columna para ordenar.</p>
+    ${rows.length?`<div class="tscroll"><table class="ptab"><thead><tr>${th('name','Paciente')}${th('diag','Diagnóstico')}${th('last','Última sesión')}${th('n','Sesiones','num')}${th('adh','Adherencia 14 d')}${th('tr','Tendencia')}</tr></thead><tbody>
+     ${rows.map(r=>`<tr data-pv="${r.p.id}" tabindex="0"><td><span class="pcell">${avatarSvg(r.p,30)}<b>${esc(r.name)}</b>${r.al?'<span class="adot" title="Necesita atención" aria-label="Necesita atención">!</span>':''}</span></td><td>${esc(r.diag)||'—'}</td><td>${r.last?ago(r.last):'Sin sesiones'}</td><td class="num">${r.n}</td><td><span class="adh2"><i style="width:${r.adh}%"></i></span><span class="num">${r.adh}%</span></td><td>${trTxt(r.tr)}</td></tr>`).join('')}</tbody></table></div>`:'<p class="sub">Aún no hay pacientes registrados.</p>'}</div>
+   ${feed?`<div class="card"><p class="h4b">Actividad reciente</p><div class="feeds">${feed}</div></div>`:''}`;
+  requestAnimationFrame(()=>drawCharts(el));
+}
+function openPatient(id){if(!DB.patients.find(p=>p.id===id))return;patView=id;DB.active=id;save();renderAll();goTab('pats');}
+$('#panel').addEventListener('click',e=>{
+  const b=e.target.closest('[data-panr],[data-psort],[data-pv],[data-c]');if(!b)return;
+  if(b.dataset.panr){panR=+b.dataset.panr;renderPanel();return;}
+  if(b.dataset.psort){const k=b.dataset.psort;if(panSort===k)panDir=-panDir;else{panSort=k;panDir=1;}renderPanel();return;}
+  if(b.dataset.pv){openPatient(b.dataset.pv);return;}
+  if(b.dataset.c==='backup')doBackup();
+  else if(b.dataset.c==='clinicCsv')saveFile(`giro-consulta-${new Date().toISOString().slice(0,10)}.csv`,csvClinic());
+  else if(b.dataset.c==='clinicReport')saveFile(`giro-informe-consulta-${new Date().toISOString().slice(0,10)}.html`,clinicReportHtml());
+});
+$('#panel').addEventListener('keydown',e=>{if(e.key==='Enter'){const r=e.target.closest('tr[data-pv]');if(r)openPatient(r.dataset.pv);}});
+function doBackup(){DB.cfg.lastBackup=Date.now();save();saveFile(`giro-copia-${new Date().toISOString().slice(0,10)}.json`,JSON.stringify(DB,null,1));renderPanel();}
+
+/* ---------- exportaciones ---------- */
+const csvRow=r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',');
+function csvClinic(){
+  const out=[csvRow(['fecha','paciente','diagnostico','ejercicio','terapia','nivel_inicio','nivel_fin','duracion_s','puntuacion','unidad','precision_%','estrellas','medidas'])];
+  DB.sessions.forEach(s=>{const p=DB.patients.find(x=>x.id===s.pid),g=G(s.g);out.push(csvRow([s.date,p?showName(p,true):'',p?p.diag:'',g?g.name:s.g,g?g.ther:'',s.lv,s.lvEnd,s.dur,s.score,s.unit,s.acc,s.stars,JSON.stringify(s.clin||{})]));});
+  out.push('',csvRow(['fecha_evaluacion','paciente','profesional',...EXITEMS.map(m=>m.n+(m.u?` (${m.u})`:'')),'observaciones']));
+  DB.patients.forEach(p=>(p.exams||[]).forEach(x=>out.push(csvRow([x.d,showName(p,true),x.by,...EXITEMS.map(m=>x.vals[m.k]??''),x.note]))));
+  return out.join('\n');}
+const REPORT_VIZ_CSS='.chart{margin:6px 0 14px}.vz-grid{stroke:#e1e0d9;stroke-width:1}.vz-base{stroke:#c3c2b7}.vz-tick{fill:#898781;font-size:11px}.vz-line{fill:none;stroke:#2a78d6;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}.vz-area{fill:#2a78d6;opacity:.1}.vz-dot{fill:#2a78d6;stroke:#fff;stroke-width:2}.vz-hit{fill:transparent}.vz-bar{fill:#2a78d6}.vz-lab{fill:#0F1B2E;font-size:12px;font-weight:700}.up{color:#006300;font-weight:700}.down{color:#d03b3b;font-weight:700}.campo-w{display:inline-block;width:300px;margin:0 16px 12px 0;vertical-align:top}.campo{width:100%;height:auto}.campo-lg{display:flex;gap:12px;font-size:12px;color:#56657C}.campo-lg i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:-1px;font-style:normal}.campo-lg i.g{background:#0ca30c}.campo-lg i.y{border:2px solid #fab219;width:6px;height:6px}.campo-lg i.r{color:#d03b3b;width:auto;height:auto;font-weight:700}.noprint{margin:0 0 18px;padding:10px 16px;border-radius:10px;border:0;background:#0F1B2E;color:#fff;font-weight:700;cursor:pointer}@media print{.noprint{display:none}h2{break-after:avoid}.chart,table{break-inside:avoid}}';
+function reportExtras(p){
+  const ex=p.exams||[],series=metricSeries(p).filter(s=>s.pts.length>=2);let h='';
+  if(ex.length){const last=ex.slice(-6),used=EXITEMS.filter(m=>last.some(x=>x.vals[m.k]!=null));
+    h+=`<h2>Evaluaciones en consulta</h2><table><tr><th>Medida</th>${last.map(x=>`<th>${fdate(x.d)}</th>`).join('')}</tr>${used.map(m=>`<tr><th>${m.n}${m.u?` (${m.u})`:''}</th>${last.map(x=>`<td>${esc(x.vals[m.k]??'—')}</td>`).join('')}</tr>`).join('')}</table>
+     ${last.some(x=>x.note)?`<table>${last.filter(x=>x.note).map(x=>`<tr><th style="width:170px">${fdate(x.d)}</th><td style="white-space:pre-wrap">${esc(x.note)}</td></tr>`).join('')}</table>`:''}`;
+    if(ex.length>=2)h+=`<p class="m" style="margin:10px 0 4px">Comparación entre las dos últimas evaluaciones:</p>${examCompare(ex[ex.length-2],ex[ex.length-1]).replace(/<div class="tscroll">|<\/div>$/g,'')}`;}
+  if(series.length)h+=`<h2>Gráficas de evolución</h2>${series.map(s=>{const v=s.pts,good=isBetter(s.b,v[0].v,v[v.length-1].v),same=v[0].v===v[v.length-1].v;return `<h3 style="font-size:15px;margin:14px 0 2px">${esc(s.n)} <span class="m" style="font-weight:400">· ${s.src} · ${esc(s.f(v[0].v))} → ${esc(s.f(v[v.length-1].v))} ${same?'(igual)':good?'<span class="up">▲ mejora</span>':'<span class="down">▼ empeora</span>'}</span></h3><div class="chart">${svgTime(v,{w:760,h:170,fmt:s.f,label:s.n})}</div>`;}).join('')}`;
+  const cs=DB.sessions.filter(s=>s.pid===p.id&&s.clin&&s.clin.campo),by={};cs.forEach(s=>by[s.clin.campo.e]=s);
+  if(cs.length)h+=`<h2>Campo visual periférico (orientativo)</h2>${['OD','OI','AO'].filter(e=>by[e]).map(e=>`<div class="campo-w"><b>${{AO:'Ambos ojos',OD:'Ojo derecho',OI:'Ojo izquierdo'}[e]}</b> <span class="m">${new Date(by[e].date).toLocaleDateString('es')} · ${by[e].clin.campo.pct}% visto</span>${campoMapSvg(by[e].clin.campo,false).replace(/^<div class="campo-w">|<\/div>$/g,'')}</div>`).join('')}`;
+  return h;}
+function clinicReportHtml(){
+  const pats=DB.patients.filter(p=>!p.archived),now=Date.now(),from=now-30*864e5,inR=DB.sessions.filter(s=>+new Date(s.date)>=from),alerts=panelAlerts(pats);
+  const rows=pats.map(p=>{const l=lastSess(p.id);return `<tr><td>${esc(showName(p,true))}</td><td>${esc(p.diag)||'—'}</td><td>${l?new Date(l.date).toLocaleDateString('es'):'—'}</td><td>${inR.filter(s=>s.pid===p.id).length}</td><td>${adherence(p.id)}%</td><td>${(p.exams||[]).length}</td></tr>`;}).join('');
+  return `<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Informe de la consulta</title><style>body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:#0F1B2E;max-width:900px;margin:32px auto;padding:0 20px;line-height:1.45}h1{margin:0;font-size:26px}h2{font-size:18px;margin:28px 0 8px;border-bottom:2px solid #13B5D6;padding-bottom:4px}.m{color:#56657C}table{width:100%;border-collapse:collapse;font-size:14px}td,th{text-align:left;padding:6px 8px;border-bottom:1px solid #D6DDE7}th{background:#F1F4F8}.k{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.k div{background:#F1F4F8;border-radius:10px;padding:10px}.k b{display:block;font-size:22px}${REPORT_VIZ_CSS}</style></head><body>
+<button class="noprint" onclick="print()">Imprimir o guardar en PDF</button>
+<h1>Informe de la consulta</h1><div class="m">${esc(DB.cfg.opticName||'')}${DB.cfg.proName?' · '+esc(DB.cfg.proName):''} · ${new Date().toLocaleString('es')}</div>
+<h2>Últimos 30 días</h2><div class="k"><div><b>${pats.length}</b>pacientes en tratamiento</div><div><b>${new Set(inR.map(s=>s.pid)).size}</b>pacientes activos</div><div><b>${inR.length}</b>sesiones</div><div><b>${fnum(inR.reduce((a,s)=>a+(s.dur||0),0)/3600)}</b>horas de terapia</div></div>
+<h2>Necesitan atención</h2>${alerts.length?`<table>${alerts.map(a=>`<tr><th style="width:110px">${SEV[a.sev][1]}</th><td><b>${a.p?esc(showName(a.p,true))+': ':''}${esc(a.t)}</b><br><span class="m">${esc(a.d)}</span></td></tr>`).join('')}</table>`:'<p class="m">Ningún aviso.</p>'}
+<h2>Pacientes</h2><table><tr><th>Paciente</th><th>Diagnóstico</th><th>Última sesión</th><th>Sesiones (30 días)</th><th>Adherencia 14 días</th><th>Evaluaciones</th></tr>${rows}</table>
+<p class="m" style="margin-top:28px">Generado con GiRo (GR Software TC). Herramienta de entrenamiento complementaria; los resultados deben interpretarse por un profesional de la visión.</p></body></html>`;}
+
+/* ---------- base de datos local: IndexedDB ---------- */
+function normDB(d){
+  d.cfg=Object.assign({pxPerCm:37.8,calibrated:false,distCm:40,sound:true,haptics:true,theme:'system',ambient:true,breaks:true,voice:false,opticName:'',proName:'',pin:'1234',idleMin:5,setupDone:false},d.cfg||{});
+  d.sessions=Array.isArray(d.sessions)?d.sessions:[];d.best=d.best||{};d.last=d.last||{};d.patients=(d.patients||[]).map(pfix);
+  if(!d.patients.find(p=>p.id===d.active))d.active=d.patients[0]&&d.patients[0].id;return d;}
+(async()=>{
+  if(!idbOk)return;
+  try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
+    const v=await IDB.get(KEY);
+    if(v&&Array.isArray(v.patients)&&v.patients.length&&(v.savedAt||0)>(DB.savedAt||0)){DB=normDB(v);pruneGuest();applyTheme();renderAll();if(!$('#welcome').hidden)renderWelcome();}
+    else flushIDB();
+  }catch(e){idbOk=false;}
+})();
+async function storageInfo(){
+  const el=$('#stoInfo');if(!el)return;const ex=DB.patients.reduce((a,p)=>a+(p.exams||[]).length,0);let used='';
+  try{if(navigator.storage&&navigator.storage.estimate){const e=await navigator.storage.estimate();used=` Espacio usado: ${fnum((e.usage||0)/1048576)} MB de ${fnum((e.quota||0)/1073741824)} GB disponibles.`;}}catch(e){}
+  const lb=DB.cfg.lastBackup;
+  el.textContent=`${idbOk?'Base de datos local (IndexedDB) activa':'Guardado en el navegador (sin IndexedDB)'}: ${DB.patients.length} pacientes, ${DB.sessions.length} sesiones y ${ex} evaluaciones.${used} Última copia de seguridad: ${lb?fdate(new Date(lb).toISOString().slice(0,10)):'ninguna'}.`;}
 
 /* ================= arranque ================= */
 updateRole();renderAll();goTab('home');runSplash();
