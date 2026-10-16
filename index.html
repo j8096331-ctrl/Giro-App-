@@ -623,7 +623,7 @@ const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v)
 const defaultPlan=()=>[{g:'luces',lv:3,dur:60,opt:{}},{g:'seguimiento',lv:3,dur:60,opt:{}},{g:'sacadicos',lv:3,dur:60,opt:{}},{g:'discriminacion',lv:3,dur:60,opt:{}}];
 function newPatient(name){return {id:uid(),name,age:'',notes:'',redEye:'left',trainEye:'none',balance:100,color:pick(AVC),plan:defaultPlan(),created:Date.now()};}
 let DB=store.get(KEY,null);
-if(!DB||!Array.isArray(DB.patients)||!DB.patients.length){const p=newPatient('Yo');DB={patients:[p],active:p.id,sessions:[],best:{},last:{},cfg:{}};}
+if(!DB||!Array.isArray(DB.patients)||!DB.patients.length){const p=newPatient('Yo');p.placeholder=true;DB={patients:[p],active:p.id,sessions:[],best:{},last:{},cfg:{}};}
 DB.cfg=Object.assign({pxPerCm:37.8,calibrated:false,distCm:40,sound:true,haptics:true,theme:'system',ambient:true,breaks:true,voice:false},DB.cfg||{});
 DB.sessions=DB.sessions||[];DB.best=DB.best||{};DB.last=DB.last||{};
 if(!DB.patients.find(p=>p.id===DB.active))DB.active=DB.patients[0].id;
@@ -2029,7 +2029,7 @@ $('#sheetBody').addEventListener('click',e=>{
   if(b.dataset.pickGame){openConfig(b.dataset.pickGame,'planAdd');return;}
   if(b.dataset.patient){DB.active=b.dataset.patient;save();closeSheet();renderAll();toast(`Paciente: ${P().name}`);return;}
   if(b.id==='newPat'){const inp=$('#newPatName'),n=inp.value.trim();if(!n){inp.focus();return;}const p=newPatient(n);DB.patients.push(p);DB.active=p.id;save();closeSheet();renderAll();toast(`Paciente creado: ${n}`);return;}
-  if(b.id==='patSave'){const p=P();p.name=$('#pName').value.trim()||p.name;p.age=$('#pAge').value.trim();p.notes=$('#pNotes').value;save();closeSheet();renderAll();toast('Datos guardados');return;}
+  if(b.id==='patSave'){const p=P(),nn=$('#pName').value.trim();if(nn&&nn!==p.name)p.placeholder=false;p.name=nn||p.name;p.age=$('#pAge').value.trim();p.notes=$('#pNotes').value;save();closeSheet();renderAll();toast('Datos guardados');return;}
   if(b.id==='patDel'){if(DB.patients.length<2){toast('Debe quedar al menos un paciente');return;}if(!confirm(`¿Eliminar a ${P().name} y todo su historial?`))return;const id=DB.active;DB.patients=DB.patients.filter(p=>p.id!==id);DB.sessions=DB.sessions.filter(s=>s.pid!==id);delete DB.best[id];delete DB.last[id];DB.active=DB.patients[0].id;save();closeSheet();renderAll();return;}
   if(b.id==='sheetX'){closeSheet();}
 });
@@ -2246,7 +2246,7 @@ function achCard(){const got=achGot(),L=lvlOf(playerXP()),C2=2*Math.PI*32,n=Obje
    <div class="ach">${ACH.map(a=>`<div title="${a.desc}">${medal(a,!!got[a.id])}<b>${a.name}</b><span>${a.desc}</span></div>`).join('')}</div></div>`;}
 function renderHome(){
   const p=P(),ss=mySessions(),h=new Date().getHours(),st=streak(),done=planDone(),nd=done.filter(Boolean).length;
-  $('#hello').textContent=`${h<12?'Buenos días':h<20?'Buenas tardes':'Buenas noches'}, ${p.name}`;
+  const gn=greetName(p,true);$('#hello').textContent=`${h<12?'Buenos días':h<20?'Buenas tardes':'Buenas noches'}${gn?`, ${gn}`:''}`;
   const mins=Math.round(p.plan.reduce((a,it)=>a+(isUntimed(G(it.g),it.opt)?90:it.dur),0)/60);
   $('#planSum').textContent=p.plan.length?(nd===p.plan.length?'Plan de hoy completado. Puedes repetirlo o jugar libre.':`${p.plan.length} ejercicios, unos ${mins} minutos. Llevas ${nd} de ${p.plan.length}.`):'Aún no hay plan. Créalo en Clínica.';
   $('#planDots').innerHTML=p.plan.map((_,i)=>`<i class="${done[i]?'done':''}"></i>`).join('');
@@ -2325,6 +2325,9 @@ DB.patients=DB.patients.map(pfix);
 DB.cfg=Object.assign({opticName:'',proName:'',pin:'1234',idleMin:5,setupDone:false},DB.cfg);
 function ageOf(p){if(p.birth){const b=new Date(p.birth+'T12:00');if(!isNaN(b)){const n=new Date();let a=n.getFullYear()-b.getFullYear();if(n.getMonth()<b.getMonth()||(n.getMonth()===b.getMonth()&&n.getDate()<b.getDate()))a--;return a;}}return p.age||'';}
 const firstName=n=>(n||'').trim().split(/\s+/)[0]||'';
+/* el paciente «Yo» se crea solo cuando no hay ninguno registrado: no es un nombre real y no se usa en los saludos */
+const isPlaceholder=p=>!!p&&(p.placeholder===true||(p.placeholder==null&&String(p.name||'').trim()==='Yo'));
+const greetName=(p,full)=>isPlaceholder(p)?'':full?String(p.name||'').trim():firstName(p.name);
 let avN=0;
 function avatarSvg(p,size){avN++;const id='avg'+avN;let h=0;for(const ch of String(p.id))h=(h*31+ch.charCodeAt(0))>>>0;const a=(h%360)*Math.PI/180,dx=Math.cos(a)*4.5,dy=Math.sin(a)*3.5;
   return `<svg viewBox="0 0 40 40" width="${size}" height="${size}" aria-hidden="true"><defs><radialGradient id="${id}" cx=".36" cy=".3" r=".8"><stop offset="0" stop-color="#fff"/><stop offset=".65" stop-color="#EAF0F6"/><stop offset="1" stop-color="#AFC0D4"/></radialGradient></defs><circle cx="20" cy="20" r="18.5" fill="url(#${id})"/><circle cx="${20+dx}" cy="${20+dy}" r="9" fill="${p.color}"/><circle cx="${20+dx}" cy="${20+dy}" r="9" fill="none" stroke="rgba(0,0,0,.22)" stroke-width="1.2"/><circle cx="${20+dx}" cy="${20+dy}" r="4.2" fill="#0B1424"/><circle cx="${17.6+dx}" cy="${17.2+dy}" r="1.8" fill="#fff"/></svg>`;}
@@ -2417,7 +2420,7 @@ $('#sheetBody').addEventListener('click',e=>{
   if(b.dataset.col){FICHA_COL=b.dataset.col;document.querySelectorAll('.sw2').forEach(x=>x.setAttribute('aria-pressed',x.dataset.col===FICHA_COL));return;}
   if(b.id==='fichaSave'){
     const name=$('#f_name').value.trim();if(!name){$('#f_name').focus();toast('Escribe el nombre del paciente');return;}
-    const p=FICHA_NEW?pfix(newPatient(name)):P();
+    const p=FICHA_NEW?pfix(newPatient(name)):P();p.placeholder=false;
     Object.assign(p,{name,birth:$('#f_birth').value,tutor:$('#f_tutor').value.trim(),phone:$('#f_phone').value.trim(),email:$('#f_email').value.trim(),diag:$('#f_diag').value,ambEye:$('#f_amb').value,domEye:$('#f_dom').value,avOD:$('#f_avod').value.trim(),avOI:$('#f_avoi').value.trim(),rt:+$('#f_rt').value||0,ex:+$('#f_ex').value||0,notes:$('#f_notes').value,color:FICHA_COL});
     if(p.ambEye==='Derecho'&&p.trainEye==='none')p.trainEye='right';if(p.ambEye==='Izquierdo'&&p.trainEye==='none')p.trainEye='left';
     if(FICHA_NEW){DB.patients.push(p);}DB.active=p.id;patView=p.id;save();closeSheet();renderAll();toast(FICHA_NEW?`${firstName(name)} registrado`:'Ficha guardada');
@@ -2693,8 +2696,8 @@ function irisStop(){}
 /* ================= kiosco: inicio, bienvenida y PIN ================= */
 let role='patient',welGi=null,pinGi=null,lastAct=Date.now(),welSaid='';
 function updateRole(){document.body.classList.toggle('pro',role==='pro');$('#proBadge').hidden=role!=='pro';}
-function heroSay(){const p=P(),done=planDone(),nd=done.filter(Boolean).length,n=p.plan.length,fn=firstName(p.name);
-  const msg=!n?`¡Hola, ${fn}! Elige un ejercicio para empezar.`:nd===0?`¡Hola, ${fn}! Hoy tienes ${n} ejercicios. ¿Empezamos?`:nd<n?`¡Vas genial! Te ${n-nd===1?'falta 1 ejercicio':`faltan ${n-nd} ejercicios`}.`:'¡Plan completado! Eres una estrella.';
+function heroSay(){const p=P(),done=planDone(),nd=done.filter(Boolean).length,n=p.plan.length,fn=greetName(p),hola=fn?`¡Hola, ${fn}!`:'¡Hola!';
+  const msg=!n?`${hola} Elige un ejercicio para empezar.`:nd===0?`${hola} Hoy tienes ${n} ejercicios. ¿Empezamos?`:nd<n?`¡Vas genial! Te ${n-nd===1?'falta 1 ejercicio':`faltan ${n-nd} ejercicios`}.`:'¡Plan completado! Eres una estrella.';
   const b=$('#bHero');if(b&&b.dataset.msg!==msg){b.dataset.msg=msg;typeSay(b,msg);if(heroGi)heroGi.setMood(nd===n&&n?'celebrate':'happy',1.5);}}
 const _renderHome=renderHome;renderHome=function(){_renderHome();heroSay();};
 function runSplash(){
@@ -2732,8 +2735,8 @@ function renderWelGrid(q){
 function enterPatient(id,el){
   DB.active=id;save();role='patient';updateRole();const p=P();
   $('#wlGrid').classList.add('dim');if(el)el.classList.add('pick');
-  welGi.setMood('celebrate',1.4);welSaid='';welSay(`¡Hola, ${firstName(p.name)}! ¡A entrenar esos ojos!`);sfx.win();
-  if(DB.cfg.voice)speak(`Hola, ${firstName(p.name)}`);
+  welGi.setMood('celebrate',1.4);welSaid='';welSay(`${greetName(p)?`¡Hola, ${greetName(p)}!`:'¡Hola!'} ¡A entrenar esos ojos!`);sfx.win();
+  if(DB.cfg.voice)speak(greetName(p)?`Hola, ${greetName(p)}`:'Hola');
   setTimeout(()=>leaveWelcome('home'),1100);
 }
 function leaveWelcome(tab){const w=$('#welcome');w.classList.add('leave');setTimeout(()=>{w.hidden=true;w.classList.remove('leave','show');},500);document.body.style.overflow='';if(heroGi)heroGi.wave=2;const b=$('#bHero');if(b)b.dataset.msg='';renderAll();goTab(tab||'home');}
