@@ -1393,18 +1393,18 @@ GAMES.push({id:'taqui',name:'Taquistoscopio',skill:'Amplitud de percepción',cat
    ks.push({x:ox,y:top+2*(kh+gap),w:kw*5+gap*4,h:kh,s:'⌫'});return ks;}
   api.info('Mira el recuadro');
   return {
-   update(dt){if(api.rtm.tick(phase==='input')){tot++;for(let j=0;j<len;j++){charTot++;if(inp[j]===str[j])charOk++;}const b=box();api.bad(b.x+b.w/2,b.y+b.h/2);if(api.adaptive)len=Math.max(2,len-1);api.adapt(-.5);api.info('Se acabó el tiempo');phase='fb';t=1.3;}t-=dt;if(keyT>0)keyT-=dt;
+   update(dt){if(api.rtm.tick(phase==='input')){tot++;for(let j=0;j<str.length;j++){charTot++;if(inp[j]===str[j])charOk++;}const b=box();api.bad(b.x+b.w/2,b.y+b.h/2);if(api.adaptive)len=Math.max(2,len-1);api.adapt(-.5);api.info('Se acabó el tiempo');phase='fb';t=1.3;}t-=dt;if(keyT>0)keyT-=dt;
     if(phase==='fix'&&t<=0){str=[...Array(len)].map(()=>pick(SYM)).join('');phase='show';t=exp;sfx.flash();}
     else if(phase==='show'&&t<=0){phase='mask';t=.15;}
     else if(phase==='mask'&&t<=0){phase='input';inp='';api.info('Escribe lo que viste');}
     else if(phase==='fb'&&t<=0){phase='fix';t=.9;api.info('Mira el recuadro');}},
    draw(c){
     const b=box();c.strokeStyle='rgba(255,255,255,.25)';c.lineWidth=2;rr(c,b.x,b.y,b.w,b.h,16);c.stroke();
-    c.textAlign='center';c.textBaseline='middle';const fs=Math.min(b.h*.6,b.w/(len*.75));c.font=`600 ${fs}px ${FONT}`;const cxm=b.x+b.w/2,cym=b.y+b.h/2;
+    c.textAlign='center';c.textBaseline='middle';const n=str.length||len,fs=Math.min(b.h*.6,b.w/(n*.75));c.font=`600 ${fs}px ${FONT}`;const cxm=b.x+b.w/2,cym=b.y+b.h/2;
     if(phase==='fix'){c.strokeStyle=C.wht;c.beginPath();c.moveTo(cxm-10,cym);c.lineTo(cxm+10,cym);c.moveTo(cxm,cym-10);c.lineTo(cxm,cym+10);c.stroke();}
     else if(phase==='show'){c.fillStyle=C.wht;c.fillText(str.split('').join(' '),cxm,cym);}
-    else if(phase==='mask'){c.fillStyle='rgba(255,255,255,.6)';c.fillText('#'.repeat(len).split('').join(' '),cxm,cym);}
-    else{const cw=b.w/(len+1);for(let i=0;i<len;i++){const x=b.x+cw*(i+1),ch=inp[i]||'';
+    else if(phase==='mask'){c.fillStyle='rgba(255,255,255,.6)';c.fillText('#'.repeat(n).split('').join(' '),cxm,cym);}
+    else{const cw=b.w/(n+1);for(let i=0;i<n;i++){const x=b.x+cw*(i+1),ch=inp[i]||'';
       if(phase==='fb'){c.fillStyle=ch===str[i]?C.grn:C.red;c.fillText(ch||'·',x,cym-fs*.28);c.fillStyle='rgba(255,255,255,.55)';c.font=`600 ${fs*.5}px ${FONT}`;c.fillText(str[i],x,cym+fs*.5);c.font=`600 ${fs}px ${FONT}`;}
       else{c.fillStyle=C.wht;c.fillText(ch,x,cym);c.fillStyle='rgba(255,255,255,.35)';c.fillRect(x-cw*.3,cym+fs*.45,cw*.6,3);}}}
     if(phase==='input'||phase==='fb')keys().forEach((k,i)=>button(c,k,k.s,{on:i===keyFl&&keyT>0,size:Math.min(26,k.h*.42)}));
@@ -1413,8 +1413,8 @@ GAMES.push({id:'taqui',name:'Taquistoscopio',skill:'Amplitud de percepción',cat
     if(phase!=='input')return;const ks=keys();const i=ks.findIndex(k=>inBox(k,x,y));if(i<0)return;keyFl=i;keyT=.12;
     const k=ks[i];if(k.s==='⌫'){inp=inp.slice(0,-1);sfx.tick();return;}
     inp+=k.s;sfx.tick();
-    if(inp.length===len){tot++;for(let j=0;j<len;j++){charTot++;if(inp[j]===str[j])charOk++;}
-     const b=box();if(inp===str){okN++;api.good(b.x+b.w/2,b.y+b.h/2,{pts:len});best=Math.max(best,len);if(api.adaptive)len=Math.min(10,len+1);api.adapt(.5);api.info('¡Correcto!');}
+    if(inp.length===str.length){tot++;for(let j=0;j<str.length;j++){charTot++;if(inp[j]===str[j])charOk++;}
+     const b=box();if(inp===str){okN++;api.good(b.x+b.w/2,b.y+b.h/2,{pts:str.length});best=Math.max(best,str.length);if(api.adaptive)len=Math.min(10,len+1);api.adapt(.5);api.info('¡Correcto!');}
      else{api.bad(b.x+b.w/2,b.y+b.h/2);if(api.adaptive)len=Math.max(2,len-1);api.adapt(-.5);api.info('Así era la serie');}
      phase='fb';t=1.3;}
    },
@@ -2961,7 +2961,7 @@ function renderSettings(){
   <div class="card"><p class="h4b">Datos</p><p class="sub">Todo se guarda en esta tableta, sin internet. Haz copias de seguridad con frecuencia.</p><p class="sub" id="stoInfo"></p>
     <div style="display:grid;gap:8px"><button class="btn btn-main" data-c="backup">Copia de seguridad completa</button><button class="btn btn-soft" data-c="clinicCsv">Exportar toda la consulta (CSV)</button>
     <label class="btn btn-soft" style="cursor:pointer">Restaurar copia de seguridad<input type="file" accept="application/json,.json" id="restore" hidden></label></div></div>
-  <div class="card" style="text-align:center"><svg class="logo" viewBox="0 0 40 40" style="width:44px;height:44px"><circle cx="15" cy="20" r="12" fill="var(--red)"/><circle cx="25" cy="20" r="12" fill="var(--cyan)"/></svg><p style="margin:6px 0 0;font-family:var(--display);font-weight:700;font-size:20px">GiRo 6.1</p><p class="sub" style="margin:0">Terapia visual por GR Software TC</p></div>`;
+  <div class="card" style="text-align:center"><svg class="logo" viewBox="0 0 40 40" style="width:44px;height:44px"><circle cx="15" cy="20" r="12" fill="var(--red)"/><circle cx="25" cy="20" r="12" fill="var(--cyan)"/></svg><p style="margin:6px 0 0;font-family:var(--display);font-weight:700;font-size:20px">GiRo 6.1.1</p><p class="sub" style="margin:0">Terapia visual por GR Software TC</p></div>`;
   storageInfo();
 }
 function renderClinic(){renderPats();renderSettings();}
