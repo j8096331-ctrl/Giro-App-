@@ -9,11 +9,12 @@
 <meta property="og:title" content="GR Software TC">
 <meta property="og:description" content="Precisión que se enciende. Workstations, servidores, redes y software para empresas.">
 <meta property="og:type" content="website">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='32' fill='%230A0807'/%3E%3Ccircle cx='32' cy='32' r='29' fill='none' stroke='%23D9A84E' stroke-width='1.5'/%3E%3Ctext x='32' y='41' text-anchor='middle' font-family='Didot,Georgia,serif' font-style='italic' font-size='26' fill='%23F1D28A'%3EGR%3C/text%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..700&family=Hanken+Grotesk:wght@400..700&display=swap" rel="stylesheet">
 <link rel="modulepreload" href="assets/app.js">
+<link rel="preload" href="assets/gr-logo.svg" as="image">
 <style>
 :root{
   --noir:#0A0807; --noir-2:#120E0B; --noir-3:#1B1611; --noir-4:#262019;
@@ -59,7 +60,7 @@ p{margin:0}
 .loader{position:fixed;inset:0;z-index:150;background:var(--noir);display:grid;place-items:center;transition:opacity .9s var(--ease),visibility .9s}
 .loader.done{opacity:0;visibility:hidden}
 .loader-in{display:flex;flex-direction:column;align-items:center;gap:22px}
-.loader .mono{font-family:var(--serif);font-style:italic;font-size:64px;line-height:1;background:var(--gold-text);-webkit-background-clip:text;background-clip:text;color:transparent;animation:breathe 2.4s ease-in-out infinite}
+.loader .mono{width:128px;height:auto;animation:breathe 2.4s ease-in-out infinite}
 @keyframes breathe{50%{opacity:.55}}
 .loader .bar{width:180px;height:1px;background:rgba(242,235,221,.14);overflow:hidden}
 .loader .bar i{display:block;height:100%;width:100%;background:var(--oro);transform-origin:left;transform:scaleX(var(--p,0));transition:transform .4s var(--ease)}
@@ -79,8 +80,7 @@ p{margin:0}
 .top::before{content:'';position:absolute;inset:0 0 -40px;background:linear-gradient(180deg,rgba(10,8,7,.75),rgba(10,8,7,0));pointer-events:none;z-index:-1}
 .top .wrap{display:flex;align-items:center;gap:32px;height:84px}
 .brand{display:flex;align-items:center;gap:12px;text-decoration:none}
-.brand .seal{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;box-shadow:inset 0 0 0 1px rgba(217,168,78,.55);font-family:var(--serif);font-style:italic;font-size:18px;line-height:1}
-.brand .seal span{background:var(--gold-text);-webkit-background-clip:text;background-clip:text;color:transparent}
+.brand .mark{width:52px;height:auto;display:block}
 .brand b{font-weight:600;font-size:16px;letter-spacing:.01em}
 .nav{display:flex;gap:30px;margin-left:auto}
 .nav a{text-decoration:none;font-size:15px;color:rgba(242,235,221,.72);position:relative;padding:6px 0;transition:color .3s}
@@ -307,7 +307,7 @@ p{margin:0}
 
 <div class="loader" id="loader" aria-hidden="true">
   <div class="loader-in">
-    <div class="mono">GR</div>
+    <img class="mono" src="assets/gr-logo.svg" alt="" width="128" height="80">
     <div class="bar"><i id="ldBar"></i></div>
     <div class="pct" id="ldPct">0%</div>
   </div>
@@ -318,7 +318,7 @@ p{margin:0}
 <header class="top" id="top">
   <div class="wrap">
     <a href="#inicio" class="brand" aria-label="GR Software TC, inicio">
-      <span class="seal"><span>GR</span></span>
+      <img class="mark" src="assets/gr-logo.svg" alt="" width="56" height="35">
       <b>GR Software TC</b>
     </a>
     <nav class="nav" aria-label="Principal">
