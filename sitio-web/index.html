@@ -1,0 +1,679 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GR Software TC | Equipos, redes y software para empresas</title>
+<meta name="description" content="GR Software TC arma workstations y servidores, instala redes y ciberseguridad, y desarrolla sitios web, sistemas ERP con CFDI 4.0 y agentes de IA para WhatsApp.">
+<meta name="theme-color" content="#E7E9EA">
+<meta property="og:title" content="GR Software TC">
+<meta property="og:description" content="Armamos el equipo, tendemos la red y escribimos el software de tu empresa.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2315191E'/%3E%3Cg transform='translate(12 44)'%3E%3Crect width='5' height='8' fill='%23F4F4F1'/%3E%3Crect x='5' width='5' height='8' fill='%23F28C28'/%3E%3Crect x='10' width='5' height='8' fill='%23F4F4F1'/%3E%3Crect x='15' width='5' height='8' fill='%232F6FDB'/%3E%3Crect x='20' width='5' height='8' fill='%23F4F4F1'/%3E%3Crect x='25' width='5' height='8' fill='%232E9E52'/%3E%3Crect x='30' width='5' height='8' fill='%23F4F4F1'/%3E%3Crect x='35' width='5' height='8' fill='%238B5A3C'/%3E%3C/g%3E%3Ctext x='32' y='36' text-anchor='middle' font-family='Arial Black,Arial' font-weight='900' font-size='22' fill='%23F4F4F1'%3EGR%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* chasis y tinta */
+  --chasis:#E7E9EA; --panel:#F6F7F7; --ink:#15191E; --ink-2:#56606B; --line:#C9CED3;
+  /* rack */
+  --rack:#1D2228; --rack-2:#262C34; --rack-3:#323A44; --rack-ink:#DCE2E8; --rack-ink-2:#8E99A6;
+  /* colores de cable T568B */
+  --c-naranja:#F28C28; --c-verde:#2E9E52; --c-azul:#2F6FDB; --c-cafe:#8B5A3C; --c-blanco:#F4F4F1;
+  /* LEDs */
+  --led:#4BE38A; --led-amb:#FFB21F;
+  --font:'Archivo',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --wrap:1180px; --gut:20px;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:84px;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--chasis);color:var(--ink);font-family:var(--font);font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit}
+img,svg{display:block}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--c-azul);outline-offset:3px;border-radius:6px}
+::selection{background:var(--c-naranja);color:var(--ink)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 var(--gut)}
+.vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip{position:absolute;left:12px;top:-60px;background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;z-index:100;text-decoration:none}
+.skip:focus{top:12px}
+
+/* tipografía */
+h1,h2,h3{margin:0;font-weight:800;line-height:1.04;letter-spacing:-.01em;font-stretch:118%}
+h1{font-size:clamp(2.35rem,5vw,4.3rem);font-weight:850;letter-spacing:-.02em;max-width:15ch;text-wrap:balance}
+h2{font-size:clamp(1.9rem,3.6vw,3rem);max-width:18ch;text-wrap:balance}
+h3{font-size:1.3rem;font-stretch:110%;line-height:1.15}
+.lead{font-size:clamp(1.05rem,1.4vw,1.2rem);color:var(--ink-2);max-width:56ch;margin:18px 0 0}
+p{margin:0}
+
+/* botones */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:0 24px;border-radius:12px;font-weight:700;font-size:16px;text-decoration:none;border:0;cursor:pointer;transition:transform .12s ease,background .15s,box-shadow .15s}
+.btn:active{transform:translateY(1px)}
+.btn svg{width:20px;height:20px;flex:none}
+.btn-go{background:var(--c-naranja);color:var(--ink);box-shadow:0 2px 0 #B8621A}
+.btn-go:hover{background:#F69A3D}
+.btn-ink{background:var(--ink);color:#fff}
+.btn-ink:hover{background:#262C34}
+.btn-line{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}
+.btn-line:hover{background:rgba(21,25,30,.06)}
+
+/* chip de cable: corte transversal de un conductor */
+.wire{width:18px;height:18px;border-radius:50%;flex:none;background:var(--w);box-shadow:inset 0 0 0 2px rgba(0,0,0,.12)}
+.wire.st{background:repeating-linear-gradient(135deg,var(--c-blanco) 0 3px,var(--w) 3px 6px)}
+
+/* ===== encabezado ===== */
+.top{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--chasis) 86%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid transparent;transition:border-color .2s}
+.top.scrolled{border-bottom-color:var(--line)}
+.top .wrap{display:flex;align-items:center;gap:28px;height:72px}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;flex:none}
+.brand svg{width:40px;height:40px}
+.brand b{font-weight:800;font-stretch:115%;font-size:18px;letter-spacing:-.01em;line-height:1}
+.nav{display:flex;gap:26px;margin-left:auto}
+.nav a{text-decoration:none;font-weight:600;font-size:15.5px;color:var(--ink-2);padding:6px 0;border-bottom:2px solid transparent}
+.nav a:hover{color:var(--ink);border-bottom-color:var(--c-naranja)}
+.top .btn{min-height:44px;padding:0 18px;font-size:15px}
+.menu-btn{display:none;margin-left:auto;width:46px;height:46px;border-radius:12px;border:0;background:var(--panel);box-shadow:inset 0 0 0 1px var(--line);cursor:pointer;place-items:center}
+.menu-btn svg{width:22px;height:22px}
+.mnav{display:none}
+
+/* ===== hero ===== */
+.hero{padding:56px 0 88px}
+.hero .wrap{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:56px;align-items:center}
+.hero-cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:32px}
+.trust{display:flex;flex-wrap:wrap;gap:10px 22px;margin:30px 0 0;padding:0;list-style:none;font-size:15px;font-weight:600;color:var(--ink-2)}
+.trust li{display:flex;align-items:center;gap:8px}
+.trust li::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--c-verde);box-shadow:0 0 0 3px color-mix(in srgb,var(--c-verde) 22%,transparent)}
+
+/* ===== el rack ===== */
+.rack{position:relative;background:var(--rack);border-radius:16px;padding:18px 30px 22px;box-shadow:0 40px 70px -40px rgba(21,25,30,.75),inset 0 1px 0 rgba(255,255,255,.06)}
+.rack::before,.rack::after{content:'';position:absolute;top:18px;bottom:22px;width:14px;border-radius:3px;background:
+  repeating-linear-gradient(180deg,transparent 0 7px,#0E1115 7px 12px,transparent 12px 21px) center/6px 100% no-repeat,#2B323B}
+.rack::before{left:9px}.rack::after{right:9px}
+.rack-cap{display:flex;justify-content:space-between;align-items:center;color:var(--rack-ink-2);font-size:12.5px;font-weight:600;padding:0 4px 12px;font-stretch:90%}
+.rack-cap span:last-child{display:flex;align-items:center;gap:7px}
+.rack-cap span:last-child::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--led);box-shadow:0 0 8px var(--led)}
+.units{display:flex;flex-direction:column;gap:4px}
+.u{--h:42px;position:relative;display:flex;align-items:center;gap:12px;height:var(--h);padding:0 14px 0 26px;border-radius:5px;text-decoration:none;color:var(--rack-ink);
+  background:linear-gradient(180deg,var(--rack-3),var(--rack-2) 60%);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),inset 0 -1px 0 rgba(0,0,0,.4),0 1px 0 rgba(0,0,0,.35);
+  transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s,filter .2s;
+  animation:rackIn .7s cubic-bezier(.2,.9,.2,1) backwards;animation-delay:calc(var(--i,0) * 110ms + 150ms)}
+.u.u2{--h:88px}
+.u::before,.u::after{content:'';position:absolute;top:50%;width:7px;height:7px;margin-top:-3.5px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#8D97A3,#3B434D);box-shadow:0 0 0 1px rgba(0,0,0,.4)}
+.u::before{left:7px}.u::after{right:7px}
+.u .tag{position:absolute;left:18px;top:6px;bottom:6px;width:3px;border-radius:2px;background:var(--tag)}
+.u .tag.st{background:repeating-linear-gradient(180deg,var(--c-blanco) 0 4px,var(--tag) 4px 8px)}
+.u .lbl{display:flex;flex-direction:column;line-height:1.1;font-weight:700;font-size:14px;min-width:96px;font-stretch:105%}
+.u .lbl small{font-weight:500;font-size:11.5px;color:var(--rack-ink-2);margin-top:3px;font-stretch:95%}
+.u:hover,.u:focus-visible{transform:translateX(-10px);filter:brightness(1.12);box-shadow:inset 0 1px 0 rgba(255,255,255,.1),12px 10px 24px -10px rgba(0,0,0,.7)}
+.u:focus-visible{outline-offset:2px}
+@keyframes rackIn{from{opacity:0;transform:translateX(60px)}}
+
+.grill{flex:1;align-self:stretch;margin:10px 0;border-radius:3px;background:repeating-linear-gradient(90deg,#14181D 0 3px,transparent 3px 7px);opacity:.9}
+.pwr{width:26px;height:26px;border-radius:50%;flex:none;background:#14181D;box-shadow:0 0 0 2px var(--c-naranja),0 0 14px -2px var(--c-naranja);display:grid;place-items:center}
+.pwr::after{content:'';width:9px;height:9px;border-radius:50%;border:2px solid var(--c-naranja);border-top-color:transparent}
+.leds{display:flex;gap:6px;flex:none}
+.led{width:6px;height:6px;border-radius:50%;background:var(--led);box-shadow:0 0 6px var(--led);animation:blink var(--t,1.4s) steps(2,jump-none) infinite;animation-delay:var(--d,0s)}
+.led.amb{background:var(--led-amb);box-shadow:0 0 6px var(--led-amb)}
+.led.solid{animation:none}
+@keyframes blink{50%{opacity:.2}}
+
+.ports{flex:1;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:3px 4px;align-self:center}
+.port{position:relative;height:13px;border-radius:2px;background:#0D1013;box-shadow:inset 0 2px 0 rgba(0,0,0,.6)}
+.port.p{background:var(--pc);box-shadow:inset 0 -3px 0 rgba(0,0,0,.25)}
+.port.p.st{background:repeating-linear-gradient(90deg,var(--c-blanco) 0 2px,var(--pc) 2px 4px)}
+.port .led{position:absolute;right:1px;top:-4px;width:3px;height:3px;box-shadow:none}
+
+.bays{flex:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;align-self:stretch;margin:9px 0}
+.bay{position:relative;border-radius:3px;background:linear-gradient(180deg,#191D22,#111418);box-shadow:inset 0 0 0 1px rgba(255,255,255,.05)}
+.bay::after{content:'';position:absolute;left:8px;right:16px;top:50%;height:2px;margin-top:-1px;background:#2C333C;border-radius:1px}
+.bay .led{position:absolute;right:6px;top:50%;margin-top:-3px;width:5px;height:5px}
+
+.shield{width:22px;height:22px;flex:none;color:var(--c-verde)}
+.fw-bar{flex:1;height:6px;border-radius:3px;background:#14181D;overflow:hidden}
+.fw-bar i{display:block;height:100%;width:38%;border-radius:3px;background:linear-gradient(90deg,transparent,var(--c-verde));animation:scan 2.6s ease-in-out infinite}
+@keyframes scan{0%{transform:translateX(-100%)}100%{transform:translateX(270%)}}
+
+.lcd{flex:1;align-self:stretch;margin:9px 0;border-radius:4px;background:linear-gradient(180deg,#B9D9A3,#A5C98E);box-shadow:inset 0 0 0 2px #0F1215,inset 0 6px 12px rgba(0,0,0,.18);color:#1E3519;display:flex;flex-direction:column;justify-content:center;padding:0 14px;overflow:hidden;font-stretch:80%}
+.lcd small{font-size:11.5px;font-weight:600;opacity:.75}
+.lcd b{font-size:16px;font-weight:700;line-height:1.2;transition:opacity .35s,transform .35s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lcd b.out{opacity:0;transform:translateY(-6px)}
+
+/* ===== secciones ===== */
+.sec{padding:104px 0}
+.sec-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px 56px;align-items:end;margin-bottom:56px}
+.sec-head .lead{margin:0}
+
+/* servicios */
+.svc-group+.svc-group{margin-top:64px}
+.grp{display:flex;align-items:center;gap:14px;font-size:1rem;font-stretch:118%;font-weight:800;padding-bottom:14px;border-bottom:2px solid var(--ink)}
+.grp span{font-weight:600;font-stretch:100%;color:var(--ink-2);font-size:15px}
+.svc{display:grid;grid-template-columns:28px minmax(0,1.1fr) minmax(0,1.3fr) minmax(0,.9fr) 150px;gap:16px 32px;align-items:start;padding:30px 0;border-bottom:1px solid var(--line)}
+.svc .wire{margin-top:4px}
+.svc p{color:var(--ink-2);font-size:16px;max-width:46ch}
+.svc ul{list-style:none;margin:0;padding:0;font-size:15px;display:grid;gap:7px}
+.svc ul li{display:flex;gap:9px;align-items:baseline}
+.svc ul li::before{content:'';flex:none;width:10px;height:2px;background:var(--w);transform:translateY(-4px)}
+.svc .time{text-align:right;font-size:14px;color:var(--ink-2)}
+.svc .time b{display:block;color:var(--ink);font-size:17px;font-stretch:110%;font-variant-numeric:tabular-nums}
+.svc:target{background:linear-gradient(90deg,color-mix(in srgb,var(--w) 12%,transparent),transparent 70%)}
+
+/* proceso */
+.proc{background:var(--panel);border-block:1px solid var(--line)}
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:32px;position:relative;counter-reset:s}
+.steps::before{content:'';position:absolute;left:22px;right:22px;top:21px;height:4px;border-radius:2px;background:repeating-linear-gradient(90deg,var(--c-blanco) 0 10px,var(--c-naranja) 10px 20px);box-shadow:inset 0 0 0 1px rgba(0,0,0,.06)}
+.steps li{position:relative;counter-increment:s}
+.steps li::before{content:counter(s);display:grid;place-items:center;width:46px;height:46px;border-radius:50%;background:var(--ink);color:#fff;font-weight:800;font-stretch:118%;font-size:18px;margin-bottom:22px;position:relative;box-shadow:0 0 0 6px var(--panel)}
+.steps h3{font-size:1.15rem;margin-bottom:8px}
+.steps p{color:var(--ink-2);font-size:15.5px}
+
+/* cotizador */
+.cfg{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,.9fr);gap:28px;align-items:start}
+.cfg fieldset{border:0;margin:0;padding:0;min-width:0}
+.cfg fieldset+fieldset{margin-top:40px}
+.cfg legend{font-weight:800;font-stretch:115%;font-size:1.15rem;margin-bottom:6px;padding:0}
+.cfg .hint{color:var(--ink-2);font-size:15px;margin-bottom:16px}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.opt{position:relative;display:grid;grid-template-columns:18px minmax(0,1fr);gap:4px 14px;padding:18px;border-radius:14px;background:var(--panel);box-shadow:inset 0 0 0 1px var(--line);cursor:pointer;transition:box-shadow .15s,background .15s}
+.opt:hover{box-shadow:inset 0 0 0 1.5px var(--ink-2)}
+.opt input{position:absolute;opacity:0;pointer-events:none}
+.opt .wire{grid-row:span 2;margin-top:3px}
+.opt b{font-weight:700;font-size:16.5px;line-height:1.25}
+.opt span{font-size:14px;color:var(--ink-2)}
+.opt:has(input:checked){background:#fff;box-shadow:inset 0 0 0 2px var(--ink),0 10px 24px -16px rgba(21,25,30,.6)}
+.opt:has(input:focus-visible){outline:3px solid var(--c-azul);outline-offset:3px}
+.mods{display:flex;flex-wrap:wrap;gap:10px}
+.mod{position:relative;display:inline-flex;align-items:center;gap:10px;min-height:46px;padding:0 16px 0 12px;border-radius:999px;background:var(--panel);box-shadow:inset 0 0 0 1px var(--line);cursor:pointer;font-size:15px;font-weight:600;transition:background .15s,box-shadow .15s,color .15s}
+.mod input{position:absolute;opacity:0;pointer-events:none}
+.mod i{width:20px;height:20px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--ink-2);display:grid;place-items:center;flex:none;transition:background .15s}
+.mod i svg{width:12px;height:12px;opacity:0;color:var(--ink)}
+.mod:hover{box-shadow:inset 0 0 0 1.5px var(--ink-2)}
+.mod:has(input:checked){background:var(--ink);color:#fff;box-shadow:none}
+.mod:has(input:checked) i{background:var(--led);box-shadow:none}
+.mod:has(input:checked) i svg{opacity:1}
+.mod:has(input:focus-visible){outline:3px solid var(--c-azul);outline-offset:3px}
+
+.sum{position:sticky;top:96px;background:var(--rack);color:var(--rack-ink);border-radius:18px;padding:26px;box-shadow:0 30px 60px -36px rgba(21,25,30,.8)}
+.sum h3{font-size:1.05rem;color:var(--rack-ink-2);font-weight:700;font-stretch:110%;margin-bottom:16px}
+.sum .lcd{margin:0;padding:16px;min-height:92px;font-stretch:85%}
+.sum .lcd b{white-space:normal;font-size:19px}
+.sum dl{margin:18px 0 0;display:grid;gap:12px}
+.sum dl div{display:flex;justify-content:space-between;gap:16px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.1);font-size:15px}
+.sum dt{color:var(--rack-ink-2)}
+.sum dd{margin:0;text-align:right;font-weight:700}
+.sum ul{list-style:none;margin:8px 0 0;padding:0;font-size:14px;color:var(--rack-ink);display:grid;gap:5px;min-height:1.4em}
+.sum ul li{display:flex;gap:8px;align-items:center}
+.sum ul li::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--led);flex:none}
+.sum ul .none{color:var(--rack-ink-2)}
+.sum ul .none::before{background:var(--rack-3)}
+.sum .btn{width:100%;margin-top:22px}
+.sum .fine{font-size:13px;color:var(--rack-ink-2);margin-top:12px;text-align:center}
+
+/* preguntas */
+.faq{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:56px;align-items:start}
+.qa{border-top:2px solid var(--ink)}
+.qa details{border-bottom:1px solid var(--line)}
+.qa summary{list-style:none;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:22px 0;cursor:pointer;font-weight:700;font-size:17.5px}
+.qa summary::-webkit-details-marker{display:none}
+.qa summary i{flex:none;width:30px;height:30px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--ink);position:relative;transition:transform .25s,background .2s}
+.qa summary i::before,.qa summary i::after{content:'';position:absolute;left:50%;top:50%;width:12px;height:2px;margin:-1px 0 0 -6px;background:var(--ink);border-radius:1px}
+.qa summary i::after{transform:rotate(90deg);transition:transform .25s}
+.qa details[open] summary i{background:var(--c-naranja);box-shadow:none}
+.qa details[open] summary i::after{transform:rotate(0)}
+.qa details p{color:var(--ink-2);padding:0 48px 24px 0;max-width:62ch}
+
+/* contacto */
+.contact{background:var(--rack);color:var(--rack-ink);position:relative;overflow:hidden}
+.contact::before{content:'';position:absolute;left:0;right:0;top:0;height:8px;background:linear-gradient(90deg,
+  var(--c-blanco) 0 12.5%,var(--c-naranja) 0 25%,var(--c-blanco) 0 37.5%,var(--c-azul) 0 50%,var(--c-blanco) 0 62.5%,var(--c-verde) 0 75%,var(--c-blanco) 0 87.5%,var(--c-cafe) 0)}
+.contact h2{color:#fff}
+.contact .lead{color:var(--rack-ink-2)}
+.ct{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,.75fr);gap:56px;align-items:end}
+.phone{display:block;margin-top:34px;font-size:clamp(2.6rem,5.4vw,4.4rem);font-weight:850;font-stretch:118%;letter-spacing:-.025em;line-height:1;color:#fff;text-decoration:none;font-variant-numeric:tabular-nums;white-space:nowrap}
+.phone:hover{color:var(--c-naranja)}
+.ct-acts{display:grid;gap:12px}
+.ct-acts .btn{justify-content:flex-start;padding:0 20px;min-height:58px}
+.ct-acts .btn span{margin-left:auto;font-weight:500;font-size:14px;opacity:.75}
+.btn-dark{background:var(--rack-2);color:var(--rack-ink);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
+.btn-dark:hover{background:var(--rack-3)}
+
+.foot{background:var(--rack);color:var(--rack-ink-2);font-size:14px;border-top:1px solid rgba(255,255,255,.08)}
+.foot .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;padding-block:26px}
+.foot a{text-decoration:none}.foot a:hover{color:#fff}
+.foot nav{display:flex;gap:22px}
+
+.wa{position:fixed;right:18px;bottom:18px;z-index:45;width:58px;height:58px;border-radius:50%;background:#25D366;color:#0B2A17;display:grid;place-items:center;box-shadow:0 14px 30px -10px rgba(0,0,0,.45);transition:transform .2s}
+.wa:hover{transform:scale(1.07)}
+.wa svg{width:28px;height:28px}
+
+/* ===== responsive ===== */
+@media (max-width:1020px){
+  .svc{grid-template-columns:28px minmax(0,1fr) minmax(0,1fr);}
+  .svc .inc{grid-column:2}
+  .svc .time{grid-column:3;grid-row:2;text-align:left;align-self:end}
+  .svc>div:nth-child(2){grid-column:2/-1}
+}
+@media (max-width:900px){
+  .nav,.top .btn-go{display:none}
+  .menu-btn{display:grid}
+  .mnav{position:absolute;left:0;right:0;top:72px;background:var(--panel);border-bottom:1px solid var(--line);padding:12px var(--gut) 22px;flex-direction:column;box-shadow:0 20px 40px -24px rgba(21,25,30,.4)}
+  .top.open .mnav{display:flex}
+  .mnav a{text-decoration:none;font-weight:700;font-size:19px;padding:14px 0;border-bottom:1px solid var(--line)}
+  .mnav .btn{margin-top:18px;border-bottom:0}
+  .hero{padding:28px 0 64px}
+  .hero .wrap{grid-template-columns:minmax(0,1fr);gap:44px}
+  .sec{padding:72px 0}
+  .sec-head{grid-template-columns:minmax(0,1fr);margin-bottom:36px}
+  .steps{grid-template-columns:repeat(2,minmax(0,1fr));gap:40px 24px}
+  .steps::before{display:none}
+  .cfg{grid-template-columns:minmax(0,1fr)}
+  .sum{position:static}
+  .faq,.ct{grid-template-columns:minmax(0,1fr);gap:32px}
+}
+@media (max-width:600px){
+  body{font-size:16.5px}
+  .hero-cta .btn{flex:1 1 100%}
+  .rack{padding:14px 24px 18px}
+  .rack::before{left:6px}.rack::after{right:6px}
+  .u{--h:38px;gap:9px;padding:0 10px 0 22px}
+  .u.u2{--h:78px}
+  .u .tag{left:15px}
+  .u .lbl{min-width:76px;font-size:13px}
+  .u .lbl small{display:none}
+  .ports{grid-template-columns:repeat(8,minmax(0,1fr))}
+  .port:nth-child(n+17){display:none}
+  .bays{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .bay:nth-child(n+7){display:none}
+  .lcd b{font-size:14px;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  .u{padding-right:18px}
+  .svc{grid-template-columns:22px minmax(0,1fr);gap:12px 16px}
+  .svc>*:not(.wire){grid-column:2!important}
+  .svc .time{grid-row:auto;text-align:left}
+  .svc .time b{display:inline;margin-right:6px}
+  .steps{grid-template-columns:1fr;gap:28px}
+  .steps li{display:grid;grid-template-columns:46px minmax(0,1fr);column-gap:18px}
+  .steps li::before{grid-row:span 2;margin:0}
+  .opts{grid-template-columns:1fr}
+  .qa details p{padding-right:0}
+  .ct-acts .btn span{display:none}
+  .phone{font-size:clamp(2.2rem,11.5vw,3rem)}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Saltar al contenido</a>
+
+<header class="top" id="top">
+  <div class="wrap">
+    <a href="#" class="brand" aria-label="GR Software TC, inicio">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#15191E"/><g transform="translate(12 44)"><rect width="5" height="8" fill="#F4F4F1"/><rect x="5" width="5" height="8" fill="#F28C28"/><rect x="10" width="5" height="8" fill="#F4F4F1"/><rect x="15" width="5" height="8" fill="#2F6FDB"/><rect x="20" width="5" height="8" fill="#F4F4F1"/><rect x="25" width="5" height="8" fill="#2E9E52"/><rect x="30" width="5" height="8" fill="#F4F4F1"/><rect x="35" width="5" height="8" fill="#8B5A3C"/></g><text x="32" y="36" text-anchor="middle" font-family="Archivo,Arial Black,Arial" font-weight="900" font-size="22" fill="#F4F4F1">GR</text></svg>
+      <b>GR Software TC</b>
+    </a>
+    <nav class="nav" aria-label="Principal">
+      <a href="#servicios">Servicios</a>
+      <a href="#proceso">Cómo trabajamos</a>
+      <a href="#cotizar">Cotizar</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+    <a class="btn btn-go" href="https://wa.me/522211050617?text=Hola%20GR%20Software%20TC%2C%20vengo%20de%20su%20sitio%20web." target="_blank" rel="noopener">Escribir por WhatsApp</a>
+    <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="mnav" aria-label="Abrir menú">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+    <nav class="mnav" id="mnav" aria-label="Menú móvil">
+      <a href="#servicios">Servicios</a>
+      <a href="#proceso">Cómo trabajamos</a>
+      <a href="#cotizar">Cotizar</a>
+      <a href="#contacto">Contacto</a>
+      <a class="btn btn-go" href="https://wa.me/522211050617?text=Hola%20GR%20Software%20TC%2C%20vengo%20de%20su%20sitio%20web." target="_blank" rel="noopener">WhatsApp: 221 105 0617</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+<section class="hero">
+  <div class="wrap">
+    <div>
+      <h1>Armamos el equipo, tendemos la red y escribimos el software.</h1>
+      <p class="lead">Workstations y servidores, redes y ciberseguridad, sitios web, sistemas ERP con facturación CFDI 4.0 y agentes de IA para WhatsApp. Un solo proveedor, de la instalación al soporte.</p>
+      <div class="hero-cta">
+        <a class="btn btn-go" href="#cotizar">Armar mi cotización</a>
+        <a class="btn btn-line" href="https://wa.me/522211050617?text=Hola%20GR%20Software%20TC" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>
+          221 105 0617
+        </a>
+      </div>
+      <ul class="trust">
+        <li>Factura CFDI 4.0</li>
+        <li>Garantía en hardware</li>
+        <li>Soporte 24/7 disponible</li>
+      </ul>
+    </div>
+
+    <div class="rack" aria-label="Nuestros servicios, representados como un rack de servidores">
+      <div class="rack-cap"><span>Rack GR-01</span><span id="uptime">En línea</span></div>
+      <div class="units">
+        <a class="u u2" href="#workstations" style="--i:0;--tag:var(--c-naranja)" aria-label="Workstations y servidores">
+          <span class="tag"></span>
+          <span class="lbl">Workstation<small>Render, IA, ingeniería</small></span>
+          <span class="grill"></span>
+          <span class="leds"><i class="led solid"></i><i class="led amb" style="--t:.9s"></i></span>
+          <span class="pwr"></span>
+        </a>
+        <a class="u" href="#redes" style="--i:1;--tag:var(--c-verde)" aria-label="Redes: switch">
+          <span class="tag"></span>
+          <span class="lbl">Switch<small>24 puertos</small></span>
+          <span class="ports" id="ports"></span>
+        </a>
+        <a class="u" href="#redes" style="--i:2;--tag:var(--c-verde)" aria-label="Ciberseguridad: firewall">
+          <span class="tag"></span>
+          <span class="lbl">Firewall<small>Perímetro protegido</small></span>
+          <svg class="shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5" stroke-linecap="round"/></svg>
+          <span class="fw-bar"><i></i></span>
+          <span class="leds"><i class="led" style="--t:1.7s"></i><i class="led" style="--t:1.1s;--d:.4s"></i></span>
+        </a>
+        <a class="u u2" href="#workstations" style="--i:3;--tag:var(--c-naranja)" aria-label="Servidor con discos en RAID">
+          <span class="tag"></span>
+          <span class="lbl">Servidor<small>Respaldo RAID</small></span>
+          <span class="bays" id="bays"></span>
+        </a>
+        <a class="u u2" href="#web" style="--i:4;--tag:var(--c-azul)" aria-label="Software: web, ERP e IA">
+          <span class="tag st"></span>
+          <span class="lbl">Software<small>Web, ERP, IA</small></span>
+          <span class="lcd" aria-live="off"><small id="lcdK">Tienda en línea</small><b id="lcdV">Pedido 1043 pagado con tarjeta</b></span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="servicios" aria-labelledby="svcH">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 id="svcH">Lo que hacemos, del cable al código</h2>
+      <p class="lead">Cada servicio tiene su color, como los hilos de un cable de red. Contrata uno o combínalos: el equipo, la red y el sistema quedan hechos para funcionar juntos.</p>
+    </div>
+
+    <div class="svc-group">
+      <h3 class="grp">Hardware <span>Lo que se instala en tu oficina</span></h3>
+
+      <article class="svc" id="workstations" style="--w:var(--c-naranja)">
+        <span class="wire" aria-hidden="true"></span>
+        <div><h3>Workstations y servidores</h3></div>
+        <p>Equipos armados a medida para render, ingeniería, ciencia de datos e inteligencia artificial. Servidores en rack con respaldo redundante RAID.</p>
+        <ul class="inc">
+          <li>Componentes de grado industrial</li>
+          <li>Optimización para IA y machine learning</li>
+          <li>Pruebas de rendimiento antes de entregar</li>
+        </ul>
+        <div class="time"><b>3 a 7 días</b>tiempo de entrega</div>
+      </article>
+
+      <article class="svc" id="redes" style="--w:var(--c-verde)">
+        <span class="wire" aria-hidden="true"></span>
+        <div><h3>Redes y ciberseguridad</h3></div>
+        <p>Redes LAN y WAN, fibra óptica y cableado estructurado certificado, con firewalls perimetrales que bloquean intrusiones.</p>
+        <ul class="inc">
+          <li>Cableado UTP y fibra óptica</li>
+          <li>Switches, routers y VPN</li>
+          <li>Firewall de grado corporativo</li>
+        </ul>
+        <div class="time"><b>3 a 10 días</b>tiempo de instalación</div>
+      </article>
+    </div>
+
+    <div class="svc-group">
+      <h3 class="grp">Software <span>Lo que usan tu equipo y tus clientes</span></h3>
+
+      <article class="svc" id="web" style="--w:var(--c-azul)">
+        <span class="wire" aria-hidden="true"></span>
+        <div><h3>Sitios web y tiendas en línea</h3></div>
+        <p>Páginas corporativas y tiendas hechas con React y Next.js que cargan en menos de un segundo, con pagos con tarjeta y SEO.</p>
+        <ul class="inc">
+          <li>Diseño exclusivo para tu marca</li>
+          <li>Pasarela de pagos</li>
+          <li>Hosting y dominio</li>
+        </ul>
+        <div class="time"><b>7 a 14 días</b>tiempo de desarrollo</div>
+      </article>
+
+      <article class="svc" id="erp" style="--w:var(--c-cafe)">
+        <span class="wire" aria-hidden="true"></span>
+        <div><h3>Sistemas ERP y CRM</h3></div>
+        <p>Inventarios, ventas, clientes y facturación en un solo sistema, con paneles para ver cómo va tu negocio.</p>
+        <ul class="inc">
+          <li>Facturación electrónica CFDI 4.0</li>
+          <li>Usuarios con roles y permisos</li>
+          <li>Paneles e informes</li>
+        </ul>
+        <div class="time"><b>4 a 8 semanas</b>tiempo de desarrollo</div>
+      </article>
+
+      <article class="svc" id="ia" style="--w:var(--c-azul)">
+        <span class="wire st" aria-hidden="true"></span>
+        <div><h3>Agentes de IA para WhatsApp</h3></div>
+        <p>Asistentes entrenados con la información de tu negocio que contestan a tus clientes por WhatsApp a cualquier hora.</p>
+        <ul class="inc">
+          <li>Respuestas con tus precios y horarios</li>
+          <li>Atención las 24 horas</li>
+          <li>Se conecta a tu web o ERP</li>
+        </ul>
+        <div class="time"><b>Módulo</b>se suma a cualquier proyecto</div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="sec proc" id="proceso" aria-labelledby="procH">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 id="procH">Cómo trabajamos</h2>
+      <p class="lead">Cuatro pasos, sin vueltas. Sabes lo que vas a pagar y cuándo queda listo antes de empezar.</p>
+    </div>
+    <ol class="steps">
+      <li><h3>Nos escribes</h3><p>Por WhatsApp o correo, cuéntanos qué necesitas o arma tu cotización aquí abajo.</p></li>
+      <li><h3>Diagnóstico y cotización</h3><p>Revisamos tu equipo, tu red o tu proceso y te enviamos una cotización formal.</p></li>
+      <li><h3>Instalación o desarrollo</h3><p>Armamos, instalamos o programamos en el tiempo acordado, con avances a la vista.</p></li>
+      <li><h3>Garantía y soporte</h3><p>Garantía directa en hardware y póliza de soporte 24/7 si la necesitas.</p></li>
+    </ol>
+  </div>
+</section>
+
+<section class="sec" id="cotizar" aria-labelledby="cfgH">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 id="cfgH">Arma tu cotización</h2>
+      <p class="lead">Elige lo que necesitas y envíanos el resumen por WhatsApp. Te respondemos con una cotización formal.</p>
+    </div>
+
+    <form class="cfg" id="cfg" onsubmit="return false">
+      <div>
+        <fieldset>
+          <legend>¿Qué necesitas?</legend>
+          <p class="hint">Elige la solución principal.</p>
+          <div class="opts">
+            <label class="opt"><input type="radio" name="sol" value="Workstation / Servidor Local" data-time="3 a 7 días" checked><span class="wire" style="--w:var(--c-naranja)"></span><b>Workstation o servidor</b><span>Hardware a medida</span></label>
+            <label class="opt"><input type="radio" name="sol" value="Web Corporativa de Lujo" data-time="7 a 14 días"><span class="wire" style="--w:var(--c-azul)"></span><b>Sitio web o tienda</b><span>Diseño exclusivo</span></label>
+            <label class="opt"><input type="radio" name="sol" value="Sistema ERP / SaaS a Medida" data-time="4 a 8 semanas"><span class="wire" style="--w:var(--c-cafe)"></span><b>Sistema ERP o CRM</b><span>Inventario y facturación</span></label>
+            <label class="opt"><input type="radio" name="sol" value="Redes & Ciberseguridad" data-time="3 a 10 días"><span class="wire" style="--w:var(--c-verde)"></span><b>Redes y firewall</b><span>Cableado y seguridad</span></label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Agrega módulos</legend>
+          <p class="hint">Opcional. Marca los que quieras sumar.</p>
+          <div class="mods">
+            <label class="mod"><input type="checkbox" value="Chatbot con IA para WhatsApp"><i><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6.2l2.3 2.3 4.7-5"/></svg></i>Agente IA en WhatsApp</label>
+            <label class="mod"><input type="checkbox" value="Pasarela de Pagos Stripe / Tarjetas"><i><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6.2l2.3 2.3 4.7-5"/></svg></i>Pagos con tarjeta</label>
+            <label class="mod"><input type="checkbox" value="Facturación Electrónica CFDI 4.0"><i><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6.2l2.3 2.3 4.7-5"/></svg></i>Facturación CFDI 4.0</label>
+            <label class="mod"><input type="checkbox" value="Hosting Cloud & Dominio"><i><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6.2l2.3 2.3 4.7-5"/></svg></i>Hosting y dominio</label>
+            <label class="mod"><input type="checkbox" value="Soporte Técnico 24/7"><i><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6.2l2.3 2.3 4.7-5"/></svg></i>Soporte 24/7</label>
+            <label class="mod"><input type="checkbox" value="Redes Estructuradas"><i><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6.2l2.3 2.3 4.7-5"/></svg></i>Cableado estructurado</label>
+          </div>
+        </fieldset>
+      </div>
+
+      <aside class="sum" aria-live="polite">
+        <h3>Tu configuración</h3>
+        <div class="lcd"><small>Solución principal</small><b id="sumSol">Workstation o servidor</b></div>
+        <dl>
+          <div><dt>Tiempo estimado</dt><dd id="sumTime">3 a 7 días</dd></div>
+        </dl>
+        <ul id="sumMods"><li class="none">Sin módulos adicionales</li></ul>
+        <button type="button" class="btn btn-go" id="sendCfg">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M.057 24l1.687-6.163A11.867 11.867 0 0 1 .157 11.89C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.746 5.634l-.999 3.648zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+          Enviar por WhatsApp
+        </button>
+        <p class="fine">Se abre WhatsApp con el resumen listo para enviar.</p>
+      </aside>
+    </form>
+  </div>
+</section>
+
+<section class="sec proc" id="preguntas" aria-labelledby="faqH">
+  <div class="wrap faq">
+    <h2 id="faqH">Preguntas frecuentes</h2>
+    <div class="qa">
+      <details>
+        <summary>¿Ofrecen garantía en hardware y servidores?<i aria-hidden="true"></i></summary>
+        <p>Sí. Todos nuestros equipos, workstations y servidores incluyen garantía directa sobre componentes y pasan pruebas de rendimiento antes de entregarse.</p>
+      </details>
+      <details>
+        <summary>¿Emiten factura válida ante el SAT?<i aria-hidden="true"></i></summary>
+        <p>Sí. Emitimos factura CFDI 4.0 para cualquier servicio de software, hardware, redes o póliza de mantenimiento.</p>
+      </details>
+      <details>
+        <summary>¿Cuánto tarda un proyecto?<i aria-hidden="true"></i></summary>
+        <p>Depende de la solución: una workstation o servidor, de 3 a 7 días; una red, de 3 a 10 días; un sitio web, de 7 a 14 días; y un sistema ERP, de 4 a 8 semanas. En la cotización formal te damos la fecha exacta.</p>
+      </details>
+      <details>
+        <summary>¿Qué pasa después de la entrega?<i aria-hidden="true"></i></summary>
+        <p>Tu hardware queda con garantía y puedes contratar una póliza de soporte 24/7 para mantenimiento, actualizaciones y atención a fallas.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<section class="sec contact" id="contacto" aria-labelledby="ctH">
+  <div class="wrap ct">
+    <div>
+      <h2 id="ctH">Hablemos de tu proyecto</h2>
+      <p class="lead">Te atiende directamente un ingeniero, no un conmutador.</p>
+      <a class="phone" href="tel:+522211050617">221 105 0617</a>
+    </div>
+    <div class="ct-acts">
+      <a class="btn btn-go" href="https://wa.me/522211050617?text=Hola%20GR%20Software%20TC" target="_blank" rel="noopener">Escribir por WhatsApp<span>Respuesta rápida</span></a>
+      <a class="btn btn-dark" href="tel:+522211050617">Llamar<span>221 105 0617</span></a>
+      <a class="btn btn-dark" href="mailto:grsoftwaretc@gmail.com">Enviar correo<span>grsoftwaretc@gmail.com</span></a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>© <span id="yr">2026</span> GR Software TC</span>
+    <nav aria-label="Contacto">
+      <a href="mailto:grsoftwaretc@gmail.com">grsoftwaretc@gmail.com</a>
+      <a href="tel:+522211050617">221 105 0617</a>
+    </nav>
+  </div>
+</footer>
+
+<a class="wa" href="https://wa.me/522211050617?text=Hola%20GR%20Software%20TC" target="_blank" rel="noopener" aria-label="Escribir por WhatsApp">
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M.057 24l1.687-6.163A11.867 11.867 0 0 1 .157 11.89C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.746 5.634l-.999 3.648zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+</a>
+
+<script>
+(() => {
+  const WA = '522211050617';
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // encabezado y menú móvil
+  const top = document.getElementById('top');
+  const menuBtn = document.getElementById('menuBtn');
+  const onScroll = () => top.classList.toggle('scrolled', scrollY > 8);
+  addEventListener('scroll', onScroll, { passive: true }); onScroll();
+  const setMenu = open => { top.classList.toggle('open', open); menuBtn.setAttribute('aria-expanded', open); menuBtn.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú'); };
+  menuBtn.addEventListener('click', () => setMenu(!top.classList.contains('open')));
+  document.querySelectorAll('#mnav a').forEach(a => a.addEventListener('click', () => setMenu(false)));
+  addEventListener('keydown', e => { if (e.key === 'Escape') setMenu(false); });
+
+  // rack: puertos del switch con cables en colores T568B
+  const cable = [['naranja', 1], ['naranja', 0], ['verde', 1], ['azul', 0], ['azul', 1], ['verde', 0], ['cafe', 1], ['cafe', 0]];
+  const ports = document.getElementById('ports');
+  const plugged = [0, 1, 2, 3, 5, 6, 8, 9, 10, 12, 13, 14, 15, 17, 19, 20, 22];
+  for (let i = 0; i < 24; i++) {
+    const p = document.createElement('i');
+    p.className = 'port';
+    if (plugged.includes(i)) {
+      const [c, st] = cable[i % 8];
+      p.classList.add('p'); if (st) p.classList.add('st');
+      p.style.setProperty('--pc', `var(--c-${c})`);
+      const led = document.createElement('i');
+      led.className = 'led' + (i % 5 === 0 ? ' amb' : '');
+      led.style.setProperty('--t', (0.5 + ((i * 37) % 13) / 10).toFixed(2) + 's');
+      led.style.setProperty('--d', (((i * 53) % 10) / 10).toFixed(1) + 's');
+      p.appendChild(led);
+    }
+    ports.appendChild(p);
+  }
+  // rack: bahías de disco del servidor
+  const bays = document.getElementById('bays');
+  for (let i = 0; i < 8; i++) {
+    const b = document.createElement('i'); b.className = 'bay';
+    const led = document.createElement('i');
+    led.className = 'led' + (i % 3 === 1 ? ' amb' : '');
+    led.style.setProperty('--t', (0.35 + ((i * 29) % 9) / 10).toFixed(2) + 's');
+    led.style.setProperty('--d', (((i * 41) % 7) / 10).toFixed(1) + 's');
+    b.appendChild(led); bays.appendChild(b);
+  }
+
+  // rack: pantalla con el software trabajando
+  const feed = [
+    ['Tienda en línea', 'Pedido 1043 pagado con tarjeta'],
+    ['ERP', 'Factura CFDI 4.0 timbrada'],
+    ['Agente IA', 'Cliente atendido en WhatsApp'],
+    ['Servidor', 'Respaldo RAID completado'],
+    ['Firewall', 'Intento de acceso bloqueado'],
+    ['ERP', 'Inventario actualizado: 312 piezas']
+  ];
+  const lk = document.getElementById('lcdK'), lv = document.getElementById('lcdV');
+  let f = 0;
+  if (!reduce) setInterval(() => {
+    lv.classList.add('out');
+    setTimeout(() => { f = (f + 1) % feed.length; lk.textContent = feed[f][0]; lv.textContent = feed[f][1]; lv.classList.remove('out'); }, 350);
+  }, 2800);
+
+  // cotizador
+  const form = document.getElementById('cfg');
+  const sumSol = document.getElementById('sumSol'), sumTime = document.getElementById('sumTime'), sumMods = document.getElementById('sumMods');
+  const state = () => {
+    const r = form.querySelector('input[name="sol"]:checked');
+    const mods = [...form.querySelectorAll('.mod input:checked')];
+    return { r, mods };
+  };
+  const update = () => {
+    const { r, mods } = state();
+    sumSol.textContent = r.closest('.opt').querySelector('b').textContent;
+    sumTime.textContent = r.dataset.time;
+    sumMods.innerHTML = '';
+    if (!mods.length) { sumMods.innerHTML = '<li class="none">Sin módulos adicionales</li>'; return; }
+    mods.forEach(m => { const li = document.createElement('li'); li.textContent = m.parentElement.textContent.trim(); sumMods.appendChild(li); });
+  };
+  form.addEventListener('change', update); update();
+  document.getElementById('sendCfg').addEventListener('click', () => {
+    const { r, mods } = state();
+    const addons = mods.length ? `\n• Módulos opcionales: ${mods.map(m => m.value).join(', ')}` : '\n• Configuración base';
+    const text = `Hola *GR Software TC*, configuré el siguiente sistema:\n\n• Solución/Hardware: *${r.value}*${addons}\n• Tiempo estimado: ${r.dataset.time}\n\n¿Me pueden dar una cotización formal?`;
+    window.open(`https://wa.me/${WA}?text=${encodeURIComponent(text)}`, '_blank', 'noopener');
+  });
+
+  document.getElementById('yr').textContent = new Date().getFullYear();
+})();
+</script>
+</body>
+</html>
