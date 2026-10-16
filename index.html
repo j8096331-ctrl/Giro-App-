@@ -623,6 +623,22 @@ select.inp{-webkit-appearance:none;appearance:none;background-image:url("data:im
 .xchips{display:flex!important;flex-wrap:wrap;gap:5px;margin-top:5px}.xchips i{font-style:normal;font-size:12px;background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:1px 8px;color:var(--ink)}
 .fsec .grid2>.field:last-child:nth-child(odd){grid-column:1/-1}
 .equip{background:rgba(123,92,255,.2)!important}
+/* ===== v6.1: modificadores clínicos, gafas de filtros y plan cerrado ===== */
+.cf-sec{margin:26px 0 0;padding-top:16px;border-top:1px solid var(--line);text-align:center;font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2)}
+.zseg button{min-height:72px!important}
+.pmods{text-align:center;margin:6px 0 4px}.pmods .lab{display:block;font-weight:700;font-size:14px;margin:10px 0 6px;color:#C9D4E2}
+.pmods .seg button{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.16);color:#E8EEF6;min-height:40px;font-size:13.5px}
+.pmods .seg button[aria-pressed="true"]{background:#FFC93C;border-color:#FFC93C;color:#0B1424}
+.pmods .zseg button{min-height:58px!important;padding:6px 4px}.pmods .seg .oi svg{width:28px!important;height:21px!important}
+.glprev{display:flex;align-items:center;gap:10px;background:#000;border-radius:14px;padding:12px 14px;margin:4px 0 12px}
+.glprev span{width:34px;height:34px;border-radius:8px;flex:none}.glprev small{color:#C9D4E2;font-size:13px;margin-left:4px}
+.calbox{display:flex;justify-content:center;align-items:center;gap:8%;background:#000;border-radius:18px;padding:26px 16px;margin:14px 0 10px}
+.calbox span{width:34%;max-width:170px;aspect-ratio:1;border-radius:12px}
+.calbox b{font-family:var(--display);font-size:clamp(70px,24vw,140px);line-height:1}
+.calhelp{text-align:center;color:var(--ink-2);font-size:14.5px;max-width:52ch;margin:0 auto 6px}
+.calrow{display:grid;grid-template-columns:60px minmax(0,1fr) 40px;gap:10px;align-items:center;margin:6px 0!important;text-align:left!important}
+.calrow label{margin:0!important;font-size:14px}.calrow b{text-align:right;font-variant-numeric:tabular-nums}
+body.locked .tabs button[data-tab="games"],body.locked #daily,body.locked #recentSec,body.locked [data-act="cfg"],body.locked .pmods{display:none!important}
 </style>
 </head>
 <body>
@@ -778,8 +794,13 @@ const sfx={
 function haptic(p){if(!DB.cfg.haptics)return;try{navigator.vibrate&&navigator.vibrate(p);}catch(e){}}
 
 /* ================= anaglifo y calibración ================= */
+const GLASS_DEF={rc:[0,255,255],rg:[0,255,0],rb:[0,0,255]};
+const glass=()=>DB.cfg.glass||(DB.cfg.glass={type:'rc',red:[255,0,0],other:[0,255,255],cal:0});
+const glassName=()=>({rc:'rojo/cian',rg:'rojo/verde',rb:'rojo/azul'})[glass().type]||'rojo/cian';
+const otherName=()=>({rc:'cian',rg:'verde',rb:'azul'})[glass().type]||'cian';
+const hexOf=a=>'#'+a.map(v=>Math.round(v).toString(16).padStart(2,'0')).join('');
 function eyeColors(){
-  const p=P(),red=[255,0,0],cyan=[0,255,255];
+  const p=P(),red=glass().red.slice(),cyan=glass().other.slice();
   const L=p.redEye==='left'?red:cyan,R=p.redEye==='left'?cyan:red;let li=1,ri=1;const b=p.balance/100;
   if(p.trainEye==='left')ri=b;else if(p.trainEye==='right')li=b;
   return {L:L.map(c=>c*li),R:R.map(c=>c*ri)};
@@ -800,7 +821,7 @@ function orb(c,x,y,r,col,glow){
   c.fillStyle=g;c.beginPath();c.arc(x,y,r,0,TAU);c.fill();c.shadowBlur=0;
 }
 function shade(hex,amt){const n=parseInt(hex.slice(1),16);let r=n>>16,g=(n>>8)&255,b=n&255;const f=amt<0?0:255,t=Math.abs(amt);r=Math.round((f-r)*t+r);g=Math.round((f-g)*t+g);b=Math.round((f-b)*t+b);return `rgb(${r},${g},${b})`;}
-function gridLayout(n,top=0,bottom=0){const h=H-top-bottom,s=Math.min(W,h)*0.94,cell=s/n;return {s,cell,ox:(W-s)/2,oy:top+(h-s)/2};}
+function gridLayout(n,top=0,bottom=0){const h=ZH-top-bottom,s=Math.min(ZW,h)*0.94,cell=s/n;return {s,cell,ox:(ZW-s)/2,oy:top+(h-s)/2};}
 function gridHit(L,n,x,y){const gx=Math.floor((x-L.ox)/L.cell),gy=Math.floor((y-L.oy)/L.cell);if(gx<0||gy<0||gx>=n||gy>=n)return -1;return gy*n+gx;}
 function landolt(c,x,y,D,a,col){const sw=D/5,rm=(D-sw)/2,ga=2*Math.asin(Math.min(1,(sw/2)/rm));c.strokeStyle=col;c.lineWidth=sw;c.lineCap='butt';c.beginPath();c.arc(x,y,rm,a+ga/2,a+TAU-ga/2);c.stroke();}
 function tumblingE(c,x,y,D,a,col){const u=D/5;c.save();c.translate(x,y);c.rotate(a);c.fillStyle=col;
@@ -815,11 +836,20 @@ const inBox=(b,x,y)=>x>=b.x&&x<=b.x+b.w&&y>=b.y&&y<=b.y+b.h;
 /* ================= motor ================= */
 const cv=$('#cv'),cx=cv.getContext('2d');
 let W=300,H=300,DPR=1,cur=null,bgFill=null,postRaf=0,lowQ=false,ftAvg=.016;
+/* campo activo: el ejercicio se dibuja y responde solo dentro de esta zona */
+let ZX=0,ZY=0,ZW=300,ZH=300;
+const ZNAME={full:'pantalla completa',L:'mitad izquierda',R:'mitad derecha',T:'mitad superior',B:'mitad inferior',q1:'cuadrante superior izquierdo',q2:'cuadrante superior derecho',q3:'cuadrante inferior izquierdo',q4:'cuadrante inferior derecho'};
+function zoneRect(z){const g=6,w2=W/2-g,h2=H/2-g;return ({L:[0,0,w2,H],R:[W/2+g,0,w2,H],T:[0,0,W,h2],B:[0,H/2+g,W,h2],q1:[0,0,w2,h2],q2:[W/2+g,0,w2,h2],q3:[0,H/2+g,w2,h2],q4:[W/2+g,H/2+g,w2,h2]})[z]||[0,0,W,H];}
+function setZone(){const z=cur?cur.zone:(pending&&pending.conf&&pending.conf.zone);[ZX,ZY,ZW,ZH]=zoneRect(z||'full');}
+function drawGame(dt){const zoned=cur.zone&&cur.zone!=='full';cx.save();cx.translate(ZX,ZY);if(zoned){cx.beginPath();cx.rect(0,0,ZW,ZH);cx.clip();}cur.g.draw(cx);if(dt!=null){if(cur.rtm&&cur.running)drawRT(cur.rtm.frac());drawFx(dt);}cx.restore();
+  if(zoned){cx.save();cx.strokeStyle='rgba(255,255,255,.28)';cx.lineWidth=1.5;cx.setLineDash([7,7]);cx.strokeRect(ZX+1,ZY+1,ZW-2,ZH-2);cx.setLineDash([]);
+    if(cur.fix){const s=Math.max(8,Math.min(W,H)*.022);cx.strokeStyle='#fff';cx.lineWidth=3;cx.beginPath();cx.moveTo(W/2-s,H/2);cx.lineTo(W/2+s,H/2);cx.moveTo(W/2,H/2-s);cx.lineTo(W/2,H/2+s);cx.stroke();}cx.restore();}
+  if(cur.met&&cur.metFlash>0){cx.fillStyle=`rgba(255,201,60,${Math.min(1,cur.metFlash*8)})`;cx.beginPath();cx.arc(W-18,H-18,7,0,TAU);cx.fill();}}
 let parts=[],floats=[],rings=[],confetti=[],shake=0,flashT=0;
 
 function resize(){
   const r=cv.getBoundingClientRect();DPR=Math.min(window.devicePixelRatio||1,2);
-  W=Math.max(1,r.width);H=Math.max(1,r.height);cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);cx.setTransform(DPR,0,0,DPR,0,0);
+  W=Math.max(1,r.width);H=Math.max(1,r.height);cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);cx.setTransform(DPR,0,0,DPR,0,0);setZone();
   makeBg();if(cur&&cur.g&&cur.g.resize)cur.g.resize();
 }
 function makeBg(){
@@ -829,7 +859,7 @@ function makeBg(){
   const g=cx.createRadialGradient(W/2,H*0.45,0,W/2,H*0.45,Math.hypot(W,H)*0.6);g.addColorStop(0,'#13243D');g.addColorStop(1,'#060D19');bgFill=g;
 }
 function paintBg(){cx.fillStyle=bgFill||C.board;cx.fillRect(0,0,W,H);}
-window.addEventListener('resize',()=>{if($('#stage').classList.contains('open')){resize();if(!cur||!cur.running){paintBg();if(cur&&cur.g)cur.g.draw(cx);}}});
+window.addEventListener('resize',()=>{if($('#stage').classList.contains('open')){resize();if(!cur||!cur.running){paintBg();if(cur&&cur.g)drawGame();}}});
 
 function burst(x,y,col,n){if(lowQ)n=Math.ceil(n/2);for(let i=0;i<n;i++){const a=rand(0,TAU),s=rand(60,260);parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,t:0,life:rand(.35,.7),r:rand(1.5,4),col});}}
 function floatText(x,y,txt,col){floats.push({x,y,txt,col,t:0});}
@@ -856,7 +886,7 @@ function mkRtm(){let s=-1;return {tick(a){if(!a||!cur){s=-1;return false;}if(s<0
 function drawRT(f){if(f==null)return;cx.fillStyle='rgba(255,255,255,.14)';cx.fillRect(0,0,W,6);cx.fillStyle=f<.3?C.red:C.yel;cx.fillRect(0,0,W*f,6);}
 function makeApi(){
   return {
-    get W(){return W},get H(){return H},get M(){return Math.min(W,H)},
+    get W(){return ZW},get H(){return ZH},get M(){return Math.min(ZW,ZH)},
     get elapsed(){return cur?cur.elapsed:0},get mouse(){return cur?cur.mouse:false},
     get lv(){return cur.lv},get tf(){return cur&&cur.tf||1},get rt(){return cur&&cur.rt||0},get ex(){return cur&&cur.ex||0},rtm:mkRtm(),get T(){return (cur.lv-1)/9},get adaptive(){return cur.adaptive},
     get remaining(){return cur.untimed?Infinity:cur.limit-cur.elapsed},
@@ -879,6 +909,7 @@ function loop(ts){
   if(!cur||!cur.running)return;
   const dt=Math.min(0.05,Math.max(0,(ts-cur.last)/1000));cur.last=ts;cur.elapsed+=dt;ftAvg=ftAvg*.97+dt*.03;if(!lowQ&&cur.elapsed>2&&ftAvg>.027)lowQ=true;
   if(!cur.untimed&&cur.elapsed>=cur.limit){finishGame();return;}
+  if(cur.met){cur.metT+=dt;cur.metFlash=Math.max(0,cur.metFlash-dt);const per=60/cur.met;if(cur.metT>=per){cur.metT-=per;cur.beat++;tone(cur.beat%4===1?1046:784,.04,'sine',.06);cur.metFlash=.14;}}
   cur.g.update(dt);
   if(!cur||!cur.running)return;
   renderFrame(dt);timerHud();
@@ -887,7 +918,7 @@ function loop(ts){
 function renderFrame(dt){
   cx.save();
   if(shake>0){cx.translate(rand(-shake,shake),rand(-shake,shake));shake=Math.max(0,shake-dt*40);}
-  paintBg();if(DB.cfg.ambient&&!lowQ&&!cur.def.anaglyph&&!cur.def.bg)drawAmbient(dt);cur.g.draw(cx);if(cur.rtm&&cur.running)drawRT(cur.rtm.frac());drawFx(dt);drawConfetti(dt);cx.restore();
+  paintBg();if(DB.cfg.ambient&&!lowQ&&!cur.def.anaglyph&&!cur.def.bg)drawAmbient(dt);drawGame(dt);drawConfetti(dt);cx.restore();
   if(cur.running&&cur.elapsed<.35){cx.fillStyle=`rgba(4,8,15,${(1-cur.elapsed/.35)*.7})`;cx.fillRect(0,0,W,H);}
   if(flashT>0){flashT-=dt;const g=cx.createRadialGradient(W/2,H/2,Math.min(W,H)*0.3,W/2,H/2,Math.hypot(W,H)*0.6);g.addColorStop(0,'rgba(255,60,70,0)');g.addColorStop(1,`rgba(255,60,70,${Math.max(0,flashT)*1.2})`);cx.fillStyle=g;cx.fillRect(0,0,W,H);}
 }
@@ -899,7 +930,7 @@ function postLoop(){
   const f=ts=>{if(!cur||cur.running)return;const dt=Math.min(0.05,(ts-last)/1000);last=ts;renderFrame(dt);if(ts-t0<3500)postRaf=requestAnimationFrame(f);};
   postRaf=requestAnimationFrame(f);
 }
-function pt(e){const r=cv.getBoundingClientRect();return {x:e.clientX-r.left,y:e.clientY-r.top};}
+function pt(e){const r=cv.getBoundingClientRect();return {x:e.clientX-r.left-ZX,y:e.clientY-r.top-ZY};}
 cv.addEventListener('pointerdown',e=>{if(!cur||!cur.running)return;e.preventDefault();cur.mouse=e.pointerType==='mouse';try{cv.setPointerCapture(e.pointerId);}catch(_){}const p=pt(e);cur.g.down&&cur.g.down(p.x,p.y);});
 cv.addEventListener('pointermove',e=>{if(!cur||!cur.running)return;cur.mouse=e.pointerType==='mouse';const p=pt(e);cur.g.move&&cur.g.move(p.x,p.y);});
 ['pointerup','pointercancel'].forEach(ev=>cv.addEventListener(ev,()=>{if(!cur||!cur.running)return;cur.g.up&&cur.g.up();}));
@@ -923,7 +954,7 @@ function timerHud(){
 const CATS=[
   {id:'mov',name:'Movimientos oculares',sub:'Seguimiento suave, saltos de mirada y rastreo fino'},
   {id:'aten',name:'Percepción y atención',sub:'Reacción, campo visual, memoria, detalle y contraste'},
-  {id:'bino',name:'Visión binocular',sub:'Los dos ojos en equipo. Necesitas gafas rojo/cian'}
+  {id:'bino',name:'Visión binocular',sub:'Los dos ojos en equipo. Necesitas gafas de filtros (rojo/cian, rojo/verde o rojo/azul)'}
 ];
 const speedWord=lv=>['muy lenta','lenta','media','rápida','muy rápida'][Math.min(4,Math.floor((lv-1)/2))];
 const T_=lv=>(lv-1)/9;
@@ -1912,7 +1943,7 @@ const ICO={
  mv2:'<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 4v24M11 9l5-5 5 5M11 23l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
  mv4:'<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 4v24M4 16h24M12 8l4-4 4 4M12 24l4 4 4-4M8 12l-4 4 4 4M24 12l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
  rounds:n=>`<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M25.5 12.5A10.5 10.5 0 1 0 26.5 19" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/><path d="M26.5 6.5v6.5H20" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/><text x="15.5" y="20" font-family="sans-serif" font-size="${n>9?9:11}" font-weight="700" text-anchor="middle" fill="currentColor">${n}</text></svg>`,
- glasses:s=>`<svg viewBox="0 0 40 24" aria-hidden="true" style="width:40px;height:24px"><rect x="3" y="6" width="14" height="11" rx="4" fill="${s==='left'?'#F0384B':'#13B5D6'}" stroke="currentColor" stroke-width="1.8"/><rect x="23" y="6" width="14" height="11" rx="4" fill="${s==='left'?'#13B5D6':'#F0384B'}" stroke="currentColor" stroke-width="1.8"/><path d="M17 10.5q3-2.5 6 0" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>`
+ glasses:s=>`<svg viewBox="0 0 40 24" aria-hidden="true" style="width:40px;height:24px"><rect x="3" y="6" width="14" height="11" rx="4" fill="${s==='left'?'#F0384B':hexOf(glass().other)}" stroke="currentColor" stroke-width="1.8"/><rect x="23" y="6" width="14" height="11" rx="4" fill="${s==='left'?hexOf(glass().other):'#F0384B'}" stroke="currentColor" stroke-width="1.8"/><path d="M17 10.5q3-2.5 6 0" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>`
 };
 GAMES.push({id:'grua',name:'Grúa',skill:'Profundidad y orientación',cat:'bino',anaglyph:true,untimed:()=>true,
  how:'Con las gafas puestas, mueve la grúa hasta que la caja que cuelga quede justo encima de la caja del suelo y a la misma profundidad. El control de la izquierda la acerca o la aleja. Cuando lo creas, toca Comprobar y la grúa la bajará.',
@@ -2301,7 +2332,7 @@ const dayKey=d=>{const x=new Date(d);return `${x.getFullYear()}-${x.getMonth()+1
 const isUntimed=(def,opt)=>!!(def.untimed&&def.untimed(opt||{}));
 function defOpts(def){const o={};(def.opts||[]).forEach(q=>o[q.k]=q.ch[0][0]);return o;}
 function optSummary(def,opt){return (def.opts||[]).map(q=>{const v=(opt||{})[q.k]??q.ch[0][0];if(v===q.ch[0][0])return null;const c=q.ch.find(x=>x[0]===v);return c?c[1]:null;}).filter(Boolean).join(', ');}
-function confText(def,c){const parts=[`Nivel ${c.lv}`];if(!isUntimed(def,c.opt))parts.push(durLabel(c.dur));if(c.adaptive)parts.push('adaptativo');if(c.ex&&def.exx)parts.push(`visible ${String(c.ex).replace('.',',')} s`);if(c.rt&&def.rtx)parts.push(`${c.rt} s para responder`);const os=optSummary(def,c.opt);if(os)parts.push(os.toLowerCase());return parts.join(', ');}
+function confText(def,c){const parts=[`Nivel ${c.lv}`];if(c.zone&&c.zone!=='full'&&!def.noZone)parts.push(ZNAME[c.zone]);if(c.met&&!def.ownMet)parts.push(`metrónomo ${c.met} ppm`);if(!isUntimed(def,c.opt))parts.push(durLabel(c.dur));if(c.adaptive)parts.push('adaptativo');if(c.ex&&def.exx)parts.push(`visible ${String(c.ex).replace('.',',')} s`);if(c.rt&&def.rtx)parts.push(`${c.rt} s para responder`);const os=optSummary(def,c.opt);if(os)parts.push(os.toLowerCase());return parts.join(', ');}
 function streak(){const set=new Set(mySessions().map(h=>dayKey(h.date)));const d=new Date();if(!set.has(dayKey(d)))d.setDate(d.getDate()-1);let n=0;while(set.has(dayKey(d))){n++;d.setDate(d.getDate()-1);}return n;}
 function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('show'),2400);}
 const initials=n=>(n||'?').trim().split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase();
@@ -2314,15 +2345,26 @@ scrim.addEventListener('click',closeSheet);
 
 /* ---------- configuración de un ejercicio ---------- */
 let CF=null;
-function confFor(gid){const def=G(gid),last=(DB.last[DB.active]||{})[gid];return Object.assign({lv:3,dur:60,adaptive:true},{tf:1,rt:P().rt||0,ex:P().ex||0},last?{lv:last.lv,dur:last.dur,adaptive:last.adaptive,tf:1,rt:last.rt!=null?last.rt:(P().rt||0),ex:last.ex!=null?last.ex:(P().ex||0)}:{},{opt:Object.assign(defOpts(def),last&&last.opt||{})});}
+function confFor(gid){const def=G(gid),last=(DB.last[DB.active]||{})[gid];return Object.assign({lv:3,dur:60,adaptive:true},{tf:1,rt:P().rt||0,ex:P().ex||0},last?{lv:last.lv,dur:last.dur,adaptive:last.adaptive,tf:1,rt:last.rt!=null?last.rt:(P().rt||0),ex:last.ex!=null?last.ex:(P().ex||0)}:{},{opt:Object.assign(defOpts(def),last&&last.opt||{})},{met:last&&last.met||0,zone:last&&last.zone||'full',fix:last?last.fix!==false:true});}
 function openConfig(gid,mode,idx,preset){
   const base=preset?JSON.parse(JSON.stringify(preset)):confFor(gid);base.opt=Object.assign(defOpts(G(gid)),base.opt||{});
   CF={gid,mode:mode||'play',idx,rt:P().rt||0,ex:P().ex||0,...base,tf:1};renderConfig();
 }
+const MET_OPTS=[[0,'Apagado'],[40,'40 ppm'],[60,'60 ppm'],[80,'80 ppm'],[100,'100 ppm'],[120,'120 ppm']];
+const ZONES=[['q1','Sup. izq.'],['T','Superior'],['q2','Sup. der.'],['L','Izquierda'],['full','Completa'],['R','Derecha'],['q3','Inf. izq.'],['B','Inferior'],['q4','Inf. der.']];
+const zoneIco=z=>{const [x,y,w,h]={full:[0,0,1,1],L:[0,0,.5,1],R:[.5,0,.5,1],T:[0,0,1,.5],B:[0,.5,1,.5],q1:[0,0,.5,.5],q2:[.5,0,.5,.5],q3:[0,.5,.5,.5],q4:[.5,.5,.5,.5]}[z];
+  return `<svg viewBox="0 0 32 24" aria-hidden="true" style="width:34px;height:26px"><rect x="1" y="1" width="30" height="22" rx="3" fill="none" stroke="currentColor" stroke-width="1.6" opacity=".55"/><rect x="${2+x*28}" y="${2+y*20}" width="${w*28}" height="${h*20}" rx="2" fill="currentColor" opacity=".85"/></svg>`;};
+const zoneSeg=(attr,val)=>`<div class="seg ico zseg" data-n="9" role="group" aria-label="Campo activo">${ZONES.map(([v,l])=>`<button ${attr}="${v}" aria-pressed="${(val||'full')===v}" aria-label="${ZNAME[v]}"><span class="oi">${zoneIco(v)}</span><span>${l}</span></button>`).join('')}</div>`;
+function modsHtml(def){
+  if(def.ownMet&&def.noZone)return '';const z=CF.zone||'full';
+  return `<p class="cf-sec">Modificadores clínicos</p>
+   ${def.ownMet?'':`<div class="field"><span class="lab">Metrónomo</span><p class="help">Marca un ritmo con sonido y una luz en la esquina para acompasar las respuestas.</p>${seg('data-cf-met',MET_OPTS,CF.met||0)}</div>`}
+   ${def.noZone?'':`<div class="field"><span class="lab">Campo activo</span><p class="help">Limita el ejercicio a una zona de la pantalla, por ejemplo para trabajar un hemicampo en hemianopsias o negligencias.</p>${zoneSeg('data-cf-zone',z)}
+    ${z!=='full'?`<div class="toggle"><div><b>Punto de fijación central</b><div class="sub" style="margin:0">El paciente mira el centro de la pantalla y el ejercicio aparece solo en la zona elegida.</div></div><button class="sw" id="cfFix" role="switch" aria-checked="${CF.fix!==false}" aria-label="Punto de fijación central"></button></div>`:''}</div>`}`;}
 function renderConfig(){
   const def=G(CF.gid),untimed=isUntimed(def,CF.opt),p=P(),lv=clamp(Math.round(CF.lv),1,10);
   const segs=(def.opts||[]).map(q=>{const ico=q.ch.some(c=>c[2]);return `<div class="field"><span class="lab">${q.label}</span><div class="seg${ico?' ico':''}" data-n="${q.ch.length}" role="group" aria-label="${q.label}">${q.ch.map(([v,l,ic])=>`<button data-cf-opt="${q.k}" data-v="${v}" aria-pressed="${CF.opt[q.k]===v}">${ic?`<span class="oi">${ic}</span>`:''}<span>${l}</span></button>`).join('')}</div></div>`;}).join('');
-  const red=def.anaglyph?`<div class="field"><span class="lab">Gafas rojo/cian</span><div class="seg ico" data-n="2" role="group" aria-label="Lente rojo">${[['left','Izquierda roja'],['right','Derecha roja']].map(([v,l])=>`<button data-cf-red="${v}" aria-pressed="${p.redEye===v}"><span class="oi">${ICO.glasses(v)}</span><span>${l}</span></button>`).join('')}</div><p class="lvdesc">Lente rojo en el ojo ${eyeName(p.redEye)}. Se guarda en la ficha de ${esc(firstName(p.name))}.</p></div>`:'';
+  const red=def.anaglyph?`<div class="field"><span class="lab">Gafas ${glassName()}</span><div class="seg ico" data-n="2" role="group" aria-label="Lente rojo">${[['left','Izquierda roja'],['right','Derecha roja']].map(([v,l])=>`<button data-cf-red="${v}" aria-pressed="${p.redEye===v}"><span class="oi">${ICO.glasses(v)}</span><span>${l}</span></button>`).join('')}</div><p class="lvdesc">Lente rojo en el ojo ${eyeName(p.redEye)}. Se guarda en la ficha de ${esc(firstName(p.name))}.</p></div>`:'';
   const html=`<div class="cf" style="--acc:${catCol(def)}">
    <div class="cf-head">${glyph(def.id,def.anaglyph)}<h2>${def.name}</h2><p class="cf-th">${def.ther}</p>${(def.ind||[]).length?`<div class="cf-ind">${def.ind.map(x=>`<span>${x}</span>`).join('')}</div>`:''}</div>
    <p class="cf-how">${def.how}</p>
@@ -2334,6 +2376,7 @@ function renderConfig(){
    ${def.exx?`<div class="field"><span class="lab">Tiempo visible</span><p class="help">Cuánto tiempo se ven los números, letras o figuras antes de ocultarse. Auto usa el tiempo del nivel.</p>${seg('data-cf-ex',EX_OPTS,CF.ex||0)}${CF.ex?`<p class="lvdesc" style="margin-top:6px">Se verán ${String(CF.ex).replace('.',',')} s cada vez y ese tiempo queda fijo durante el ejercicio.</p>`:''}</div>`:''}
    ${def.rtx?`<div class="field"><span class="lab">Tiempo para responder</span><p class="help">Segundos que tiene el paciente para cada respuesta. Auto usa el tiempo del nivel. No cambia la duración de la sesión.</p>${seg('data-cf-rt',RT_OPTS,CF.rt||0)}${CF.rt?`<p class="lvdesc" style="margin-top:6px">El paciente tendrá ${CF.rt} s para responder cada vez, sea cual sea el nivel.</p>`:''}</div>`:''}
    ${untimed?'':`<div class="field"><span class="lab">Duración</span>${seg('data-cf-dur',[30,60,120,180,300].map(s=>[s,durLabel(s)]),CF.dur)}</div>`}
+   ${modsHtml(def)}
    <div class="toggle"><div><b>Dificultad adaptativa</b><div class="sub" style="margin:0">Sube o baja el nivel durante el ejercicio según cómo lo haces.</div></div><button class="sw" id="cfAd" role="switch" aria-checked="${CF.adaptive}" aria-label="Dificultad adaptativa"></button></div>
    ${CF.mode==='play'?`<div class="cf-who">${avatarSvg(p,34)}<span>Entrena <b>${esc(showName(p))}</b></span></div><button class="playbtn" id="cfGo"><span class="pc"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 5.2v13.6L19 12z" fill="currentColor"/></svg></span><span>Comenzar</span></button>`:`<div class="cf-btns"><button class="btn btn-soft" id="cfCancel">Cancelar</button><button class="btn btn-main" id="cfSave">${CF.mode==='planAdd'?'Añadir al plan':'Guardar cambios'}</button></div>`}</div>`;
   if(sheet.hidden)openSheet(html);else $('#sheetBody').innerHTML=html;
@@ -2351,13 +2394,16 @@ $('#sheetBody').addEventListener('click',e=>{
   if(b.dataset.cfLv){CF.lv=clamp(Math.round(CF.lv)+(+b.dataset.cfLv),1,10);renderConfig();return;}
   if(b.dataset.cfLvset){CF.lv=+b.dataset.cfLvset;renderConfig();return;}
   if(b.dataset.cfRed){P().redEye=b.dataset.cfRed;save();renderConfig();return;}
+  if(b.dataset.cfMet!=null){CF.met=+b.dataset.cfMet;renderConfig();return;}
+  if(b.dataset.cfZone){CF.zone=b.dataset.cfZone;renderConfig();return;}
+  if(b.id==='cfFix'){CF.fix=!(CF.fix!==false);b.setAttribute('aria-checked',CF.fix);return;}
   if(b.dataset.cfEx!=null){CF.ex=+b.dataset.cfEx;renderConfig();return;}
   if(b.dataset.cfRt!=null){CF.rt=+b.dataset.cfRt;renderConfig();return;}
   if(b.dataset.cfDur){CF.dur=+b.dataset.cfDur;renderConfig();return;}
   if(b.id==='cfAd'){CF.adaptive=!CF.adaptive;b.setAttribute('aria-checked',CF.adaptive);return;}
   if(b.id==='cfCancel'){closeSheet();return;}
-  if(b.id==='cfGo'){const c={lv:CF.lv,dur:CF.dur,adaptive:CF.adaptive,tf:1,rt:CF.rt||0,ex:CF.ex||0,opt:{...CF.opt}};closeSheet();launch(CF.gid,c,null);return;}
-  if(b.id==='cfSave'){const item={g:CF.gid,lv:CF.lv,dur:CF.dur,adaptive:CF.adaptive,tf:1,rt:CF.rt||0,ex:CF.ex||0,opt:{...CF.opt}};const p=P();if(CF.mode==='planAdd')p.plan.push(item);else p.plan[CF.idx]=item;save();closeSheet();renderAll();toast('Plan actualizado');return;}
+  if(b.id==='cfGo'){const c={lv:CF.lv,dur:CF.dur,adaptive:CF.adaptive,tf:1,rt:CF.rt||0,ex:CF.ex||0,met:CF.met||0,zone:CF.zone||'full',fix:CF.fix!==false,opt:{...CF.opt}};closeSheet();launch(CF.gid,c,null);return;}
+  if(b.id==='cfSave'){const item={g:CF.gid,lv:CF.lv,dur:CF.dur,adaptive:CF.adaptive,tf:1,rt:CF.rt||0,ex:CF.ex||0,met:CF.met||0,zone:CF.zone||'full',fix:CF.fix!==false,opt:{...CF.opt}};const p=P();if(CF.mode==='planAdd')p.plan.push(item);else p.plan[CF.idx]=item;save();closeSheet();renderAll();toast('Plan actualizado');return;}
   if(b.dataset.pickGame){openConfig(b.dataset.pickGame,'planAdd');return;}
   if(b.dataset.patient){DB.active=b.dataset.patient;save();closeSheet();renderAll();toast(`Paciente: ${P().name}`);return;}
   if(b.id==='newPat'){const inp=$('#newPatName'),n=inp.value.trim();if(!n){inp.focus();return;}const p=newPatient(n);DB.patients.push(p);DB.active=p.id;save();closeSheet();renderAll();toast(`Paciente creado: ${n}`);return;}
@@ -2399,7 +2445,7 @@ function launch(gid,conf,plan){
   showOv(`<div class="panel">${glyph(def.id,def.anaglyph)}<h2>${def.name}</h2><p class="th-line" style="--acc:${catColD(def)}">${def.ther}</p>${step}
     ${daily?'<p><span class="rec-b" style="animation-delay:.2s">Reto del día: doble de experiencia</span></p>':''}
     <div class="mbox"><canvas class="mcv sm" id="mIntro"></canvas><div class="bubble" id="bIntro"></div></div><p class="sk">${confText(def,conf)}</p>
-    ${def.anaglyph?`<p class="glasses">Ponte las gafas rojo/cian con el lente rojo en el ojo ${eyeName(P().redEye)}.</p>`:''}${def.equip?`<p class="glasses equip">Necesitas ${def.equip}.</p>`:''}${def.sup?'<p class="sk">Conviene que lo acompañe un adulto o el especialista.</p>':''}
+    ${def.anaglyph?`<p class="glasses">Ponte las gafas ${glassName()} con el lente rojo en el ojo ${eyeName(P().redEye)}.</p>`:''}${def.equip?`<p class="glasses equip">Necesitas ${def.equip}.</p>`:''}${def.sup?'<p class="sk">Conviene que lo acompañe un adulto o el especialista.</p>':''}
     ${needCal?'<p class="sk">Pantalla sin calibrar: las medidas clínicas serán aproximadas. Puedes calibrarla en Clínica.</p>':''}
     <div class="btns"><button class="btn btn-go" data-act="go">Empezar</button>${canSpeak?'<button class="btn btn-line" data-act="speak">Escuchar instrucciones</button>':''}${plan?'':'<button class="btn btn-line" data-act="cfg">Cambiar nivel u opciones</button>'}</div></div>`);
   {const gi=new Mascot($('#mIntro'),{mood:'thinking'});setTimeout(()=>gi.setMood(def.anaglyph?'surprised':'happy',1.5),1600);setTimeout(()=>typeSay($('#bIntro'),def.how,14),350);}
@@ -2428,12 +2474,16 @@ function startGame(){
   const {def,conf}=pending;resize();
   cur={def,opt:{...conf.opt},tf:1,rt:conf.rt||0,ex:conf.ex||0,lv:conf.lv,lv0:conf.lv,lvMax:conf.lv,adaptive:conf.adaptive,limit:conf.dur,untimed:isUntimed(def,conf.opt),
     elapsed:0,score:0,hits:0,misses:0,combo:0,maxCombo:0,info:'',running:true,paused:false,last:performance.now(),mouse:false,metrics:{},lastSec:-1};
+  Object.assign(cur,{met:def.ownMet?0:(conf.met||0),zone:def.noZone?'full':(conf.zone||'full'),fix:conf.fix!==false,metT:0,metFlash:0,beat:0});setZone();
   makeBg();const A_=makeApi();cur.rtm=A_.rtm;cur.g=def.create(A_);sfx.go();hud();timerHud();
   cur.raf=requestAnimationFrame(loop);
 }
 function pauseGame(){
-  if(!cur||!cur.running)return;cur.running=false;cur.paused=true;cancelAnimationFrame(cur.raf);
-  showOv(`<div class="panel"><h2>En pausa</h2><p class="sk">${cur.def.name}. Tómate tu tiempo.</p><div class="btns"><button class="btn btn-go" data-act="resume">Continuar</button><button class="btn btn-line" data-act="restart">Empezar de nuevo</button><button class="btn btn-line" data-act="close">Salir</button></div></div>`);
+  if(!cur||!cur.running)return;cur.running=false;cur.paused=true;cancelAnimationFrame(cur.raf);renderPause();
+}
+function renderPause(){
+  const d=cur.def,mods=(d.ownMet&&d.noZone)?'':`<div class="pmods"><p class="sk">Modificadores clínicos</p>${d.ownMet?'':`<span class="lab">Metrónomo</span>${seg('data-pm-met',MET_OPTS,cur.met)}`}${d.noZone?'':`<span class="lab">Campo activo</span>${zoneSeg('data-pm-zone',cur.zone)}`}</div>`;
+  showOv(`<div class="panel"><h2>En pausa</h2><p class="sk">${cur.def.name}. Tómate tu tiempo.</p>${mods}<div class="btns"><button class="btn btn-go" data-act="resume">Continuar</button><button class="btn btn-line" data-act="restart">Empezar de nuevo</button><button class="btn btn-line" data-act="close">Salir</button></div></div>`);
 }
 function resumeGame(){if(!cur||!cur.paused)return;hideOv();cur.paused=false;cur.running=true;cur.last=performance.now();cur.raf=requestAnimationFrame(loop);}
 
@@ -2479,14 +2529,14 @@ function finishGame(){
   if(isBest)DB.best[pid][def.id]={score,unit,better};
   if(isBest&&prev){DB.recs=DB.recs||{};DB.recs[pid]=(DB.recs[pid]||0)+1;}
   const xpB=playerXP(),daily=def.id===dailyId()&&!dailyDone();
-  const sess={id:uid(),pid,g:def.id,date:new Date().toISOString(),dur:Math.round(cur.elapsed),lv:cur.lv0,lvEnd:cur.lv,adaptive:cur.adaptive,score,unit,acc,stars,clin:r.clin||{},opt:cur.opt,daily,tf:cur.tf,rt:cur.rt,ex:cur.ex};
+  const sess={id:uid(),pid,g:def.id,date:new Date().toISOString(),met:cur.met,zone:cur.zone,dur:Math.round(cur.elapsed),lv:cur.lv0,lvEnd:cur.lv,adaptive:cur.adaptive,score,unit,acc,stars,clin:r.clin||{},opt:cur.opt,daily,tf:cur.tf,rt:cur.rt,ex:cur.ex};
   DB.sessions.push(sess);if(DB.sessions.length>60000)DB.sessions=DB.sessions.slice(-60000);
-  DB.last[pid]=DB.last[pid]||{};DB.last[pid][def.id]={lv:cur.adaptive?clamp(Math.round(cur.lv),1,10):cur.lv0,dur:cur.limit,adaptive:cur.adaptive,opt:cur.opt,tf:cur.tf,rt:cur.rt,ex:cur.ex};
+  DB.last[pid]=DB.last[pid]||{};DB.last[pid][def.id]={met:cur.met,zone:cur.zone,fix:cur.fix,lv:cur.adaptive?clamp(Math.round(cur.lv),1,10):cur.lv0,dur:cur.limit,adaptive:cur.adaptive,opt:cur.opt,tf:cur.tf,rt:cur.rt,ex:cur.ex};
   const gained=sessXP(sess),lb=lvlOf(xpB),la=lvlOf(xpB+gained),newAch=checkAch(cur.maxCombo);
   save();renderAll();
   const plan=pending&&pending.plan;if(plan)plan.results.push({g:def.id,score,unit,stars});
   const party=(isBest&&prev)||stars===3||la.level>lb.level||newAch.length;
-  paintBg();cur.g.draw(cx);
+  paintBg();drawGame();
   const hist=mySessions().filter(s=>s.g===def.id).slice(-8);
   const mt=(r.metrics||[]).slice();
   if(acc!=null&&!mt.some(m=>/Precisi|Acierto/.test(m[0])))mt.push(['Precisión',`${acc}%`]);
@@ -2537,6 +2587,9 @@ function restBreak(then){
   const tick=()=>{if(tok!==cdTok)return;if(s<=0){breakThen=null;then();return;}const inh=(20-s)%8<4;setText('#brT',inh?'Inspira y mira lejos':'Espira y cierra los ojos');bm.setMood(inh?'far':'sleep');setText('#brS',`${s} s`);s--;setTimeout(tick,1000);};tick();
 }
 ov.addEventListener('click',e=>{
+  const pm=e.target.closest('[data-pm-met],[data-pm-zone]');
+  if(pm&&cur&&cur.paused){if(pm.dataset.pmMet!=null)cur.met=+pm.dataset.pmMet;if(pm.dataset.pmZone){cur.zone=pm.dataset.pmZone;setZone();if(cur.g.resize)cur.g.resize();}
+    if(pending&&pending.conf){pending.conf.met=cur.met;pending.conf.zone=cur.zone;}paintBg();drawGame();renderPause();return;}
   const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act;
   if(a==='go')countdown();
   else if(a==='speak')speak(pending.def.how);
@@ -2570,7 +2623,7 @@ function sparkSvg(vals,better,col,big){
 }
 
 /* ================= pantallas ================= */
-function renderWho(){const p=P();$('#whoAv').innerHTML=avatarSvg(p,30);$('#whoName').textContent=showName(p);$('#brandSub').textContent=DB.cfg.opticName||'por GR Software TC';}
+function renderWho(){const p=P();if(typeof applyLock==='function')applyLock();$('#whoAv').innerHTML=avatarSvg(p,30);$('#whoName').textContent=showName(p);$('#brandSub').textContent=DB.cfg.opticName||'por GR Software TC';}
 function planDone(){const today=dayKey(new Date()),cnt={};mySessions().filter(s=>dayKey(s.date)===today).forEach(s=>cnt[s.g]=(cnt[s.g]||0)+1);const used={};return P().plan.map(it=>{used[it.g]=(used[it.g]||0)+1;return used[it.g]<=(cnt[it.g]||0);});}
 function tickNums(root){root.querySelectorAll('[data-n]').forEach(el=>{const v=+el.dataset.n;if(!v)return;const t0=performance.now();const f=ts=>{const k=Math.min(1,(ts-t0)/900);el.textContent=Math.round(v*easeOut(k));if(k<1)requestAnimationFrame(f);};requestAnimationFrame(f);});}
 function achCard(){const got=achGot(),L=lvlOf(playerXP()),C2=2*Math.PI*32,n=Object.keys(got).length;
@@ -2658,7 +2711,7 @@ function seg(attr,opts,val){return `<div class="seg" data-n="${opts.length}" rol
 const DIAGS=['Ambliopía','Estrabismo','Insuficiencia de convergencia','Exceso de convergencia','Disfunción acomodativa','Movimientos oculares','Rehabilitación neurovisual','Baja visión','Dificultades de aprendizaje','Entrenamiento deportivo','Otro'];
 function pfix(p){return Object.assign({birth:'',phone:'',email:'',tutor:'',diag:'',ambEye:'',domEye:'',avOD:'',avOI:'',notesLog:[],exams:[],archived:false,tf:1,rt:0,ex:0},p);}
 DB.patients=DB.patients.map(pfix);
-DB.cfg=Object.assign({opticName:'',proName:'',pin:'1234',idleMin:5,setupDone:false},DB.cfg);
+DB.cfg=Object.assign({opticName:'',proName:'',pin:'1234',idleMin:5,setupDone:false,glass:{type:'rc',red:[255,0,0],other:[0,255,255],cal:0}},DB.cfg);
 function ageOf(p){if(p.birth){const b=new Date(p.birth+'T12:00');if(!isNaN(b)){const n=new Date();let a=n.getFullYear()-b.getFullYear();if(n.getMonth()<b.getMonth()||(n.getMonth()===b.getMonth()&&n.getDate()<b.getDate()))a--;return a;}}return p.age||'';}
 const firstName=n=>(n||'').trim().split(/\s+/)[0]||'';
 /* el paciente «Yo» se crea solo cuando no hay ninguno registrado: no es un nombre real y no se usa en los saludos */
@@ -2684,8 +2737,8 @@ const AV={
 const AVSUG={
  'Ambliopía':{glasses:'parche',why:'Un parche de pirata en el ojo sano, como el de su tratamiento: ayuda a aceptar la oclusión.'},
  'Estrabismo':{glasses:'redondos',why:'Lentes como los que usa en su tratamiento, para que se vea con ellos.'},
- 'Insuficiencia de convergencia':{glasses:'3d',why:'Las gafas rojo/cian de sus ejercicios de visión binocular.'},
- 'Exceso de convergencia':{glasses:'3d',why:'Las gafas rojo/cian de sus ejercicios de visión binocular.'},
+ 'Insuficiencia de convergencia':{glasses:'3d',why:'Las gafas de filtros de sus ejercicios de visión binocular.'},
+ 'Exceso de convergencia':{glasses:'3d',why:'Las gafas de filtros de sus ejercicios de visión binocular.'},
  'Disfunción acomodativa':{glasses:'cuadrados',why:'Lentes de cerca, como los que usa para leer.'},
  'Movimientos oculares':{hat:'gorra',why:'Una gorra de entrenamiento para sus ejercicios de mirada.'},
  'Rehabilitación neurovisual':{hat:'lana',acc:'bufanda',why:'Un look cómodo y cálido para sus sesiones de rehabilitación.'},
@@ -2728,7 +2781,7 @@ function avatarSvg(p,size){
       gato:`<path d="M27 45Q27 28 50 28Q73 28 73 45" fill="none" stroke="#FF6FB5" stroke-width="3.6" stroke-linecap="round"/><path d="M28 37L30 17L44 30z" fill="#FF6FB5"/><path d="M72 37L70 17L56 30z" fill="#FF6FB5"/><path d="M31.5 32L32.5 23L40 29z" fill="#FFD1E3"/><path d="M68.5 32L67.5 23L60 29z" fill="#FFD1E3"/>`}[a.hat]||'';
   s+={redondos:`<g fill="rgba(255,255,255,.18)" stroke="${dk}" stroke-width="2.4"><circle cx="41" cy="55" r="8.6"/><circle cx="59" cy="55" r="8.6"/></g><path d="M49.6 55h.8M32.4 54L26.5 51.5M67.6 54L73.5 51.5" stroke="${dk}" stroke-width="2.4" stroke-linecap="round"/>`,
       cuadrados:`<g fill="rgba(255,255,255,.18)" stroke="${dk}" stroke-width="2.4"><rect x="32" y="48.5" width="17" height="13" rx="3"/><rect x="51" y="48.5" width="17" height="13" rx="3"/></g><path d="M49 54h2M32 53L26.5 51M68 53L73.5 51" stroke="${dk}" stroke-width="2.4" stroke-linecap="round"/>`,
-      '3d':`<rect x="${redX-8.5}" y="48.5" width="17" height="13" rx="2.5" fill="#F0384B" fill-opacity=".72"/><rect x="${cyX-8.5}" y="48.5" width="17" height="13" rx="2.5" fill="#13B5D6" fill-opacity=".72"/><g fill="none" stroke="#F2F5F9" stroke-width="2.2"><rect x="32" y="48.5" width="17" height="13" rx="2.5"/><rect x="51" y="48.5" width="17" height="13" rx="2.5"/></g><path d="M49 54h2M32 53L26.5 51M68 53L73.5 51" stroke="#F2F5F9" stroke-width="2.2" stroke-linecap="round"/>`,
+      '3d':`<rect x="${redX-8.5}" y="48.5" width="17" height="13" rx="2.5" fill="#F0384B" fill-opacity=".72"/><rect x="${cyX-8.5}" y="48.5" width="17" height="13" rx="2.5" fill="${hexOf(glass().other)}" fill-opacity=".72"/><g fill="none" stroke="#F2F5F9" stroke-width="2.2"><rect x="32" y="48.5" width="17" height="13" rx="2.5"/><rect x="51" y="48.5" width="17" height="13" rx="2.5"/></g><path d="M49 54h2M32 53L26.5 51M68 53L73.5 51" stroke="#F2F5F9" stroke-width="2.2" stroke-linecap="round"/>`,
       sol:`<g fill="${dk}"><path d="M31 49h18v5.5Q49 62 40 62Q31 62 31 54.5z"/><path d="M51 49h18v5.5Q69 62 60 62Q51 62 51 54.5z"/></g><path d="M34 51.5h5M54 51.5h5" stroke="#fff" stroke-opacity=".55" stroke-width="1.6" stroke-linecap="round"/><path d="M49 51h2M31 51L26.5 50M69 51L73.5 50" stroke="${dk}" stroke-width="2.4" stroke-linecap="round"/>`,
       parche:`<path d="M${patchX-7} 51L26 45M${patchX+7} 51L${patchX===41?'60 31':'74 45'}" stroke="${dk}" stroke-width="1.8"/><ellipse cx="${patchX}" cy="55" rx="8" ry="7.2" fill="${dk}"/><path d="M${patchX} 51.6l1.1 2.2 2.4.4-1.7 1.7.4 2.4-2.2-1.1-2.2 1.1.4-2.4-1.7-1.7 2.4-.4z" fill="#FFC93C"/>`}[a.glasses]||'';
   if(a.acc==='auriculares')s+=`<rect x="18.5" y="49" width="10" height="17" rx="5" fill="#13B5D6"/><rect x="71.5" y="49" width="10" height="17" rx="5" fill="#13B5D6"/>`;
@@ -2813,7 +2866,7 @@ function planCard(p){return `<div class="card"><p class="h4b">Plan de tratamient
       <button class="ib" data-c="del" data-i="${i}" aria-label="Quitar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>`;}).join('')||'<p class="sub">El plan está vacío.</p>'}
     <div class="cf-btns" style="margin-top:10px">${recFor(p.diag).length?`<button class="btn btn-soft" data-c="suggest">Plan sugerido</button>`:''}<button class="btn btn-main" data-c="add"${recFor(p.diag).length?'':' style="grid-column:1/-1"'}>Añadir ejercicio</button></div>
     ${recFor(p.diag).length?`<p class="sub" style="margin:8px 0 0;text-align:center">El plan sugerido usa los ejercicios indicados para ${esc(p.diag.toLowerCase())}.</p>`:''}</div>`;}
-function glassesCard(p){const ec=eyeColors();return `<div class="card"><p class="h4b">Gafas rojo/cian y ojo a entrenar</p>
+function glassesCard(p){const ec=eyeColors();return `<div class="card"><p class="h4b">Gafas ${glassName()} y ojo a entrenar</p>
     <div class="field"><span class="lab">Lente rojo en el ojo</span>${seg('data-red',[['left','Izquierdo'],['right','Derecho']],p.redEye)}</div>
     <div class="field"><span class="lab">Ojo a entrenar</span><p class="help">Los estímulos clave de los ejercicios con gafas irán a este ojo.</p>${seg('data-train',[['none','Ninguno'],['left','Izquierdo'],['right','Derecho']],p.trainEye)}</div>
     ${p.trainEye!=='none'?`<div class="field"><label for="bal">Brillo para el otro ojo: <span id="balV">${p.balance}</span>%</label><p class="help">Bajarlo hace trabajar más al ojo entrenado (terapia dicóptica).</p><input id="bal" type="range" min="10" max="100" step="5" value="${p.balance}"></div>`:''}
@@ -2834,13 +2887,13 @@ function patDetail(){
   ${hist?`<div class="card hist"><p class="h4b">Últimas sesiones</p>${hist}</div>`:''}
   <div class="card"><p class="h4b">Datos del paciente</p><div style="display:grid;gap:8px"><button class="btn btn-soft" data-c="csv">Exportar sesiones (CSV)</button><button class="btn btn-soft" data-pc="arch">${p.archived?'Reactivar paciente':'Archivar paciente'}</button><button class="btn btn-soft danger" data-pc="del">Eliminar paciente y su historial</button></div></div>`;
 }
-let FICHA_NEW=false,FICHA_PLAN=false;
+let FICHA_NEW=false,FICHA_PLAN=false,FICHA_LOCK=false;
 const planFrom=(gs,p)=>gs.slice(0,5).map(g=>({g:g.id,lv:3,dur:60,adaptive:true,tf:1,rt:p.rt||0,ex:p.ex||0,opt:defOpts(g)}));
 function fichaRec(diag){const rec=recFor(diag);if(!rec.length)return diag?`<p class="help" style="margin:2px 0 6px">Aún no hay ejercicios específicos para este diagnóstico.</p>`:'';
   return `<div class="frec"><span class="lab2">Recomendado para ${esc(diag.toLowerCase())}</span><div class="cf-ind">${rec.map(g=>`<span>${g.name}</span>`).join('')}</div>
    <div class="toggle"><div><b>Crear su plan con estos ejercicios</b><div class="sub" style="margin:0">${FICHA_NEW?'Se usará como su primer plan de tratamiento.':'Reemplaza el plan actual al guardar.'}</div></div><button class="sw" id="f_plan" role="switch" aria-checked="${FICHA_PLAN}" aria-label="Crear el plan recomendado"></button></div></div>`;}
 function openFicha(isNew){
-  const p=isNew?pfix({id:'nuevo',name:'',color:pick(AVC),plan:[],redEye:'left'}):P();FICHA_NEW=isNew;FICHA_PLAN=isNew;
+  const p=isNew?pfix({id:'nuevo',name:'',color:pick(AVC),plan:[],redEye:'left'}):P();FICHA_NEW=isNew;FICHA_PLAN=isNew;FICHA_LOCK=!!p.lock;
   AVED={p,av:isNew?avRandom():avOf(p),col:p.color,tab:'cara',mode:'ficha',live:false};
   const opt=(arr,v,lab)=>arr.map(x=>`<option value="${x}" ${v===x?'selected':''}>${x||lab||'Sin especificar'}</option>`).join('');
   const tOpt=(arr,v)=>arr.map(([x,l])=>`<option value="${x}" ${(v||0)===x?'selected':''}>${x?l:'Auto'}</option>`).join('');
@@ -2857,6 +2910,7 @@ function openFicha(isNew){
     <div class="grid2"><div class="field"><label for="f_avod">Agudeza visual OD</label><input class="inp" id="f_avod" placeholder="20/20" value="${esc(p.avOD)}"></div><div class="field"><label for="f_avoi">Agudeza visual OI</label><input class="inp" id="f_avoi" placeholder="20/40" value="${esc(p.avOI)}"></div></div></section>
    <section class="fsec"><h3>Ajustes de los ejercicios</h3>
     <div class="grid2"><div class="field"><label for="f_rt">Tiempo de respuesta</label><select class="inp" id="f_rt">${tOpt(RT_OPTS,p.rt)}</select></div><div class="field"><label for="f_ex">Tiempo visible</label><select class="inp" id="f_ex">${tOpt(EX_OPTS,p.ex)}</select></div></div>
+    <div class="toggle" style="margin:0 0 10px"><div><b>Solo su plan</b><div class="sub" style="margin:0">En modo paciente solo verá «Empezar plan de hoy»: sin catálogo, sin reto del día y sin cambiar nivel ni opciones.</div></div><button class="sw" id="f_lock" role="switch" aria-checked="${!!p.lock}" aria-label="Solo su plan"></button></div>
     <p class="help" style="margin:-4px 0 12px">Valores por defecto para todos sus ejercicios; se pueden cambiar en cada uno. «Auto» usa el tiempo de cada nivel. El tiempo visible se aplica en Taquistoscopio, Conteo, Destello, Patrones, Multiobjetos y Parejas.</p></section>
    <section class="fsec"><h3>Notas generales</h3><div class="field"><label for="f_notes" class="vh">Notas generales</label><textarea class="inp" id="f_notes" placeholder="Indicaciones, antecedentes, observaciones…">${esc(p.notes)}</textarea></div></section>
    <div class="cf-btns"><button class="btn btn-soft" id="sheetX">Cancelar</button><button class="btn btn-main" id="fichaSave">${isNew?'Registrar paciente':'Guardar ficha'}</button></div>`,()=>{AVED=null;});
@@ -2867,11 +2921,12 @@ $('#sheetBody').addEventListener('click',e=>{
   const b=e.target.closest('button');if(!b)return;
   if(avClick(b))return;
   if(b.id==='f_plan'){FICHA_PLAN=!FICHA_PLAN;b.setAttribute('aria-checked',FICHA_PLAN);return;}
+  if(b.id==='f_lock'){FICHA_LOCK=!FICHA_LOCK;b.setAttribute('aria-checked',FICHA_LOCK);return;}
   if(b.id==='avSave'){const p=P();p.av={...AVED.av};p.color=AVED.col;save();closeSheet();renderAll();toast('¡Avatar guardado!');return;}
   if(b.id==='fichaSave'){
     const name=$('#f_name').value.trim();if(!name){$('#f_name').focus();toast('Escribe el nombre del paciente');return;}
     const p=FICHA_NEW?pfix(newPatient(name)):P();p.placeholder=false;
-    Object.assign(p,{name,birth:$('#f_birth').value,tutor:$('#f_tutor').value.trim(),phone:$('#f_phone').value.trim(),email:$('#f_email').value.trim(),diag:$('#f_diag').value,ambEye:$('#f_amb').value,domEye:$('#f_dom').value,avOD:$('#f_avod').value.trim(),avOI:$('#f_avoi').value.trim(),rt:+$('#f_rt').value||0,ex:+$('#f_ex').value||0,notes:$('#f_notes').value,color:AVED.col,av:{...AVED.av}});
+    Object.assign(p,{name,birth:$('#f_birth').value,tutor:$('#f_tutor').value.trim(),phone:$('#f_phone').value.trim(),email:$('#f_email').value.trim(),diag:$('#f_diag').value,ambEye:$('#f_amb').value,domEye:$('#f_dom').value,avOD:$('#f_avod').value.trim(),avOI:$('#f_avoi').value.trim(),rt:+$('#f_rt').value||0,ex:+$('#f_ex').value||0,notes:$('#f_notes').value,color:AVED.col,av:{...AVED.av},lock:FICHA_LOCK});
     {const rec=recFor(p.diag);if(FICHA_PLAN&&rec.length)p.plan=planFrom(rec,p);}
     if(p.ambEye==='Derecho'&&p.trainEye==='none')p.trainEye='right';if(p.ambEye==='Izquierdo'&&p.trainEye==='none')p.trainEye='left';
     if(FICHA_NEW){DB.patients.push(p);}DB.active=p.id;pruneGuest();patView=p.id;const planned=FICHA_PLAN&&recFor(p.diag).length;save();closeSheet();renderAll();toast((FICHA_NEW?`${firstName(name)} registrado`:'Ficha guardada')+(planned?' con su plan recomendado':''));
@@ -2892,6 +2947,10 @@ function renderSettings(){
     <input type="range" id="calR" min="150" max="700" step="1" value="${cardPx}" aria-label="Ancho de la tarjeta en pantalla">
     <div style="display:flex;gap:10px;align-items:center;margin-top:6px"><span class="sub" style="margin:0;flex:1" id="calTxt">${DB.cfg.calibrated?`Calibrada: ${DB.cfg.pxPerCm.toFixed(1)} px por cm`:'Sin calibrar'}</span><button class="btn btn-main btn-sm" data-c="cal">Guardar calibración</button></div>
     <div class="field"><span class="lab">Distancia de trabajo</span><p class="help">A qué distancia de los ojos se sostiene la pantalla durante los ejercicios.</p>${seg('data-dist',[[33,'33 cm'],[40,'40 cm'],[50,'50 cm'],[60,'60 cm'],[100,'1 m']],DB.cfg.distCm)}</div></div>
+  <div class="card"><p class="h4b">Gafas de filtros (anaglifo)</p><p class="sub">Elige las gafas de la consulta y calibra los colores para que cada ojo vea solo lo suyo. Se aplica a todos los ejercicios binoculares.</p>
+    <div class="field"><span class="lab">Tipo de gafas</span>${seg('data-gl',[['rc','Rojo / cian'],['rg','Rojo / verde'],['rb','Rojo / azul']],glass().type)}</div>
+    <div class="glprev"><span style="background:${rgb(glass().red)}"></span><span style="background:${rgb(glass().other)}"></span><small>${glass().cal?`Calibradas el ${new Date(glass().cal).toLocaleDateString('es')}`:'Colores de fábrica, sin calibrar'}</small></div>
+    <button class="btn btn-main btn-wide" data-c="glcal">Calibrar con mis gafas</button></div>
   <div class="card"><p class="h4b">Experiencia</p>
     <div class="toggle"><b>Sonido</b><button class="sw" data-sw="sound" role="switch" aria-checked="${DB.cfg.sound}" aria-label="Sonido"></button></div>
     <div class="toggle"><div><b>Fondo animado</b><div class="sub" style="margin:0">Luces suaves en el tablero de los ejercicios.</div></div><button class="sw" data-sw="ambient" role="switch" aria-checked="${DB.cfg.ambient}" aria-label="Fondo animado"></button></div>
@@ -2902,7 +2961,7 @@ function renderSettings(){
   <div class="card"><p class="h4b">Datos</p><p class="sub">Todo se guarda en esta tableta, sin internet. Haz copias de seguridad con frecuencia.</p><p class="sub" id="stoInfo"></p>
     <div style="display:grid;gap:8px"><button class="btn btn-main" data-c="backup">Copia de seguridad completa</button><button class="btn btn-soft" data-c="clinicCsv">Exportar toda la consulta (CSV)</button>
     <label class="btn btn-soft" style="cursor:pointer">Restaurar copia de seguridad<input type="file" accept="application/json,.json" id="restore" hidden></label></div></div>
-  <div class="card" style="text-align:center"><svg class="logo" viewBox="0 0 40 40" style="width:44px;height:44px"><circle cx="15" cy="20" r="12" fill="var(--red)"/><circle cx="25" cy="20" r="12" fill="var(--cyan)"/></svg><p style="margin:6px 0 0;font-family:var(--display);font-weight:700;font-size:20px">GiRo 6.0</p><p class="sub" style="margin:0">Terapia visual por GR Software TC</p></div>`;
+  <div class="card" style="text-align:center"><svg class="logo" viewBox="0 0 40 40" style="width:44px;height:44px"><circle cx="15" cy="20" r="12" fill="var(--red)"/><circle cx="25" cy="20" r="12" fill="var(--cyan)"/></svg><p style="margin:6px 0 0;font-family:var(--display);font-weight:700;font-size:20px">GiRo 6.1</p><p class="sub" style="margin:0">Terapia visual por GR Software TC</p></div>`;
   storageInfo();
 }
 function renderClinic(){renderPats();renderSettings();}
@@ -2925,6 +2984,7 @@ function clinicClick(e){
   if(b.dataset.pf){patF=b.dataset.pf;renderPats();return;}
   if(b.dataset.red){p.redEye=b.dataset.red;save();renderPats();}
   else if(b.dataset.train){p.trainEye=b.dataset.train;save();renderPats();}
+  else if(b.dataset.gl){DB.cfg.glass={type:b.dataset.gl,red:[255,0,0],other:GLASS_DEF[b.dataset.gl].slice(),cal:0};save();renderSettings();toast(`Gafas ${glassName()}: calíbralas con «Calibrar con mis gafas»`);}
   else if(b.dataset.dist){DB.cfg.distCm=+b.dataset.dist;save();renderSettings();}
   else if(b.dataset.idle!=null){DB.cfg.idleMin=+b.dataset.idle;save();renderSettings();}
   else if(b.dataset.themeV){DB.cfg.theme=b.dataset.themeV;save();applyTheme();renderSettings();}
@@ -2941,6 +3001,7 @@ function clinicClick(e){
   }
   else switch(b.dataset.c){
     case 'add':openPickGame();break;
+    case 'glcal':openGlassCal();break;
     case 'exam':openExam();break;
     case 'exedit':openExam(b.dataset.x);break;
     case 'exdel':{const x=(p.exams||[]).find(q=>q.id===b.dataset.x);if(!x||!confirm(`¿Eliminar la evaluación del ${fdate(x.d)}?`))return;p.exams=p.exams.filter(q=>q.id!==x.id);save();renderAll();toast('Evaluación eliminada');break;}
@@ -3025,7 +3086,7 @@ function goTab(t){
   if((t==='pats'||t==='set'||t==='panel')&&role!=='pro'){askPin(()=>{role='pro';updateRole();goTab(t);});return;}
   curTab=t;
   document.querySelectorAll('.tabs button').forEach(x=>{if(x.dataset.tab===t)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current');});
-  $('#tabInd').style.transform=`translateX(${TABS.indexOf(t)*100}%)`;
+  {const tb=document.querySelector(`.tabs button[data-tab="${t}"]`),ind=$('#tabInd');if(tb&&tb.offsetWidth){ind.style.width=tb.offsetWidth+'px';ind.style.transform=`translateX(${tb.offsetLeft}px)`;}else ind.style.transform=`translateX(${TABS.indexOf(t)*100}%)`;}
   TABS.forEach(v=>$('#v-'+v).hidden=v!==t);window.scrollTo(0,0);
   if(t==='pats')renderPats();if(t==='set')renderSettings();if(t==='panel')renderPanel();requestAnimationFrame(()=>drawCharts());if(t==='home')renderHome();
   const v=$('#v-'+t);v.classList.remove('enter');void v.offsetWidth;v.classList.add('enter');stagger(v);
@@ -3154,7 +3215,8 @@ function irisStop(){}
 
 /* ================= kiosco: inicio, bienvenida y PIN ================= */
 let role='patient',welGi=null,pinGi=null,lastAct=Date.now(),welSaid='';
-function updateRole(){document.body.classList.toggle('pro',role==='pro');$('#proBadge').hidden=role!=='pro';}
+function applyLock(){const p=P();document.body.classList.toggle('locked',role!=='pro'&&!!(p&&p.lock));}
+function updateRole(){document.body.classList.toggle('pro',role==='pro');$('#proBadge').hidden=role!=='pro';applyLock();if(role!=='pro'&&curTab==='games'&&document.body.classList.contains('locked'))goTab('home');}
 function heroSay(){const p=P(),done=planDone(),nd=done.filter(Boolean).length,n=p.plan.length,fn=greetName(p),hola=fn?`¡Hola, ${fn}!`:'¡Hola!';
   const msg=!n?`${hola} Elige un ejercicio para empezar.`:nd===0?`${hola} Hoy tienes ${n} ejercicios. ¿Empezamos?`:nd<n?`¡Vas genial! Te ${n-nd===1?'falta 1 ejercicio':`faltan ${n-nd} ejercicios`}.`:'¡Plan completado! Eres una estrella.';
   const b=$('#bHero');if(b&&b.dataset.msg!==msg){b.dataset.msg=msg;typeSay(b,msg);if(heroGi)heroGi.setMood(nd===n&&n?'celebrate':'happy',1.5);}}
@@ -3479,7 +3541,7 @@ function clinicReportHtml(){
 
 /* ---------- base de datos local: IndexedDB ---------- */
 function normDB(d){
-  d.cfg=Object.assign({pxPerCm:37.8,calibrated:false,distCm:40,sound:true,haptics:true,theme:'system',ambient:true,breaks:true,voice:false,opticName:'',proName:'',pin:'1234',idleMin:5,setupDone:false},d.cfg||{});
+  d.cfg=Object.assign({pxPerCm:37.8,calibrated:false,distCm:40,sound:true,haptics:true,theme:'system',ambient:true,breaks:true,voice:false,opticName:'',proName:'',pin:'1234',idleMin:5,setupDone:false,glass:{type:'rc',red:[255,0,0],other:[0,255,255],cal:0}},d.cfg||{});
   d.sessions=Array.isArray(d.sessions)?d.sessions:[];d.best=d.best||{};d.last=d.last||{};d.patients=(d.patients||[]).map(pfix);
   if(!d.patients.find(p=>p.id===d.active))d.active=d.patients[0]&&d.patients[0].id;return d;}
 (async()=>{
@@ -3495,6 +3557,32 @@ async function storageInfo(){
   try{if(navigator.storage&&navigator.storage.estimate){const e=await navigator.storage.estimate();used=` Espacio usado: ${fnum((e.usage||0)/1048576)} MB de ${fnum((e.quota||0)/1073741824)} GB disponibles.`;}}catch(e){}
   const lb=DB.cfg.lastBackup;
   el.textContent=`${idbOk?'Base de datos local (IndexedDB) activa':'Guardado en el navegador (sin IndexedDB)'}: ${DB.patients.length} pacientes, ${DB.sessions.length} sesiones y ${ex} evaluaciones.${used} Última copia de seguridad: ${lb?fdate(new Date(lb).toISOString().slice(0,10)):'ninguna'}.`;}
+
+/* ---------- modificadores: ejercicios donde no aplican ---------- */
+['campo','worth','periferica'].forEach(id=>{const g=G(id);if(g)g.noZone=true;});{const h=G('hart');if(h)h.ownMet=true;}
+/* ---------- calibración de las gafas de filtros ---------- */
+let GCAL=null;
+function openGlassCal(){const g=glass();GCAL={step:1,red:g.red.slice(),other:g.other.slice()};renderGlassCal(true);}
+function renderGlassCal(first){
+  const on=otherName(),st=GCAL.step,col=st===1?GCAL.other:GCAL.red;
+  const help=st===1?`Tapa el ojo que tiene el filtro ${on} y mira solo por el filtro rojo. Ajusta el color ${on} hasta que su cuadro desaparezca y se vea tan negro como el fondo. El cuadro rojo debe seguir viéndose.`
+    :st===2?`Ahora tapa el ojo del filtro rojo y mira solo por el filtro ${on}. Ajusta el rojo hasta que su cuadro desaparezca. El cuadro ${on} debe seguir viéndose.`
+    :`Con los dos ojos abiertos ves las dos letras. Por el filtro rojo debe verse solo la R; por el filtro ${on}, solo la letra ${on[0].toUpperCase()}. Si se cuela la otra, vuelve al paso 1 o 2.`;
+  const html=`<h2 style="text-align:center">Calibrar las gafas ${glassName()}</h2><p class="sub" style="text-align:center">Ponte las gafas, con el brillo de pantalla y la luz de la sala que usarás en terapia.</p>
+   <div class="seg" data-n="3" role="group" aria-label="Paso">${[[1,'1. Filtro rojo'],[2,`2. Filtro ${on}`],[3,'3. Comprobar']].map(([v,l])=>`<button data-gstep="${v}" aria-pressed="${st===v}">${l}</button>`).join('')}</div>
+   <div class="calbox" aria-hidden="true">${st===3?`<b style="color:${rgb(GCAL.red)}">R</b><b style="color:${rgb(GCAL.other)}">${on[0].toUpperCase()}</b>`:`<span style="background:${rgb(GCAL.red)}"></span><span style="background:${rgb(GCAL.other)}"></span>`}</div>
+   <p class="calhelp">${help}</p>
+   ${st<3?`<p class="lab" style="text-align:center;margin:4px 0 0">Color ${st===1?on:'rojo'}</p>`+['Rojo','Verde','Azul'].map((n,i)=>`<div class="field calrow"><label for="gc${i}">${n}</label><input type="range" id="gc${i}" data-gch="${i}" min="0" max="255" value="${Math.round(col[i])}"><b id="gcv${i}">${Math.round(col[i])}</b></div>`).join(''):''}
+   <div class="cf-btns"><button class="btn btn-soft" data-greset="1">Restablecer</button><button class="btn btn-main" data-gsave="1">Guardar calibración</button></div>`;
+  if(first)openSheet(html,()=>{GCAL=null;});else $('#sheetBody').innerHTML=html;}
+$('#sheetBody').addEventListener('input',e=>{
+  if(!GCAL||e.target.dataset.gch==null)return;const k=GCAL.step===1?'other':'red',i=+e.target.dataset.gch;GCAL[k][i]=+e.target.value;$('#gcv'+i).textContent=e.target.value;
+  const sp=document.querySelectorAll('#sheetBody .calbox span');if(sp.length===2){sp[0].style.background=rgb(GCAL.red);sp[1].style.background=rgb(GCAL.other);}});
+$('#sheetBody').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b||!GCAL)return;
+  if(b.dataset.gstep){GCAL.step=+b.dataset.gstep;renderGlassCal();}
+  else if(b.dataset.greset){GCAL.red=[255,0,0];GCAL.other=GLASS_DEF[glass().type].slice();renderGlassCal();}
+  else if(b.dataset.gsave){const g=glass();g.red=GCAL.red.slice();g.other=GCAL.other.slice();g.cal=Date.now();save();closeSheet();renderSettings();toast('Gafas calibradas');}});
 
 /* ================= arranque ================= */
 updateRole();renderAll();goTab('home');runSplash();
