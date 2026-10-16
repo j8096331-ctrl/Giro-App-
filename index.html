@@ -510,6 +510,43 @@ select.inp{appearance:auto}
   .sheet .grab{display:none}
 }
 @media (prefers-reduced-motion: reduce){.playbtn .pc{animation:none!important}}
+/* ===== v5.1: ficha simétrica y avatar personalizable ===== */
+.vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.hero h1{display:flex;align-items:center;gap:12px}.hero h1 svg{flex:none;display:block;border-radius:50%;box-shadow:0 0 0 3px rgba(255,255,255,.18)}
+.fsec{background:var(--surface-2);border:1px solid var(--line);border-radius:20px;padding:14px 14px 2px;margin:12px 0}
+.fsec h3{font-size:15px;margin:0 0 6px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-2);text-align:center}
+.fsec .field{margin:10px 0 12px}
+.fsec .inp{background:var(--surface)}
+.grid2{gap:12px;align-items:end}.grid2>*{min-width:0}.grid2 .field{margin:10px 0 12px}
+.fsec>.help{font-size:13.5px;color:var(--ink-2);text-align:center;line-height:1.4}
+.inp{min-width:0;max-width:100%}
+input.inp,select.inp{height:48px;min-height:48px}
+input[type=date].inp{-webkit-appearance:none;appearance:none;display:block;width:100%;padding:0 10px 0 12px;line-height:46px}
+input[type=date].inp::-webkit-date-and-time-value{text-align:left;margin:0}
+input[type=date].inp::-webkit-calendar-picker-indicator{opacity:.6}
+select.inp{-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 6l4 4 4-4' fill='none' stroke='%238090A8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-size:16px;padding-right:38px;text-overflow:ellipsis;white-space:nowrap;overflow:hidden}
+.frec{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 12px 4px;margin:-2px 0 4px;text-align:center}
+.frec .lab2{display:block;font-size:12.5px;font-weight:700;color:var(--grn);text-transform:uppercase;letter-spacing:.05em}
+.frec .cf-ind{margin-top:8px}
+.frec .toggle{text-align:left;border-top:1px solid var(--line);margin-top:10px}
+.avtop{display:flex;flex-direction:column;align-items:center;gap:10px;padding:4px 0 2px}
+.avbig svg{display:block;filter:drop-shadow(0 10px 18px rgba(0,0,0,.18))}
+.avsugbox{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:12px;align-items:center;background:color-mix(in srgb,var(--grn) 12%,var(--surface));border:1px solid color-mix(in srgb,var(--grn) 40%,transparent);border-radius:16px;padding:10px 12px;margin-top:12px;text-align:left}
+.avsugbox svg{display:block}.avsugbox b{display:block;font-size:14.5px}.avsugbox span{display:block;font-size:13px;color:var(--ink-2);line-height:1.35}
+.avsugbox .btn[disabled]{opacity:.6;cursor:default}
+.avbody{padding:12px 0 10px;text-align:center}
+.avl{font-weight:700;font-size:14px;margin:6px 0 8px}
+.avsw{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-bottom:8px}
+.avsw .sw2{box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
+.avsw .sw2[aria-pressed="true"]{border-color:var(--ink);transform:scale(1.12)}
+.avopts{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.avo{position:relative;width:calc((100% - 24px) / 4);max-width:96px;display:flex;flex-direction:column;align-items:center;gap:4px;background:var(--surface);border:2px solid var(--line);border-radius:16px;padding:8px 4px 7px;cursor:pointer;font-size:12.5px;line-height:1.15;color:var(--ink)}
+.avo svg{display:block;width:100%;max-width:58px;height:auto}
+.avo[aria-pressed="true"]{border-color:var(--cyan);background:color-mix(in srgb,var(--cyan) 12%,var(--surface));font-weight:700}
+.avstar{position:absolute;top:4px;right:6px;font-style:normal;color:var(--grn);font-size:13px}
+@media (max-width:380px){.avo{width:calc((100% - 16px) / 3)}}
+.avme{display:grid;grid-template-columns:72px minmax(0,1fr) auto;gap:14px;align-items:center}
+.avme svg{display:block}.avme b{display:block;font-size:18px;font-family:var(--display)}.avme span{display:block;font-size:13.5px;color:var(--ink-2)}
 </style>
 </head>
 <body>
@@ -623,7 +660,7 @@ const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v)
 const defaultPlan=()=>[{g:'luces',lv:3,dur:60,opt:{}},{g:'seguimiento',lv:3,dur:60,opt:{}},{g:'sacadicos',lv:3,dur:60,opt:{}},{g:'discriminacion',lv:3,dur:60,opt:{}}];
 function newPatient(name){return {id:uid(),name,age:'',notes:'',redEye:'left',trainEye:'none',balance:100,color:pick(AVC),plan:defaultPlan(),created:Date.now()};}
 let DB=store.get(KEY,null);
-if(!DB||!Array.isArray(DB.patients)||!DB.patients.length){const p=newPatient('Yo');DB={patients:[p],active:p.id,sessions:[],best:{},last:{},cfg:{}};}
+if(!DB||!Array.isArray(DB.patients)||!DB.patients.length){const p=newPatient('Yo');p.placeholder=true;DB={patients:[p],active:p.id,sessions:[],best:{},last:{},cfg:{}};}
 DB.cfg=Object.assign({pxPerCm:37.8,calibrated:false,distCm:40,sound:true,haptics:true,theme:'system',ambient:true,breaks:true,voice:false},DB.cfg||{});
 DB.sessions=DB.sessions||[];DB.best=DB.best||{};DB.last=DB.last||{};
 if(!DB.patients.find(p=>p.id===DB.active))DB.active=DB.patients[0].id;
@@ -2007,9 +2044,13 @@ function renderConfig(){
    ${def.rtx?`<div class="field"><span class="lab">Tiempo para responder</span><p class="help">Segundos que tiene el paciente para cada respuesta. Auto usa el tiempo del nivel. No cambia la duración de la sesión.</p>${seg('data-cf-rt',RT_OPTS,CF.rt||0)}${CF.rt?`<p class="lvdesc" style="margin-top:6px">El paciente tendrá ${CF.rt} s para responder cada vez, sea cual sea el nivel.</p>`:''}</div>`:''}
    ${untimed?'':`<div class="field"><span class="lab">Duración</span>${seg('data-cf-dur',[30,60,120,180,300].map(s=>[s,durLabel(s)]),CF.dur)}</div>`}
    <div class="toggle"><div><b>Dificultad adaptativa</b><div class="sub" style="margin:0">Sube o baja el nivel durante el ejercicio según cómo lo haces.</div></div><button class="sw" id="cfAd" role="switch" aria-checked="${CF.adaptive}" aria-label="Dificultad adaptativa"></button></div>
-   ${CF.mode==='play'?`<div class="cf-who">${avatarSvg(p,34)}<span>Entrena <b>${esc(firstName(p.name))}</b></span></div><button class="playbtn" id="cfGo"><span class="pc"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 5.2v13.6L19 12z" fill="currentColor"/></svg></span><span>Comenzar</span></button>`:`<div class="cf-btns"><button class="btn btn-soft" id="cfCancel">Cancelar</button><button class="btn btn-main" id="cfSave">${CF.mode==='planAdd'?'Añadir al plan':'Guardar cambios'}</button></div>`}</div>`;
+   ${CF.mode==='play'?`<div class="cf-who">${avatarSvg(p,34)}<span>Entrena <b>${esc(showName(p))}</b></span></div><button class="playbtn" id="cfGo"><span class="pc"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 5.2v13.6L19 12z" fill="currentColor"/></svg></span><span>Comenzar</span></button>`:`<div class="cf-btns"><button class="btn btn-soft" id="cfCancel">Cancelar</button><button class="btn btn-main" id="cfSave">${CF.mode==='planAdd'?'Añadir al plan':'Guardar cambios'}</button></div>`}</div>`;
   if(sheet.hidden)openSheet(html);else $('#sheetBody').innerHTML=html;
 }
+$('#sheetBody').addEventListener('change',e=>{
+  if(e.target.id==='f_diag'){const r=$('#f_rec');if(r)r.innerHTML=fichaRec(e.target.value);avRefresh();}
+  if(e.target.id==='f_amb')avRefresh();
+});
 $('#sheetBody').addEventListener('input',e=>{
   if(e.target.id==='cfRange'&&CF){CF.lv=+e.target.value;setText('#cfLv',CF.lv);setText('#cfLvN',LVNAMES[CF.lv]);const d=G(CF.gid).lvDesc;setText('#cfDesc',d?d(CF.lv,CF.opt,CF.tf):'');}
 });
@@ -2029,7 +2070,7 @@ $('#sheetBody').addEventListener('click',e=>{
   if(b.dataset.pickGame){openConfig(b.dataset.pickGame,'planAdd');return;}
   if(b.dataset.patient){DB.active=b.dataset.patient;save();closeSheet();renderAll();toast(`Paciente: ${P().name}`);return;}
   if(b.id==='newPat'){const inp=$('#newPatName'),n=inp.value.trim();if(!n){inp.focus();return;}const p=newPatient(n);DB.patients.push(p);DB.active=p.id;save();closeSheet();renderAll();toast(`Paciente creado: ${n}`);return;}
-  if(b.id==='patSave'){const p=P();p.name=$('#pName').value.trim()||p.name;p.age=$('#pAge').value.trim();p.notes=$('#pNotes').value;save();closeSheet();renderAll();toast('Datos guardados');return;}
+  if(b.id==='patSave'){const p=P(),nn=$('#pName').value.trim();if(nn&&nn!==p.name)p.placeholder=false;p.name=nn||p.name;p.age=$('#pAge').value.trim();p.notes=$('#pNotes').value;save();closeSheet();renderAll();toast('Datos guardados');return;}
   if(b.id==='patDel'){if(DB.patients.length<2){toast('Debe quedar al menos un paciente');return;}if(!confirm(`¿Eliminar a ${P().name} y todo su historial?`))return;const id=DB.active;DB.patients=DB.patients.filter(p=>p.id!==id);DB.sessions=DB.sessions.filter(s=>s.pid!==id);delete DB.best[id];delete DB.last[id];DB.active=DB.patients[0].id;save();closeSheet();renderAll();return;}
   if(b.id==='sheetX'){closeSheet();}
 });
@@ -2238,15 +2279,16 @@ function sparkSvg(vals,better,col,big){
 }
 
 /* ================= pantallas ================= */
-function renderWho(){const p=P();$('#whoAv').innerHTML=avatarSvg(p,30);$('#whoName').textContent=firstName(p.name);$('#brandSub').textContent=DB.cfg.opticName||'por GR Software TC';}
+function renderWho(){const p=P();$('#whoAv').innerHTML=avatarSvg(p,30);$('#whoName').textContent=showName(p);$('#brandSub').textContent=DB.cfg.opticName||'por GR Software TC';}
 function planDone(){const today=dayKey(new Date()),cnt={};mySessions().filter(s=>dayKey(s.date)===today).forEach(s=>cnt[s.g]=(cnt[s.g]||0)+1);const used={};return P().plan.map(it=>{used[it.g]=(used[it.g]||0)+1;return used[it.g]<=(cnt[it.g]||0);});}
 function tickNums(root){root.querySelectorAll('[data-n]').forEach(el=>{const v=+el.dataset.n;if(!v)return;const t0=performance.now();const f=ts=>{const k=Math.min(1,(ts-t0)/900);el.textContent=Math.round(v*easeOut(k));if(k<1)requestAnimationFrame(f);};requestAnimationFrame(f);});}
 function achCard(){const got=achGot(),L=lvlOf(playerXP()),C2=2*Math.PI*32,n=Object.keys(got).length;
-  return `<div class="card"><div class="lvcard"><div class="lvring"><svg viewBox="0 0 76 76"><circle cx="38" cy="38" r="32" fill="none" stroke="var(--line)" stroke-width="7"/><circle class="v" cx="38" cy="38" r="32" fill="none" stroke="var(--cyan)" stroke-width="7" stroke-linecap="round" stroke-dasharray="${C2}" stroke-dashoffset="${C2*(1-L.pct/100)}"/></svg><b>${L.level}</b></div><div><b style="font-size:18px">Nivel ${L.level}</b><div class="sub" style="margin:0">${L.xp} XP. Faltan ${L.next-L.xp} para el nivel ${L.level+1}.</div><div class="sub" style="margin:2px 0 0">${n} de ${ACH.length} logros</div></div></div>
+  const me=P(),mn=greetName(me);
+  return `<div class="card avme">${avatarSvg(me,72)}<div class="t"><b>${mn?esc(mn):'Tu avatar'}</b><span>Ponle gorro, lentes y accesorios.</span></div><button class="btn btn-go btn-sm" data-myav="1">Personalizar</button></div><div class="card"><div class="lvcard"><div class="lvring"><svg viewBox="0 0 76 76"><circle cx="38" cy="38" r="32" fill="none" stroke="var(--line)" stroke-width="7"/><circle class="v" cx="38" cy="38" r="32" fill="none" stroke="var(--cyan)" stroke-width="7" stroke-linecap="round" stroke-dasharray="${C2}" stroke-dashoffset="${C2*(1-L.pct/100)}"/></svg><b>${L.level}</b></div><div><b style="font-size:18px">Nivel ${L.level}</b><div class="sub" style="margin:0">${L.xp} XP. Faltan ${L.next-L.xp} para el nivel ${L.level+1}.</div><div class="sub" style="margin:2px 0 0">${n} de ${ACH.length} logros</div></div></div>
    <div class="ach">${ACH.map(a=>`<div title="${a.desc}">${medal(a,!!got[a.id])}<b>${a.name}</b><span>${a.desc}</span></div>`).join('')}</div></div>`;}
 function renderHome(){
   const p=P(),ss=mySessions(),h=new Date().getHours(),st=streak(),done=planDone(),nd=done.filter(Boolean).length;
-  $('#hello').textContent=`${h<12?'Buenos días':h<20?'Buenas tardes':'Buenas noches'}, ${p.name}`;
+  const gn=greetName(p);$('#hello').innerHTML=`${avatarSvg(p,48)}<span>${h<12?'Buenos días':h<20?'Buenas tardes':'Buenas noches'}${gn?`, ${esc(gn)}`:''}</span>`;
   const mins=Math.round(p.plan.reduce((a,it)=>a+(isUntimed(G(it.g),it.opt)?90:it.dur),0)/60);
   $('#planSum').textContent=p.plan.length?(nd===p.plan.length?'Plan de hoy completado. Puedes repetirlo o jugar libre.':`${p.plan.length} ejercicios, unos ${mins} minutos. Llevas ${nd} de ${p.plan.length}.`):'Aún no hay plan. Créalo en Clínica.';
   $('#planDots').innerHTML=p.plan.map((_,i)=>`<i class="${done[i]?'done':''}"></i>`).join('');
@@ -2325,9 +2367,113 @@ DB.patients=DB.patients.map(pfix);
 DB.cfg=Object.assign({opticName:'',proName:'',pin:'1234',idleMin:5,setupDone:false},DB.cfg);
 function ageOf(p){if(p.birth){const b=new Date(p.birth+'T12:00');if(!isNaN(b)){const n=new Date();let a=n.getFullYear()-b.getFullYear();if(n.getMonth()<b.getMonth()||(n.getMonth()===b.getMonth()&&n.getDate()<b.getDate()))a--;return a;}}return p.age||'';}
 const firstName=n=>(n||'').trim().split(/\s+/)[0]||'';
+/* el paciente «Yo» se crea solo cuando no hay ninguno registrado: no es un nombre real y no se usa en los saludos */
+const isPlaceholder=p=>!!p&&(p.placeholder===true||(p.placeholder==null&&String(p.name||'').trim()==='Yo'));
+const greetName=(p,full)=>isPlaceholder(p)?'':full?String(p.name||'').trim():firstName(p.name);
+const showName=(p,full)=>isPlaceholder(p)?'Invitado':full?String(p.name||'').trim():firstName(p.name);
+/* en cuanto hay pacientes reales, el de relleno sin sesiones sobra: se quita para que la app quede limpia */
+function pruneGuest(){if(!DB.patients.some(p=>!isPlaceholder(p)))return;const used=new Set(DB.sessions.map(s=>s.pid));
+  const keep=DB.patients.filter(p=>!isPlaceholder(p)||used.has(p.id));if(keep.length===DB.patients.length)return;DB.patients=keep;
+  if(!DB.patients.find(p=>p.id===DB.active))DB.active=DB.patients[0].id;save();}
+pruneGuest();
+/* ---------- avatar personalizable: cara, pelo, gorro, lentes y accesorios ---------- */
+const AV={
+ skin:['#FFDFC4','#F3C99A','#DDA570','#B47A4A','#8D5524','#5C3A1E'],
+ eye:['#7A4A22','#3B7BD9','#2E9E6A','#A07A3C','#6B7A8F','#9B59D0'],
+ hairC:['#2B1B12','#5A3825','#A0632E','#E2B65A','#C8452E','#A9B4C2','#7B5CFF','#FF6FB5'],
+ hair:[['corto','Corto'],['largo','Largo'],['rizado','Rizado'],['coletas','Coletas'],['punta','De punta'],['ninguno','Sin pelo']],
+ hat:[['ninguno','Ninguno'],['gorra','Gorra'],['lana','Gorro de lana'],['corona','Corona'],['mago','Mago'],['birrete','Birrete'],['gato','Orejas de gato']],
+ glasses:[['ninguno','Sin lentes'],['redondos','Redondos'],['cuadrados','Cuadrados'],['3d','Gafas 3D'],['sol','De sol'],['parche','Parche']],
+ acc:[['ninguno','Ninguno'],['pajarita','Pajarita'],['mejillas','Mejillas'],['pecas','Pecas'],['auriculares','Auriculares'],['bufanda','Bufanda'],['estrella','Estrella']]
+};
+/* lo que la app propone según el diagnóstico: refuerza el tratamiento real del paciente */
+const AVSUG={
+ 'Ambliopía':{glasses:'parche',why:'Un parche de pirata en el ojo sano, como el de su tratamiento: ayuda a aceptar la oclusión.'},
+ 'Estrabismo':{glasses:'redondos',why:'Lentes como los que usa en su tratamiento, para que se vea con ellos.'},
+ 'Insuficiencia de convergencia':{glasses:'3d',why:'Las gafas rojo/cian de sus ejercicios de visión binocular.'},
+ 'Exceso de convergencia':{glasses:'3d',why:'Las gafas rojo/cian de sus ejercicios de visión binocular.'},
+ 'Disfunción acomodativa':{glasses:'cuadrados',why:'Lentes de cerca, como los que usa para leer.'},
+ 'Movimientos oculares':{hat:'gorra',why:'Una gorra de entrenamiento para sus ejercicios de mirada.'},
+ 'Rehabilitación neurovisual':{hat:'lana',acc:'bufanda',why:'Un look cómodo y cálido para sus sesiones de rehabilitación.'},
+ 'Baja visión':{glasses:'sol',why:'Lentes con filtro, que reducen el deslumbramiento.'},
+ 'Dificultades de aprendizaje':{hat:'birrete',why:'Un birrete para celebrar cada logro de lectura.'},
+ 'Entrenamiento deportivo':{hat:'gorra',acc:'auriculares',why:'Look deportivo para entrenar la visión como un atleta.'}
+};
+const hashId=id=>{let h=7;for(const ch of String(id))h=(h*31+ch.charCodeAt(0))>>>0;return h;};
+function avOf(p){const h=hashId(p.id);return Object.assign({skin:AV.skin[h%6],hair:AV.hair[(h>>>3)%5][0],hairC:AV.hairC[(h>>>6)%5],eye:AV.eye[(h>>>9)%6],hat:'ninguno',glasses:'ninguno',acc:'ninguno'},p.av||{});}
+function avRandom(){const r=a=>a[Math.floor(Math.random()*a.length)],o=a=>Math.random()<.45?'ninguno':r(a.slice(1))[0];
+  return {skin:r(AV.skin),eye:r(AV.eye),hairC:r(AV.hairC.slice(0,6)),hair:r(AV.hair.slice(0,5))[0],hat:o(AV.hat),glasses:o(AV.glasses),acc:o(AV.acc)};}
 let avN=0;
-function avatarSvg(p,size){avN++;const id='avg'+avN;let h=0;for(const ch of String(p.id))h=(h*31+ch.charCodeAt(0))>>>0;const a=(h%360)*Math.PI/180,dx=Math.cos(a)*4.5,dy=Math.sin(a)*3.5;
-  return `<svg viewBox="0 0 40 40" width="${size}" height="${size}" aria-hidden="true"><defs><radialGradient id="${id}" cx=".36" cy=".3" r=".8"><stop offset="0" stop-color="#fff"/><stop offset=".65" stop-color="#EAF0F6"/><stop offset="1" stop-color="#AFC0D4"/></radialGradient></defs><circle cx="20" cy="20" r="18.5" fill="url(#${id})"/><circle cx="${20+dx}" cy="${20+dy}" r="9" fill="${p.color}"/><circle cx="${20+dx}" cy="${20+dy}" r="9" fill="none" stroke="rgba(0,0,0,.22)" stroke-width="1.2"/><circle cx="${20+dx}" cy="${20+dy}" r="4.2" fill="#0B1424"/><circle cx="${17.6+dx}" cy="${17.2+dy}" r="1.8" fill="#fff"/></svg>`;}
+function avatarSvg(p,size){
+  avN++;const id='av'+avN,a=avOf(p),bg=p.color||'#FFC93C',sk=a.skin,hc=a.hairC,ink='#2A1F1A',dk='#1B2433';
+  const patchX=p.ambEye==='Derecho'?59:41,redX=(p.redEye||'left')==='left'?59:41,cyX=redX===59?41:59;
+  const eye=x=>`<circle cx="${x}" cy="55" r="6.4" fill="#fff"/><circle cx="${x+.6}" cy="55.6" r="4.2" fill="${a.eye}"/><circle cx="${x+.6}" cy="55.6" r="2.1" fill="#0B1424"/><circle cx="${x-.8}" cy="54" r="1.3" fill="#fff"/>`;
+  let s=`<svg viewBox="0 0 100 100" width="${size}" height="${size}" aria-hidden="true"><defs><clipPath id="${id}c"><circle cx="50" cy="50" r="48"/></clipPath><radialGradient id="${id}g" cx=".32" cy=".25" r=".9"><stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs><g clip-path="url(#${id}c)"><rect width="100" height="100" fill="${bg}"/><rect width="100" height="100" fill="url(#${id}g)"/>`;
+  if(a.hair==='largo')s+=`<path d="M25 52Q24 29 50 28Q76 29 75 52V88Q62 94 50 94Q38 94 25 88z" fill="${hc}"/>`;
+  if(a.hair==='coletas')s+=`<circle cx="21" cy="52" r="9" fill="${hc}"/><circle cx="79" cy="52" r="9" fill="${hc}"/><rect x="26" y="48" width="4" height="8" rx="2" fill="#FF6FB5"/><rect x="70" y="48" width="4" height="8" rx="2" fill="#FF6FB5"/>`;
+  s+=`<path d="M17 101Q19 80 50 79Q81 80 83 101z" fill="${shade(bg,-.38)}"/><rect x="44" y="71" width="12" height="11" rx="4" fill="${shade(sk,-.12)}"/>`;
+  s+=`<circle cx="26.5" cy="57" r="5" fill="${sk}"/><circle cx="73.5" cy="57" r="5" fill="${sk}"/><circle cx="50" cy="55" r="24" fill="${sk}"/>`;
+  if(a.acc==='mejillas')s+=`<ellipse cx="35.5" cy="64.5" rx="4.6" ry="2.8" fill="#FF7A9A" opacity=".55"/><ellipse cx="64.5" cy="64.5" rx="4.6" ry="2.8" fill="#FF7A9A" opacity=".55"/>`;
+  if(a.acc==='pecas')s+=`<g fill="${shade(sk,-.38)}"><circle cx="34" cy="63" r="1.1"/><circle cx="37.5" cy="65.2" r="1.1"/><circle cx="37" cy="61.5" r="1.1"/><circle cx="66" cy="63" r="1.1"/><circle cx="62.5" cy="65.2" r="1.1"/><circle cx="63" cy="61.5" r="1.1"/></g>`;
+  if(a.acc==='estrella')s+=`<path d="M65 60l1.6 3.3 3.6.5-2.6 2.5.6 3.6-3.2-1.7-3.2 1.7.6-3.6-2.6-2.5 3.6-.5z" fill="#FFC93C" stroke="#E0A500" stroke-width=".6"/>`;
+  s+=(a.glasses==='parche'&&patchX===41?'':eye(41))+(a.glasses==='parche'&&patchX===59?'':eye(59));
+  s+=`<path d="M35.5 46.5q5.5-3 11 0M53.5 46.5q5.5-3 11 0" fill="none" stroke="${a.hair==='ninguno'?shade(sk,-.42):hc}" stroke-width="2.3" stroke-linecap="round"/>`;
+  s+=`<path d="M43.5 66.5Q50 72.5 56.5 66.5" fill="none" stroke="${ink}" stroke-width="2.3" stroke-linecap="round"/>`;
+  s+={corto:`<path d="M26 54Q24 30 50 30Q76 30 74 54Q71 44 63 41Q55 45 44 42Q33 43 26 54z" fill="${hc}"/>`,
+      largo:`<path d="M26 62Q22 30 50 30Q78 30 74 62Q72 45 61 40Q49 46 37 41Q29 47 26 62z" fill="${hc}"/>`,
+      rizado:`<g fill="${hc}">${[[29,48,7],[33,38,7.5],[41,32,7.5],[50,30,7.5],[59,32,7.5],[67,38,7.5],[71,48,7],[39,41,6],[50,38,6],[61,41,6]].map(([x,y,r])=>`<circle cx="${x}" cy="${y}" r="${r}"/>`).join('')}</g>`,
+      coletas:`<path d="M26 54Q24 30 50 30Q76 30 74 54Q70 40 52 38L50 42L48 38Q30 40 26 54z" fill="${hc}"/>`,
+      punta:`<path d="M26 52L28 36L34 41L37 27L44 37L50 23L56 37L63 27L66 41L72 36L74 52Q68 42 50 42Q32 42 26 52z" fill="${hc}"/>`,
+      ninguno:`<ellipse cx="41" cy="38" rx="6" ry="3" fill="#fff" opacity=".28"/>`}[a.hair]||'';
+  if(a.acc==='auriculares')s+=`<path d="M24 57Q24 21 50 21Q76 21 76 57" fill="none" stroke="#2B2F3A" stroke-width="4.5" stroke-linecap="round"/>`;
+  s+={gorra:`<path d="M25.5 47Q25 25 50 25Q75 25 74.5 47z" fill="#E0303F"/><path d="M24 46.5H80Q86 46.5 86 49.5Q86 52.5 80 52.5H26Q23 52.5 24 46.5z" fill="#B02232"/><circle cx="50" cy="25.5" r="2.3" fill="#B02232"/>`,
+      lana:`<path d="M25 47Q25 22 50 22Q75 22 75 47z" fill="#3B7BD9"/><path d="M33 27v18M41 23.5V45M50 22v23M59 23.5V45M67 27v18" stroke="#2F67C0" stroke-width="2"/><rect x="23" y="41" width="54" height="10" rx="5" fill="#2A5DB0"/><circle cx="50" cy="19" r="5.5" fill="#FFC93C"/>`,
+      corona:`<path d="M31 41V22L39.5 31L50 18L60.5 31L69 22V41z" fill="#FFC93C" stroke="#E0A500" stroke-width="1.5" stroke-linejoin="round"/><circle cx="50" cy="34" r="2.6" fill="#E0303F"/><circle cx="39" cy="36" r="1.8" fill="#13B5D6"/><circle cx="61" cy="36" r="1.8" fill="#13B5D6"/>`,
+      mago:`<path d="M26 44L50 4L74 44z" fill="#7B5CFF"/><ellipse cx="50" cy="44" rx="29" ry="5" fill="#5B3FD6"/><path d="M50 17l1.5 3 3.3.5-2.4 2.3.6 3.3-3-1.6-3 1.6.6-3.3-2.4-2.3 3.3-.5z" fill="#FFC93C"/><circle cx="41.5" cy="35" r="1.7" fill="#FFC93C"/><circle cx="58.5" cy="31" r="1.3" fill="#fff"/>`,
+      birrete:`<path d="M34 33H66V43Q50 47.5 34 43z" fill="#1B2433"/><path d="M50 19L84 29L50 39L16 29z" fill="#2B3A55"/><path d="M50 29L76 32V44" fill="none" stroke="#FFC93C" stroke-width="1.7"/><circle cx="76" cy="45.5" r="2.5" fill="#FFC93C"/>`,
+      gato:`<path d="M27 45Q27 28 50 28Q73 28 73 45" fill="none" stroke="#FF6FB5" stroke-width="3.6" stroke-linecap="round"/><path d="M28 37L30 17L44 30z" fill="#FF6FB5"/><path d="M72 37L70 17L56 30z" fill="#FF6FB5"/><path d="M31.5 32L32.5 23L40 29z" fill="#FFD1E3"/><path d="M68.5 32L67.5 23L60 29z" fill="#FFD1E3"/>`}[a.hat]||'';
+  s+={redondos:`<g fill="rgba(255,255,255,.18)" stroke="${dk}" stroke-width="2.4"><circle cx="41" cy="55" r="8.6"/><circle cx="59" cy="55" r="8.6"/></g><path d="M49.6 55h.8M32.4 54L26.5 51.5M67.6 54L73.5 51.5" stroke="${dk}" stroke-width="2.4" stroke-linecap="round"/>`,
+      cuadrados:`<g fill="rgba(255,255,255,.18)" stroke="${dk}" stroke-width="2.4"><rect x="32" y="48.5" width="17" height="13" rx="3"/><rect x="51" y="48.5" width="17" height="13" rx="3"/></g><path d="M49 54h2M32 53L26.5 51M68 53L73.5 51" stroke="${dk}" stroke-width="2.4" stroke-linecap="round"/>`,
+      '3d':`<rect x="${redX-8.5}" y="48.5" width="17" height="13" rx="2.5" fill="#F0384B" fill-opacity=".72"/><rect x="${cyX-8.5}" y="48.5" width="17" height="13" rx="2.5" fill="#13B5D6" fill-opacity=".72"/><g fill="none" stroke="#F2F5F9" stroke-width="2.2"><rect x="32" y="48.5" width="17" height="13" rx="2.5"/><rect x="51" y="48.5" width="17" height="13" rx="2.5"/></g><path d="M49 54h2M32 53L26.5 51M68 53L73.5 51" stroke="#F2F5F9" stroke-width="2.2" stroke-linecap="round"/>`,
+      sol:`<g fill="${dk}"><path d="M31 49h18v5.5Q49 62 40 62Q31 62 31 54.5z"/><path d="M51 49h18v5.5Q69 62 60 62Q51 62 51 54.5z"/></g><path d="M34 51.5h5M54 51.5h5" stroke="#fff" stroke-opacity=".55" stroke-width="1.6" stroke-linecap="round"/><path d="M49 51h2M31 51L26.5 50M69 51L73.5 50" stroke="${dk}" stroke-width="2.4" stroke-linecap="round"/>`,
+      parche:`<path d="M${patchX-7} 51L26 45M${patchX+7} 51L${patchX===41?'60 31':'74 45'}" stroke="${dk}" stroke-width="1.8"/><ellipse cx="${patchX}" cy="55" rx="8" ry="7.2" fill="${dk}"/><path d="M${patchX} 51.6l1.1 2.2 2.4.4-1.7 1.7.4 2.4-2.2-1.1-2.2 1.1.4-2.4-1.7-1.7 2.4-.4z" fill="#FFC93C"/>`}[a.glasses]||'';
+  if(a.acc==='auriculares')s+=`<rect x="18.5" y="49" width="10" height="17" rx="5" fill="#13B5D6"/><rect x="71.5" y="49" width="10" height="17" rx="5" fill="#13B5D6"/>`;
+  if(a.acc==='pajarita')s+=`<path d="M50 81L40.5 75.5V86.5zM50 81L59.5 75.5V86.5z" fill="#E0303F"/><circle cx="50" cy="81" r="2.6" fill="#B02232"/>`;
+  if(a.acc==='bufanda')s+=`<path d="M33 75Q50 84 67 75L68.5 82Q50 91 31.5 82z" fill="#FFC93C"/><rect x="56" y="80" width="7.5" height="15" rx="2.5" fill="#E8A317"/>`;
+  return s+`</g><circle cx="50" cy="50" r="48" fill="none" stroke="rgba(0,0,0,.12)" stroke-width="1.5"/></svg>`;
+}
+/* editor del avatar (en la ficha y desde Progreso para el propio paciente) */
+let AVED=null;
+const AVTABS=[['cara','Cara'],['pelo','Pelo'],['gorro','Gorro'],['lentes','Lentes'],['extra','Accesorios'],['fondo','Fondo']];
+function avCtx(){const live=AVED.mode==='ficha'&&AVED.live,d=live&&$('#f_diag'),am=live&&$('#f_amb');return {diag:d?d.value:AVED.p.diag,amb:am?am.value:AVED.p.ambEye};}
+function avPrev(av,col){const c=avCtx();return {...AVED.p,av:av||AVED.av,color:col||AVED.col,ambEye:c.amb};}
+function avSugFor(diag){const s=AVSUG[diag];if(!s)return null;const av={...AVED.av};['hat','glasses','acc'].forEach(k=>{if(s[k])av[k]=s[k];});return {av,why:s.why,s};}
+function avBuilder(){
+  const c=avCtx(),sg=avSugFor(c.diag),a=AVED.av,isSug=(k,v)=>!!(sg&&sg.s[k]===v);
+  const sw=(k,list)=>`<div class="avsw" role="group">${list.map(v=>`<button class="sw2" data-avk="${k}" data-v="${v}" style="background:${v}" aria-pressed="${(k==='col'?AVED.col:a[k])===v}" aria-label="Color ${v}"></button>`).join('')}</div>`;
+  const th=(k,list)=>`<div class="avopts">${list.map(([v,l])=>`<button class="avo" data-avk="${k}" data-v="${v}" aria-pressed="${a[k]===v}">${avatarSvg(avPrev({...a,[k]:v}),58)}<span>${l}</span>${isSug(k,v)?'<i class="avstar" title="Sugerido para el diagnóstico">★</i>':''}</button>`).join('')}</div>`;
+  const body={cara:`<p class="avl">Tono de piel</p>${sw('skin',AV.skin)}<p class="avl">Color de ojos</p>${sw('eye',AV.eye)}`,
+    pelo:`${th('hair',AV.hair)}<p class="avl">Color del pelo</p>${sw('hairC',AV.hairC)}`,gorro:th('hat',AV.hat),lentes:th('glasses',AV.glasses),extra:th('acc',AV.acc),
+    fondo:`<p class="avl">Color de fondo</p>${sw('col',AVC.concat(['#9BE7FF','#E4FF7A']))}`}[AVED.tab];
+  const same=sg&&['hat','glasses','acc'].every(k=>!sg.s[k]||a[k]===sg.s[k]);
+  return `<div class="avtop"><div class="avbig">${avatarSvg(avPrev(),132)}</div>
+    <div class="avact"><button class="btn btn-soft btn-sm" data-avrand="1">🎲 Sorpréndeme</button></div></div>
+    ${sg?`<div class="avsugbox">${avatarSvg(avPrev(sg.av),52)}<div class="t"><b>Sugerido para ${esc(c.diag.toLowerCase())}</b><span>${sg.why}</span></div><button class="btn ${same?'btn-soft':'btn-go'} btn-sm" data-avsug="1"${same?' disabled':''}>${same?'Aplicado':'Aplicar'}</button></div>`:''}
+    <div class="seg" data-n="6" role="tablist" style="margin-top:12px">${AVTABS.map(([v,l])=>`<button data-avt="${v}" aria-pressed="${AVED.tab===v}">${l}</button>`).join('')}</div>
+    <div class="avbody">${body}</div>`;
+}
+function avRefresh(){const el=$('#avb');if(el&&AVED)el.innerHTML=avBuilder();}
+function avClick(b){
+  if(!AVED)return false;
+  if(b.dataset.avt){AVED.tab=b.dataset.avt;avRefresh();return true;}
+  if(b.dataset.avk){if(b.dataset.avk==='col')AVED.col=b.dataset.v;else AVED.av[b.dataset.avk]=b.dataset.v;avRefresh();return true;}
+  if(b.dataset.avrand){AVED.av=avRandom();AVED.col=pick(AVC);avRefresh();return true;}
+  if(b.dataset.avsug){const sg=avSugFor(avCtx().diag);if(sg){AVED.av=sg.av;avRefresh();}return true;}
+  return false;
+}
+function openAvatarSelf(){const p=P();AVED={p,av:avOf(p),col:p.color,tab:'cara',mode:'self'};
+  openSheet(`<h2 style="text-align:center">Mi avatar</h2><p class="sub" style="text-align:center">Elige tu cara, tu pelo, un gorro, lentes y accesorios.</p><div id="avb">${avBuilder()}</div>
+   <div class="cf-btns"><button class="btn btn-soft" id="sheetX">Cancelar</button><button class="btn btn-main" id="avSave">Guardar avatar</button></div>`,()=>{AVED=null;});}
 function lastSess(pid){for(let i=DB.sessions.length-1;i>=0;i--)if(DB.sessions[i].pid===pid)return DB.sessions[i];return null;}
 function ago(d){if(!d)return 'Sin sesiones';const a=new Date(d),n=new Date();const da=new Date(a.getFullYear(),a.getMonth(),a.getDate()),dn=new Date(n.getFullYear(),n.getMonth(),n.getDate());const k=Math.round((dn-da)/864e5);return k<=0?'Hoy':k===1?'Ayer':`Hace ${k} días`;}
 function adherence(pid){const set=new Set(DB.sessions.filter(s=>s.pid===pid).map(s=>dayKey(s.date)));let n=0;for(let i=0;i<14;i++){const d=new Date();d.setDate(d.getDate()-i);if(set.has(dayKey(d)))n++;}return Math.round(n/14*100);}
@@ -2351,7 +2497,7 @@ function renderPatList(){
   if(q)list=list.filter(p=>(p.name+' '+(p.diag||'')).toLowerCase().includes(q));
   list.sort((a,b)=>a.name.localeCompare(b.name,'es'));
   $('#patList').innerHTML=list.map(p=>{const l=lastSess(p.id),ad=adherence(p.id),ag=ageOf(p);
-    return `<button class="row prow2" data-pv="${p.id}">${avatarSvg(p,46)}<span class="t"><span class="nm">${esc(p.name)}</span><span class="mt">${[ag!==''?ag+' años':'',p.diag].filter(Boolean).map(esc).join(', ')||'Sin ficha clínica'}</span></span><span class="end"><b>${ago(l&&l.date)}</b><span class="adh"><i style="width:${ad}%"></i></span>${ad}% adherencia</span></button>`;}).join('')||'<p class="sub" style="padding:14px 0">No hay pacientes que coincidan.</p>';
+    return `<button class="row prow2" data-pv="${p.id}">${avatarSvg(p,46)}<span class="t"><span class="nm">${esc(showName(p,true))}</span><span class="mt">${[ag!==''?ag+' años':'',p.diag].filter(Boolean).map(esc).join(', ')||'Sin ficha clínica'}</span></span><span class="end"><b>${ago(l&&l.date)}</b><span class="adh"><i style="width:${ad}%"></i></span>${ad}% adherencia</span></button>`;}).join('')||'<p class="sub" style="padding:14px 0">No hay pacientes que coincidan.</p>';
 }
 const EVOL=[
  {n:'Estereoagudeza',b:'low',g:c=>c.stereo,f:v=>`${v}″`},{n:'Profundidad en la grúa',b:'low',g:c=>c.crane,f:v=>`${v}″`},{n:'Campo visual útil',b:'low',g:c=>c.ufov,f:v=>`${v} ms`},
@@ -2383,7 +2529,7 @@ function patDetail(){
   const fi=[['Fecha de nacimiento',p.birth?new Date(p.birth+'T12:00').toLocaleDateString('es'):''],['Tutor',p.tutor],['Diagnóstico',p.diag],['Ojo ambliope',p.ambEye],['Ojo dominante',p.domEye],['Agudeza visual OD',p.avOD],['Agudeza visual OI',p.avOI],['Tiempo para responder',p.rt?p.rt+' s por respuesta':''],['Tiempo visible',p.ex?String(p.ex).replace('.',',')+' s':'']].filter(x=>x[1]);
   const hist=ss.slice(-20).reverse().map(s=>{const d=new Date(s.date);return `<div class="h"><span>${d.toLocaleDateString('es',{day:'numeric',month:'short'})} ${d.toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'})}</span><span>${G(s.g)?G(s.g).name:s.g} <span style="color:var(--ink-2)">niv. ${s.lv}</span></span>${starsRow(s.stars||0)}<b>${fmt(s.score,s.unit)}</b></div>`;}).join('');
   return `<button class="back" data-pc="back">‹ Todos los pacientes</button>
-  <div class="card phead">${avatarSvg(p,66)}<div class="t"><h2>${esc(p.name)}</h2><span class="sub" style="margin:0">${[ag!==''?ag+' años':'',p.diag].filter(Boolean).map(esc).join(', ')||'Sin ficha clínica'}</span>${p.phone||p.email?`<span class="sub" style="margin:0">${esc([p.phone,p.email].filter(Boolean).join('   '))}</span>`:''}${p.archived?'<span class="sub" style="margin:0;color:var(--red)">Archivado</span>':''}</div></div>
+  <div class="card phead">${avatarSvg(p,66)}<div class="t"><h2>${esc(showName(p,true))}</h2><span class="sub" style="margin:0">${[ag!==''?ag+' años':'',p.diag].filter(Boolean).map(esc).join(', ')||'Sin ficha clínica'}</span>${p.phone||p.email?`<span class="sub" style="margin:0">${esc([p.phone,p.email].filter(Boolean).join('   '))}</span>`:''}${p.archived?'<span class="sub" style="margin:0;color:var(--red)">Archivado</span>':''}</div></div>
   <div class="pbtns"><button class="btn btn-go" data-pc="train">Entrenar ahora</button><button class="btn btn-soft" data-pc="ficha">Editar ficha</button><button class="btn btn-soft" data-c="report">Informe</button></div>
   <div class="kpis"><div><b>${ss.length}</b><span>sesiones</span></div><div><b>${mins}</b><span>minutos</span></div><div><b>${adherence(p.id)}%</b><span>adherencia 14 días</span></div><div><b>${l?ago(l.date):'—'}</b><span>última sesión</span></div></div>
   ${evolCard()}
@@ -2394,33 +2540,47 @@ function patDetail(){
   ${hist?`<div class="card hist"><p class="h4b">Últimas sesiones</p>${hist}</div>`:''}
   <div class="card"><p class="h4b">Datos del paciente</p><div style="display:grid;gap:8px"><button class="btn btn-soft" data-c="csv">Exportar sesiones (CSV)</button><button class="btn btn-soft" data-pc="arch">${p.archived?'Reactivar paciente':'Archivar paciente'}</button><button class="btn btn-soft danger" data-pc="del">Eliminar paciente y su historial</button></div></div>`;
 }
-let FICHA_NEW=false,FICHA_COL='#FFC93C';
+let FICHA_NEW=false,FICHA_PLAN=false;
+const planFrom=(gs,p)=>gs.slice(0,5).map(g=>({g:g.id,lv:3,dur:60,adaptive:true,tf:1,rt:p.rt||0,ex:p.ex||0,opt:defOpts(g)}));
+function fichaRec(diag){const rec=recFor(diag);if(!rec.length)return diag?`<p class="help" style="margin:2px 0 6px">Aún no hay ejercicios específicos para este diagnóstico.</p>`:'';
+  return `<div class="frec"><span class="lab2">Recomendado para ${esc(diag.toLowerCase())}</span><div class="cf-ind">${rec.map(g=>`<span>${g.name}</span>`).join('')}</div>
+   <div class="toggle"><div><b>Crear su plan con estos ejercicios</b><div class="sub" style="margin:0">${FICHA_NEW?'Se usará como su primer plan de tratamiento.':'Reemplaza el plan actual al guardar.'}</div></div><button class="sw" id="f_plan" role="switch" aria-checked="${FICHA_PLAN}" aria-label="Crear el plan recomendado"></button></div></div>`;}
 function openFicha(isNew){
-  const p=isNew?pfix({id:'nuevo',name:'',color:pick(AVC),plan:[]}):P();FICHA_NEW=isNew;FICHA_COL=p.color;
-  const opt=(arr,v)=>arr.map(x=>`<option value="${x}" ${v===x?'selected':''}>${x||'Sin especificar'}</option>`).join('');
-  openSheet(`<h2>${isNew?'Nuevo paciente':'Ficha clínica'}</h2>
-   <div class="field"><label for="f_name">Nombre completo</label><input class="inp" id="f_name" value="${esc(p.name)}" autocomplete="off"></div>
-   <div class="grid2"><div class="field"><label for="f_birth">Fecha de nacimiento</label><input class="inp" type="date" id="f_birth" value="${esc(p.birth)}"></div><div class="field"><label for="f_tutor">Tutor (si es menor)</label><input class="inp" id="f_tutor" value="${esc(p.tutor)}"></div></div>
-   <div class="grid2"><div class="field"><label for="f_phone">Teléfono</label><input class="inp" id="f_phone" inputmode="tel" value="${esc(p.phone)}"></div><div class="field"><label for="f_email">Correo</label><input class="inp" id="f_email" type="email" value="${esc(p.email)}"></div></div>
-   <div class="field"><label for="f_diag">Diagnóstico principal</label><select class="inp" id="f_diag">${opt(['',...DIAGS],p.diag)}</select></div>
-   <div class="grid2"><div class="field"><label for="f_amb">Ojo ambliope</label><select class="inp" id="f_amb">${opt(['','Ninguno','Derecho','Izquierdo'],p.ambEye)}</select></div><div class="field"><label for="f_dom">Ojo dominante</label><select class="inp" id="f_dom">${opt(['','Derecho','Izquierdo'],p.domEye)}</select></div></div>
-   <div class="grid2"><div class="field"><label for="f_avod">Agudeza visual OD</label><input class="inp" id="f_avod" placeholder="20/20" value="${esc(p.avOD)}"></div><div class="field"><label for="f_avoi">Agudeza visual OI</label><input class="inp" id="f_avoi" placeholder="20/40" value="${esc(p.avOI)}"></div></div>
-   <div class="field"><label for="f_rt">Tiempo para responder (por defecto)</label><p class="help">Segundos que tiene este paciente para cada respuesta en todos sus ejercicios. Se puede cambiar en cada uno.</p><select class="inp" id="f_rt">${RT_OPTS.map(([v,l])=>`<option value="${v}" ${(p.rt||0)===v?'selected':''}>${v?l:'Auto (según el nivel)'}</option>`).join('')}</select></div>
-   <div class="field"><label for="f_ex">Tiempo visible (por defecto)</label><p class="help">Cuánto tiempo ve este paciente los números, letras o figuras en Taquistoscopio, Conteo, Destello, Patrones, Multiobjetos y Parejas.</p><select class="inp" id="f_ex">${EX_OPTS.map(([v,l])=>`<option value="${v}" ${(p.ex||0)===v?'selected':''}>${v?l:'Auto (según el nivel)'}</option>`).join('')}</select></div>
-   <div class="field"><span class="lab">Color de su ojo avatar</span><div class="colors">${AVC.map(c=>`<button class="sw2" data-col="${c}" style="background:${c}" aria-pressed="${p.color===c}" aria-label="Color ${c}"></button>`).join('')}</div></div>
-   <div class="field"><label for="f_notes">Notas generales</label><textarea class="inp" id="f_notes">${esc(p.notes)}</textarea></div>
-   <div style="display:flex;gap:10px;margin-top:8px"><button class="btn btn-soft" id="sheetX">Cancelar</button><button class="btn btn-main btn-wide" id="fichaSave">${isNew?'Registrar paciente':'Guardar ficha'}</button></div>`);
+  const p=isNew?pfix({id:'nuevo',name:'',color:pick(AVC),plan:[],redEye:'left'}):P();FICHA_NEW=isNew;FICHA_PLAN=isNew;
+  AVED={p,av:isNew?avRandom():avOf(p),col:p.color,tab:'cara',mode:'ficha',live:false};
+  const opt=(arr,v,lab)=>arr.map(x=>`<option value="${x}" ${v===x?'selected':''}>${x||lab||'Sin especificar'}</option>`).join('');
+  const tOpt=(arr,v)=>arr.map(([x,l])=>`<option value="${x}" ${(v||0)===x?'selected':''}>${x?l:'Auto'}</option>`).join('');
+  openSheet(`<h2 style="text-align:center">${isNew?'Nuevo paciente':'Ficha clínica'}</h2>
+   <section class="fsec"><h3>Avatar</h3><div id="avb">${avBuilder()}</div></section>
+   <section class="fsec"><h3>Datos personales</h3>
+    <div class="field"><label for="f_name">Nombre completo</label><input class="inp" id="f_name" value="${isPlaceholder(p)?'':esc(p.name)}" autocomplete="off" placeholder="Nombre y apellidos"></div>
+    <div class="grid2"><div class="field"><label for="f_birth">Nacimiento</label><input class="inp" type="date" id="f_birth" value="${esc(p.birth)}"></div><div class="field"><label for="f_tutor">Tutor (si es menor)</label><input class="inp" id="f_tutor" value="${esc(p.tutor)}" placeholder="Opcional"></div></div>
+    <div class="grid2"><div class="field"><label for="f_phone">Teléfono</label><input class="inp" id="f_phone" inputmode="tel" value="${esc(p.phone)}" placeholder="Opcional"></div><div class="field"><label for="f_email">Correo</label><input class="inp" id="f_email" type="email" value="${esc(p.email)}" placeholder="Opcional"></div></div></section>
+   <section class="fsec"><h3>Datos clínicos</h3>
+    <div class="field"><label for="f_diag">Diagnóstico principal</label><select class="inp" id="f_diag">${opt(['',...DIAGS],p.diag)}</select></div>
+    <div id="f_rec">${fichaRec(p.diag)}</div>
+    <div class="grid2"><div class="field"><label for="f_amb">Ojo ambliope</label><select class="inp" id="f_amb">${opt(['','Ninguno','Derecho','Izquierdo'],p.ambEye,'—')}</select></div><div class="field"><label for="f_dom">Ojo dominante</label><select class="inp" id="f_dom">${opt(['','Derecho','Izquierdo'],p.domEye,'—')}</select></div></div>
+    <div class="grid2"><div class="field"><label for="f_avod">Agudeza visual OD</label><input class="inp" id="f_avod" placeholder="20/20" value="${esc(p.avOD)}"></div><div class="field"><label for="f_avoi">Agudeza visual OI</label><input class="inp" id="f_avoi" placeholder="20/40" value="${esc(p.avOI)}"></div></div></section>
+   <section class="fsec"><h3>Ajustes de los ejercicios</h3>
+    <div class="grid2"><div class="field"><label for="f_rt">Tiempo de respuesta</label><select class="inp" id="f_rt">${tOpt(RT_OPTS,p.rt)}</select></div><div class="field"><label for="f_ex">Tiempo visible</label><select class="inp" id="f_ex">${tOpt(EX_OPTS,p.ex)}</select></div></div>
+    <p class="help" style="margin:-4px 0 12px">Valores por defecto para todos sus ejercicios; se pueden cambiar en cada uno. «Auto» usa el tiempo de cada nivel. El tiempo visible se aplica en Taquistoscopio, Conteo, Destello, Patrones, Multiobjetos y Parejas.</p></section>
+   <section class="fsec"><h3>Notas generales</h3><div class="field"><label for="f_notes" class="vh">Notas generales</label><textarea class="inp" id="f_notes" placeholder="Indicaciones, antecedentes, observaciones…">${esc(p.notes)}</textarea></div></section>
+   <div class="cf-btns"><button class="btn btn-soft" id="sheetX">Cancelar</button><button class="btn btn-main" id="fichaSave">${isNew?'Registrar paciente':'Guardar ficha'}</button></div>`,()=>{AVED=null;});
+  AVED.live=true;
   setTimeout(()=>{const n=$('#f_name');if(n&&isNew)n.focus();},350);
 }
 $('#sheetBody').addEventListener('click',e=>{
   const b=e.target.closest('button');if(!b)return;
-  if(b.dataset.col){FICHA_COL=b.dataset.col;document.querySelectorAll('.sw2').forEach(x=>x.setAttribute('aria-pressed',x.dataset.col===FICHA_COL));return;}
+  if(avClick(b))return;
+  if(b.id==='f_plan'){FICHA_PLAN=!FICHA_PLAN;b.setAttribute('aria-checked',FICHA_PLAN);return;}
+  if(b.id==='avSave'){const p=P();p.av={...AVED.av};p.color=AVED.col;save();closeSheet();renderAll();toast('¡Avatar guardado!');return;}
   if(b.id==='fichaSave'){
     const name=$('#f_name').value.trim();if(!name){$('#f_name').focus();toast('Escribe el nombre del paciente');return;}
-    const p=FICHA_NEW?pfix(newPatient(name)):P();
-    Object.assign(p,{name,birth:$('#f_birth').value,tutor:$('#f_tutor').value.trim(),phone:$('#f_phone').value.trim(),email:$('#f_email').value.trim(),diag:$('#f_diag').value,ambEye:$('#f_amb').value,domEye:$('#f_dom').value,avOD:$('#f_avod').value.trim(),avOI:$('#f_avoi').value.trim(),rt:+$('#f_rt').value||0,ex:+$('#f_ex').value||0,notes:$('#f_notes').value,color:FICHA_COL});
+    const p=FICHA_NEW?pfix(newPatient(name)):P();p.placeholder=false;
+    Object.assign(p,{name,birth:$('#f_birth').value,tutor:$('#f_tutor').value.trim(),phone:$('#f_phone').value.trim(),email:$('#f_email').value.trim(),diag:$('#f_diag').value,ambEye:$('#f_amb').value,domEye:$('#f_dom').value,avOD:$('#f_avod').value.trim(),avOI:$('#f_avoi').value.trim(),rt:+$('#f_rt').value||0,ex:+$('#f_ex').value||0,notes:$('#f_notes').value,color:AVED.col,av:{...AVED.av}});
+    {const rec=recFor(p.diag);if(FICHA_PLAN&&rec.length)p.plan=planFrom(rec,p);}
     if(p.ambEye==='Derecho'&&p.trainEye==='none')p.trainEye='right';if(p.ambEye==='Izquierdo'&&p.trainEye==='none')p.trainEye='left';
-    if(FICHA_NEW){DB.patients.push(p);}DB.active=p.id;patView=p.id;save();closeSheet();renderAll();toast(FICHA_NEW?`${firstName(name)} registrado`:'Ficha guardada');
+    if(FICHA_NEW){DB.patients.push(p);}DB.active=p.id;pruneGuest();patView=p.id;const planned=FICHA_PLAN&&recFor(p.diag).length;save();closeSheet();renderAll();toast((FICHA_NEW?`${firstName(name)} registrado`:'Ficha guardada')+(planned?' con su plan recomendado':''));
   }
 });
 /* ================= ajustes ================= */
@@ -2448,7 +2608,7 @@ function renderSettings(){
   <div class="card"><p class="h4b">Datos</p><p class="sub">Todo se guarda solo en esta tableta. Haz copias de seguridad con frecuencia.</p>
     <div style="display:grid;gap:8px"><button class="btn btn-main" data-c="backup">Copia de seguridad completa</button>
     <label class="btn btn-soft" style="cursor:pointer">Restaurar copia de seguridad<input type="file" accept="application/json,.json" id="restore" hidden></label></div></div>
-  <div class="card" style="text-align:center"><svg class="logo" viewBox="0 0 40 40" style="width:44px;height:44px"><circle cx="15" cy="20" r="12" fill="var(--red)"/><circle cx="25" cy="20" r="12" fill="var(--cyan)"/></svg><p style="margin:6px 0 0;font-family:var(--display);font-weight:700;font-size:20px">GiRo 5.0</p><p class="sub" style="margin:0">Terapia visual por GR Software TC</p></div>`;
+  <div class="card" style="text-align:center"><svg class="logo" viewBox="0 0 40 40" style="width:44px;height:44px"><circle cx="15" cy="20" r="12" fill="var(--red)"/><circle cx="25" cy="20" r="12" fill="var(--cyan)"/></svg><p style="margin:6px 0 0;font-family:var(--display);font-weight:700;font-size:20px">GiRo 5.1</p><p class="sub" style="margin:0">Terapia visual por GR Software TC</p></div>`;
 }
 function renderClinic(){renderPats();renderSettings();}
 function renderAll(){renderWho();renderHome();renderGames();renderProgress();renderPats();renderSettings();}
@@ -2456,8 +2616,9 @@ function renderAll(){renderWho();renderHome();renderGames();renderProgress();ren
 /* ---------- eventos ---------- */
 $('#startPlan').addEventListener('click',startPlan);
 document.addEventListener('click',e=>{
-  const t=e.target.closest('[data-game],[data-plan-i],[data-cat],[data-goto],[data-gview]');if(!t||t.closest('#sheet')||t.closest('.layer'))return;
-  if(t.dataset.gview){DB.cfg.gview=t.dataset.gview;save();renderGames();stagger($('#tiles'));}
+  const t=e.target.closest('[data-game],[data-plan-i],[data-cat],[data-goto],[data-gview],[data-myav]');if(!t||t.closest('#sheet')||t.closest('.layer'))return;
+  if(t.dataset.myav)openAvatarSelf();
+  else if(t.dataset.gview){DB.cfg.gview=t.dataset.gview;save();renderGames();stagger($('#tiles'));}
   else if(t.dataset.game)openConfig(t.dataset.game,'play');
   else if(t.dataset.planI!=null){const it=P().plan[+t.dataset.planI];launch(it.g,{...it,opt:{...it.opt}},null);}
   else if(t.dataset.cat){catF=t.dataset.cat;renderGames();stagger($('#tiles'));}
@@ -2477,7 +2638,7 @@ function clinicClick(e){
     case 'new':openFicha(true);break;
     case 'back':patView=null;renderPats();window.scrollTo(0,0);stagger($('#v-pats'));break;
     case 'ficha':openFicha(false);break;
-    case 'train':renderAll();goTab('home');toast(`Paciente activo: ${p.name}`);break;
+    case 'train':renderAll();goTab('home');toast(`Paciente activo: ${showName(p,true)}`);break;
     case 'note':{const t=$('#noteTxt').value.trim();if(!t){$('#noteTxt').focus();return;}p.notesLog=p.notesLog||[];p.notesLog.push({d:new Date().toISOString(),t});save();renderPats();toast('Nota añadida');break;}
     case 'arch':p.archived=!p.archived;save();renderAll();toast(p.archived?'Paciente archivado':'Paciente reactivado');break;
     case 'del':if(DB.patients.length<2){toast('Debe quedar al menos un paciente');return;}if(!confirm(`¿Eliminar a ${p.name} y todo su historial? No se puede deshacer.`))return;
@@ -2486,7 +2647,7 @@ function clinicClick(e){
   else switch(b.dataset.c){
     case 'add':openPickGame();break;
     case 'suggest':{const rec=recFor(p.diag);if(!rec.length)return;if(p.plan.length&&!confirm(`¿Reemplazar el plan actual por ${Math.min(5,rec.length)} ejercicios indicados para ${p.diag.toLowerCase()}?`))return;
-      p.plan=rec.slice(0,5).map(g=>({g:g.id,lv:3,dur:60,adaptive:true,tf:1,rt:p.rt||0,ex:p.ex||0,opt:defOpts(g)}));save();renderAll();toast('Plan sugerido aplicado');break;}
+      p.plan=planFrom(rec,p);save();renderAll();toast('Plan sugerido aplicado');break;}
     case 'edit':openConfig(p.plan[i].g,'planEdit',i,p.plan[i]);break;
     case 'del':p.plan.splice(i,1);save();renderAll();break;
     case 'up':if(i>0){[p.plan[i-1],p.plan[i]]=[p.plan[i],p.plan[i-1]];save();renderAll();}break;
@@ -2508,7 +2669,7 @@ function clinicChange(e){
   if(e.target.id==='s_optic'){DB.cfg.opticName=e.target.value.trim();save();renderWho();toast('Nombre guardado');}
   if(e.target.id==='s_pro'){DB.cfg.proName=e.target.value.trim();save();toast('Guardado');}
   if(e.target.id==='restore'){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!d||!Array.isArray(d.patients)||!Array.isArray(d.sessions))throw 0;
-    if(!confirm('¿Reemplazar los datos de esta tableta por la copia?'))return;const keep={pin:DB.cfg.pin};DB=d;DB.cfg=Object.assign({pxPerCm:37.8,calibrated:false,distCm:40,sound:true,haptics:true,theme:'system',ambient:true,breaks:true,voice:false,opticName:'',proName:'',pin:keep.pin,idleMin:5,setupDone:true},DB.cfg||{});DB.patients=DB.patients.map(pfix);DB.best=DB.best||{};DB.last=DB.last||{};if(!DB.patients.find(p=>p.id===DB.active))DB.active=DB.patients[0].id;patView=null;save();applyTheme();renderAll();toast('Copia restaurada');}catch(err){toast('El archivo no es una copia válida de GiRo');}};r.readAsText(f);}
+    if(!confirm('¿Reemplazar los datos de esta tableta por la copia?'))return;const keep={pin:DB.cfg.pin};DB=d;DB.cfg=Object.assign({pxPerCm:37.8,calibrated:false,distCm:40,sound:true,haptics:true,theme:'system',ambient:true,breaks:true,voice:false,opticName:'',proName:'',pin:keep.pin,idleMin:5,setupDone:true},DB.cfg||{});DB.patients=DB.patients.map(pfix);DB.best=DB.best||{};DB.last=DB.last||{};if(!DB.patients.find(p=>p.id===DB.active))DB.active=DB.patients[0].id;pruneGuest();patView=null;save();applyTheme();renderAll();toast('Copia restaurada');}catch(err){toast('El archivo no es una copia válida de GiRo');}};r.readAsText(f);}
 }
 ['#pats','#sets'].forEach(s=>{const el=$(s);el.addEventListener('click',clinicClick);el.addEventListener('input',clinicInput);el.addEventListener('change',clinicChange);});
 const slug=s=>(s||'paciente').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'paciente';
@@ -2693,8 +2854,8 @@ function irisStop(){}
 /* ================= kiosco: inicio, bienvenida y PIN ================= */
 let role='patient',welGi=null,pinGi=null,lastAct=Date.now(),welSaid='';
 function updateRole(){document.body.classList.toggle('pro',role==='pro');$('#proBadge').hidden=role!=='pro';}
-function heroSay(){const p=P(),done=planDone(),nd=done.filter(Boolean).length,n=p.plan.length,fn=firstName(p.name);
-  const msg=!n?`¡Hola, ${fn}! Elige un ejercicio para empezar.`:nd===0?`¡Hola, ${fn}! Hoy tienes ${n} ejercicios. ¿Empezamos?`:nd<n?`¡Vas genial! Te ${n-nd===1?'falta 1 ejercicio':`faltan ${n-nd} ejercicios`}.`:'¡Plan completado! Eres una estrella.';
+function heroSay(){const p=P(),done=planDone(),nd=done.filter(Boolean).length,n=p.plan.length,fn=greetName(p),hola=fn?`¡Hola, ${fn}!`:'¡Hola!';
+  const msg=!n?`${hola} Elige un ejercicio para empezar.`:nd===0?`${hola} Hoy tienes ${n} ejercicios. ¿Empezamos?`:nd<n?`¡Vas genial! Te ${n-nd===1?'falta 1 ejercicio':`faltan ${n-nd} ejercicios`}.`:'¡Plan completado! Eres una estrella.';
   const b=$('#bHero');if(b&&b.dataset.msg!==msg){b.dataset.msg=msg;typeSay(b,msg);if(heroGi)heroGi.setMood(nd===n&&n?'celebrate':'happy',1.5);}}
 const _renderHome=renderHome;renderHome=function(){_renderHome();heroSay();};
 function runSplash(){
@@ -2727,13 +2888,13 @@ function renderWelcome(){
 }
 function renderWelGrid(q){
   q=(q||'').toLowerCase();const list=DB.patients.filter(p=>!p.archived&&(!q||p.name.toLowerCase().includes(q))).sort((a,b)=>{const la=lastSess(a.id),lb=lastSess(b.id);return (lb?new Date(lb.date):0)-(la?new Date(la.date):0)||a.name.localeCompare(b.name,'es');});
-  $('#wlGrid').innerHTML=list.map((p,i)=>{const l=lastSess(p.id),d=planDoneFor(p);return `<button class="pcard st" style="--i:${Math.min(i,12)}" data-enter="${p.id}">${avatarSvg(p,86)}<b>${esc(firstName(p.name))}</b><span>${l?ago(l.date):'¡Nuevo!'}</span>${d.length?`<span class="pd">${d.map(x=>`<i class="${x?'on':''}"></i>`).join('')}</span>`:''}</button>`;}).join('');
+  $('#wlGrid').innerHTML=list.map((p,i)=>{const l=lastSess(p.id),d=planDoneFor(p);return `<button class="pcard st" style="--i:${Math.min(i,12)}" data-enter="${p.id}">${avatarSvg(p,86)}<b>${esc(showName(p))}</b><span>${l?ago(l.date):'¡Nuevo!'}</span>${d.length?`<span class="pd">${d.map(x=>`<i class="${x?'on':''}"></i>`).join('')}</span>`:''}</button>`;}).join('');
 }
 function enterPatient(id,el){
   DB.active=id;save();role='patient';updateRole();const p=P();
   $('#wlGrid').classList.add('dim');if(el)el.classList.add('pick');
-  welGi.setMood('celebrate',1.4);welSaid='';welSay(`¡Hola, ${firstName(p.name)}! ¡A entrenar esos ojos!`);sfx.win();
-  if(DB.cfg.voice)speak(`Hola, ${firstName(p.name)}`);
+  welGi.setMood('celebrate',1.4);welSaid='';welSay(`${greetName(p)?`¡Hola, ${greetName(p)}!`:'¡Hola!'} ¡A entrenar esos ojos!`);sfx.win();
+  if(DB.cfg.voice)speak(greetName(p)?`Hola, ${greetName(p)}`:'Hola');
   setTimeout(()=>leaveWelcome('home'),1100);
 }
 function leaveWelcome(tab){const w=$('#welcome');w.classList.add('leave');setTimeout(()=>{w.hidden=true;w.classList.remove('leave','show');},500);document.body.style.overflow='';if(heroGi)heroGi.wave=2;const b=$('#bHero');if(b)b.dataset.msg='';renderAll();goTab(tab||'home');}
