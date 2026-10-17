@@ -223,6 +223,7 @@ input[type=range]{width:100%;accent-color:var(--cyan);height:34px}
 .panel .sk{color:#9FB0C6;margin:2px 0 14px}
 .panel p{margin:0 0 14px;color:#D3DCE8}
 .glasses{background:linear-gradient(90deg,rgba(255,60,60,.18),rgba(0,220,255,.18));border-radius:12px;padding:10px 12px;font-size:15px}
+.glasses.dist{background:rgba(255,201,60,.16)}
 .panel .btns{display:flex;flex-direction:column;gap:10px;margin-top:20px}
 .cd{position:relative;width:170px;height:170px;margin:auto}
 .cd svg{position:absolute;inset:0;transform:rotate(-90deg)}
@@ -448,12 +449,12 @@ select.inp{appearance:auto}
 .th-line{font-weight:700;color:var(--acc);margin:2px 0 12px;font-size:15px;line-height:1.35}
 /* botones de opción: rejilla centrada y simétrica (la última fila incompleta queda centrada) */
 .seg{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;background:none;border:0;padding:0;--c:3}
-.seg[data-n="1"]{--c:1}.seg[data-n="2"]{--c:2}.seg[data-n="3"]{--c:3}.seg[data-n="4"]{--c:4}.seg[data-n="5"],.seg[data-n="6"]{--c:3}.seg[data-n="7"],.seg[data-n="8"]{--c:4}
+.seg[data-n="1"]{--c:1}.seg[data-n="2"]{--c:2}.seg[data-n="3"]{--c:3}.seg[data-n="4"]{--c:4}.seg[data-n="5"],.seg[data-n="6"]{--c:3}.seg[data-n="7"],.seg[data-n="8"]{--c:4}.seg[data-n="10"]{--c:5}
 .seg button{flex:0 0 calc((100% - (var(--c) - 1) * 8px) / var(--c));min-width:0;background:var(--surface);border:1.5px solid var(--line);border-radius:13px;padding:9px 8px;min-height:46px;font-size:14.5px;line-height:1.2;white-space:normal;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;transition:background .15s,border-color .15s,color .15s}
 .seg button[aria-pressed="true"]{background:var(--btn);color:var(--btn-ink);border-color:var(--btn);font-weight:700}
 .seg.ico button{min-height:88px;padding:10px 6px}
 .seg .oi{display:grid;place-items:center;height:32px}.seg .oi svg{width:32px;height:32px}
-@media (max-width:480px){.seg[data-n="4"]{--c:2}}
+@media (max-width:480px){.seg[data-n="4"]{--c:2}.seg[data-n="10"]{--c:4}}
 /* configuración del ejercicio */
 .cf-head{text-align:center;padding:2px 0 0}
 .cf-head .glyph{width:88px;height:88px;border-radius:26px;margin:0 auto 12px}
@@ -814,10 +815,17 @@ document.addEventListener('selectstart',e=>{if(!typing(e))e.preventDefault();});
 document.addEventListener('dragstart',e=>{if(!typing(e))e.preventDefault();});
 const rgb=a=>`rgb(${a.map(Math.round).join(',')})`;
 const eyeName=e=>e==='left'?'izquierdo':'derecho';
-const pxToArcsec=px=>Math.round((px/DB.cfg.pxPerCm)/DB.cfg.distCm*206265);
-const pxToPrism=px=>100*(px/DB.cfg.pxPerCm)/DB.cfg.distCm;
-const prismToPx=d=>d*DB.cfg.distCm/100*DB.cfg.pxPerCm;
-const degPerPx=()=>Math.atan((1/DB.cfg.pxPerCm)/DB.cfg.distCm)*180/Math.PI;
+/* distancia de los ojos a la pantalla: la elegida para el ejercicio; si no, la del paciente; si no, la de la consulta.
+   Con ella se convierten prismas (1 Δ = 1 cm de desplazamiento a 1 m) y segundos de arco a píxeles. */
+let VD=0;
+const DISTS=[[33,'33 cm'],[40,'40 cm'],[50,'50 cm'],[60,'60 cm'],[70,'70 cm'],[100,'1 m'],[150,'1,5 m'],[200,'2 m'],[300,'3 m'],[600,'6 m']];
+const viewCm=()=>{if(VD)return VD;const p=P();return (p&&p.dist)||DB.cfg.distCm;};
+const distLabel=cm=>cm>=100?`${String(+(cm/100).toFixed(2)).replace('.',',')} m`:`${cm} cm`;
+const usesDist=def=>!!def.anaglyph||['contraste','afac','campo'].includes(def.id);
+const pxToArcsec=px=>Math.round((px/DB.cfg.pxPerCm)/viewCm()*206265);
+const pxToPrism=px=>100*(px/DB.cfg.pxPerCm)/viewCm();
+const prismToPx=d=>d*viewCm()/100*DB.cfg.pxPerCm;
+const degPerPx=()=>Math.atan((1/DB.cfg.pxPerCm)/viewCm())*180/Math.PI;
 
 /* ================= ayudas de dibujo ================= */
 function rr(c,x,y,w,h,r){r=Math.min(r,w/2,h/2);c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
@@ -1613,7 +1621,7 @@ GAMES.push({id:'vergencias',name:'Vergencias',skill:'Rango de fusión',cat:'bino
      if(bo[0]!=null){mt.push(['Convergencia, rotura',f(bo[0])],['Convergencia, recobro',f(bo[1])]);}
      if(bi[0]!=null){mt.push(['Divergencia, rotura',f(bi[0])],['Divergencia, recobro',f(bi[1])]);}
      const rt=(bo[0]!=null?clamp(bo[0]/25,0,1):0)*(bi[0]!=null?.6:1)+(bi[0]!=null?clamp(bi[0]/12,0,1)*(bo[0]!=null?.4:1):0);
-     return {score:bo[0]!=null?bo[0]:bi[0]||0,unit:'Δ',rating:rt,stat:'Medida a '+DB.cfg.distCm+' cm'+(DB.cfg.calibrated?'':'; calibra la pantalla en Clínica para valores exactos')+'.'+(brokeMax?' Se alcanzó el límite de la pantalla.':''),metrics:mt,clin:{verg:{bo,bi}}};}
+     return {score:bo[0]!=null?bo[0]:bi[0]||0,unit:'Δ',rating:rt,stat:'Medida a '+distLabel(viewCm())+(DB.cfg.calibrated?'':'; calibra la pantalla en Clínica para valores exactos')+'.'+(brokeMax?' Se alcanzó el límite de la pantalla.':''),metrics:mt,clin:{verg:{bo,bi}}};}
     const m=lat.length?lat.reduce((a,b)=>a+b,0)/lat.length:0;
     return {score:+maxAmp.toFixed(1),unit:'Δ',rating:S.hits/Math.max(1,S.hits+S.misses),stat:lat.length?`Fusionaste saltos de hasta ${maxAmp.toFixed(1)} Δ en ${m.toFixed(1)} s de media.`:'No se registraron fusiones.',
      metrics:[['Salto mayor',`${maxAmp.toFixed(1)} Δ`],['Tiempo medio de fusión',lat.length?`${m.toFixed(1)} s`:'—']],clin:{}};
@@ -2140,7 +2148,7 @@ GAMES.push({id:'afac',name:'Flippers',skill:'Facilidad acomodativa',cat:'acom',e
  lvDesc:()=>'El nivel no cambia esta prueba: usa la potencia y el tamaño de letra que indique el especialista.',
  create(api){
   const o=api.opt,eye=o.eye||'AO',pow=o.pow||'2',den=+(o.size||'40');let side='+',t0=0,times={'+':[],'-':[]},taps=0,stuck=0,rows=[],small=false,flash=0;
-  const letterPx=()=>{const mm=DB.cfg.distCm*10*Math.tan((5/60)*(den/20)*Math.PI/180);let px=mm/10*DB.cfg.pxPerCm;if(px<7){small=true;px=7;}return px;};
+  const letterPx=()=>{const mm=viewCm()*10*Math.tan((5/60)*(den/20)*Math.PI/180);let px=mm/10*DB.cfg.pxPerCm;if(px<7){small=true;px=7;}return px;};
   const gen=()=>{rows=[0,1,2].map(()=>[...Array(5)].map(()=>pick(SLOAN)).join(' '));};gen();
   const btn=()=>{const w=Math.min(300,api.W*.66),h=60;return {x:(api.W-w)/2,y:api.H-h-16,w,h};};
   const sbtn=()=>{const w=Math.min(220,api.W*.52),h=40;return {x:(api.W-w)/2,y:api.H-60-16-h-10,w,h};};
@@ -2236,10 +2244,10 @@ GAMES.push({id:'campo',name:'Mapa del campo',skill:'Campo visual periférico',ca
     phase='wait';t=rand(.5,1.1);},
    result(){const seen=locs.filter(l=>l.res>0).length,dim=locs.filter(l=>l.res===2).length,pct=Math.round(seen/locs.length*100),q=[0,0,0,0],qn=[0,0,0,0];
     locs.forEach(l=>{const qi=(Math.sin(l.a)<0?0:2)+(Math.cos(l.a)<0?0:1);qn[qi]++;if(l.res>0)q[qi]++;});
-    const qp=q.map((v,i)=>qn[i]?Math.round(v/qn[i]*100):0),deg=px=>Math.round(Math.atan((px/DB.cfg.pxPerCm)/DB.cfg.distCm)*180/Math.PI);
+    const qp=q.map((v,i)=>qn[i]?Math.round(v/qn[i]*100):0),deg=px=>Math.round(Math.atan((px/DB.cfg.pxPerCm)/viewCm())*180/Math.PI);
     const data={e:eye,pct,q:qp,map:locs.map(l=>l.res),rings,per};
     return {score:pct,unit:'%',ulabel:'de las posiciones vistas',rating:pct/100*(fp>1?.8:1)*(fixN&&fixOk/fixN<.5?.8:1),
-     stat:`Vio ${seen} de ${locs.length} posiciones (${dim} también con el punto tenue). Cubre unos ±${deg(api.W/2-24)}° en horizontal y ±${deg(api.H/2-24)}° en vertical a ${DB.cfg.distCm} cm. Prueba orientativa: no sustituye una campimetría.`,
+     stat:`Vio ${seen} de ${locs.length} posiciones (${dim} también con el punto tenue). Cubre unos ±${deg(api.W/2-24)}° en horizontal y ±${deg(api.H/2-24)}° en vertical a ${distLabel(viewCm())}. Prueba orientativa: no sustituye una campimetría.`,
      metrics:[['Posiciones vistas',`${pct}%`],['Falsos positivos',`${fp} de ${catches}`],['Pérdidas de fijación',`${fixN-fixOk} de ${fixN}`],['Ojo',{AO:'Ambos',OD:'Derecho',OI:'Izquierdo'}[eye]]],
      clin:{campo:data},html:campoMapSvg(data,true)};}
   };
@@ -2382,7 +2390,7 @@ const dayKey=d=>{const x=new Date(d);return `${x.getFullYear()}-${x.getMonth()+1
 const isUntimed=(def,opt)=>!!(def.untimed&&def.untimed(opt||{}));
 function defOpts(def){const o={};(def.opts||[]).forEach(q=>o[q.k]=q.ch[0][0]);return o;}
 function optSummary(def,opt){return (def.opts||[]).map(q=>{const v=(opt||{})[q.k]??q.ch[0][0];if(v===q.ch[0][0])return null;const c=q.ch.find(x=>x[0]===v);return c?c[1]:null;}).filter(Boolean).join(', ');}
-function confText(def,c){const parts=[`Nivel ${c.lv}`];if(c.zone&&c.zone!=='full'&&!def.noZone)parts.push(ZNAME[c.zone]);if(c.met&&!def.ownMet)parts.push(`metrónomo ${c.met} ppm`);if(!isUntimed(def,c.opt))parts.push(durLabel(c.dur));if(c.adaptive)parts.push('adaptativo');if(c.ex&&def.exx)parts.push(`visible ${String(c.ex).replace('.',',')} s`);if(c.rt&&def.rtx)parts.push(`${c.rt} s para responder`);const os=optSummary(def,c.opt);if(os)parts.push(os.toLowerCase());return parts.join(', ');}
+function confText(def,c){const parts=[`Nivel ${c.lv}`];if(c.zone&&c.zone!=='full'&&!def.noZone)parts.push(ZNAME[c.zone]);if(c.met&&!def.ownMet)parts.push(`metrónomo ${c.met} ppm`);if(!isUntimed(def,c.opt))parts.push(durLabel(c.dur));if(c.adaptive)parts.push('adaptativo');if(c.ex&&def.exx)parts.push(`visible ${String(c.ex).replace('.',',')} s`);if(c.rt&&def.rtx)parts.push(`${c.rt} s para responder`);if(c.dist&&usesDist(def))parts.push(`a ${distLabel(c.dist)}`);const os=optSummary(def,c.opt);if(os)parts.push(os.toLowerCase());return parts.join(', ');}
 function streak(){const set=new Set(mySessions().map(h=>dayKey(h.date)));const d=new Date();if(!set.has(dayKey(d)))d.setDate(d.getDate()-1);let n=0;while(set.has(dayKey(d))){n++;d.setDate(d.getDate()-1);}return n;}
 function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('show'),2400);}
 const initials=n=>(n||'?').trim().split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase();
@@ -2395,7 +2403,7 @@ scrim.addEventListener('click',closeSheet);
 
 /* ---------- configuración de un ejercicio ---------- */
 let CF=null;
-function confFor(gid){const def=G(gid),last=(DB.last[DB.active]||{})[gid];return Object.assign({lv:3,dur:60,adaptive:true},{tf:1,rt:P().rt||0,ex:P().ex||0},last?{lv:last.lv,dur:last.dur,adaptive:last.adaptive,tf:1,rt:last.rt!=null?last.rt:(P().rt||0),ex:last.ex!=null?last.ex:(P().ex||0)}:{},{opt:Object.assign(defOpts(def),last&&last.opt||{})},{met:last&&last.met||0,zone:last&&last.zone||'full',fix:last?last.fix!==false:true});}
+function confFor(gid){const def=G(gid),last=(DB.last[DB.active]||{})[gid];return Object.assign({lv:3,dur:60,adaptive:true},{tf:1,rt:P().rt||0,ex:P().ex||0},last?{lv:last.lv,dur:last.dur,adaptive:last.adaptive,tf:1,rt:last.rt!=null?last.rt:(P().rt||0),ex:last.ex!=null?last.ex:(P().ex||0)}:{},{opt:Object.assign(defOpts(def),last&&last.opt||{})},{met:last&&last.met||0,zone:last&&last.zone||'full',fix:last?last.fix!==false:true,dist:last&&last.dist||0});}
 function openConfig(gid,mode,idx,preset){
   const base=preset?JSON.parse(JSON.stringify(preset)):confFor(gid);base.opt=Object.assign(defOpts(G(gid)),base.opt||{});
   CF={gid,mode:mode||'play',idx,rt:P().rt||0,ex:P().ex||0,...base,tf:1};renderConfig();
@@ -2411,7 +2419,18 @@ function modsHtml(def){
    ${def.ownMet?'':`<div class="field"><span class="lab">Metrónomo</span><p class="help">Marca un ritmo con sonido y una luz en la esquina para acompasar las respuestas.</p>${seg('data-cf-met',MET_OPTS,CF.met||0)}</div>`}
    ${def.noZone?'':`<div class="field"><span class="lab">Campo activo</span><p class="help">Limita el ejercicio a una zona de la pantalla, por ejemplo para trabajar un hemicampo en hemianopsias o negligencias.</p>${zoneSeg('data-cf-zone',z)}
     ${z!=='full'?`<div class="toggle"><div><b>Punto de fijación central</b><div class="sub" style="margin:0">El paciente mira el centro de la pantalla y el ejercicio aparece solo en la zona elegida.</div></div><button class="sw" id="cfFix" role="switch" aria-checked="${CF.fix!==false}" aria-label="Punto de fijación central"></button></div>`:''}</div>`}`;}
+const patDist=()=>{const p=P();return (p&&p.dist)||DB.cfg.distCm;};
+function distInfo(){const def=G(CF.gid),d=viewCm(),one=d/100,maxP=Math.floor(pxToPrism(innerWidth*.5));
+  if(['vergencias','vfac'].includes(def.id))return `A ${distLabel(d)}, 1 Δ son ${String(+one.toFixed(2)).replace('.',',')} cm en la pantalla. Esta pantalla permite hasta unos ${maxP} Δ.`;
+  if(['estereo','grua'].includes(def.id))return `A ${distLabel(d)}, el paso más fino de esta pantalla es de unos ${pxToArcsec(1/DPR)}″ de arco: más lejos, más finas las medidas.`;
+  return `Las medidas de este ejercicio se calculan para ${distLabel(d)}.`;}
+function distField(){const d=viewCm(),custom=!DISTS.some(([v])=>v===d);
+  return `<div class="field"><span class="lab">Distancia a la pantalla</span><p class="help">Mide con una cinta de los ojos del paciente a la pantalla y elige esa distancia. Habitual del paciente: ${distLabel(patDist())}.</p>${seg('data-cf-dist',DISTS,d)}
+   <input class="inp" id="cfDistIn" type="number" min="20" max="800" step="1" inputmode="numeric" placeholder="Otra distancia en cm" value="${custom?d:''}" style="margin-top:8px" aria-label="Otra distancia en centímetros">
+   <p class="lvdesc" id="cfDistInfo" style="margin-top:6px">${distInfo()}</p></div>`;}
+function setCfDist(v){CF.dist=v===patDist()?0:v;VD=CF.dist;}
 function renderConfig(){
+  VD=CF.dist||0;
   const def=G(CF.gid),untimed=isUntimed(def,CF.opt),p=P(),lv=clamp(Math.round(CF.lv),1,10);
   const segs=(def.opts||[]).map(q=>{const ico=q.ch.some(c=>c[2]);return `<div class="field"><span class="lab">${q.label}</span><div class="seg${ico?' ico':''}" data-n="${q.ch.length}" role="group" aria-label="${q.label}">${q.ch.map(([v,l,ic])=>`<button data-cf-opt="${q.k}" data-v="${v}" aria-pressed="${CF.opt[q.k]===v}">${ic?`<span class="oi">${ic}</span>`:''}<span>${l}</span></button>`).join('')}</div></div>`;}).join('');
   const red=def.anaglyph?`<div class="field"><span class="lab">Gafas ${glassName()}</span><div class="seg ico" data-n="2" role="group" aria-label="Lente rojo">${[['left','Izquierda roja'],['right','Derecha roja']].map(([v,l])=>`<button data-cf-red="${v}" aria-pressed="${p.redEye===v}"><span class="oi">${ICO.glasses(v)}</span><span>${l}</span></button>`).join('')}</div><p class="lvdesc">Lente rojo en el ojo ${eyeName(p.redEye)}. Se guarda en la ficha de ${esc(firstName(p.name))}.</p></div>`:'';
@@ -2422,7 +2441,7 @@ function renderConfig(){
      <div class="lvsel"><button data-cf-lv="-1" aria-label="Bajar nivel">−</button><div class="lvmid"><b id="cfLv">${lv}</b><span id="cfLvN">${LVNAMES[lv]}</span></div><button data-cf-lv="1" aria-label="Subir nivel">+</button></div>
      <div class="lvdots" role="group" aria-label="Nivel de dificultad">${[...Array(10)].map((_,i)=>`<button data-cf-lvset="${i+1}" class="${i<lv?'on':''}" aria-label="Nivel ${i+1}" aria-pressed="${i+1===lv}"></button>`).join('')}</div>
      <p class="lvdesc" id="cfDesc">${def.lvDesc?def.lvDesc(lv,CF.opt,CF.tf):''}</p></div>
-   ${segs}${red}
+   ${segs}${red}${usesDist(def)?distField():''}
    ${def.exx?`<div class="field"><span class="lab">Tiempo visible</span><p class="help">Cuánto tiempo se ven los números, letras o figuras antes de ocultarse. Auto usa el tiempo del nivel.</p>${seg('data-cf-ex',EX_OPTS,CF.ex||0)}${CF.ex?`<p class="lvdesc" style="margin-top:6px">Se verán ${String(CF.ex).replace('.',',')} s cada vez y ese tiempo queda fijo durante el ejercicio.</p>`:''}</div>`:''}
    ${def.rtx?`<div class="field"><span class="lab">Tiempo para responder</span><p class="help">Segundos que tiene el paciente para cada respuesta. Auto usa el tiempo del nivel. No cambia la duración de la sesión.</p>${seg('data-cf-rt',RT_OPTS,CF.rt||0)}${CF.rt?`<p class="lvdesc" style="margin-top:6px">El paciente tendrá ${CF.rt} s para responder cada vez, sea cual sea el nivel.</p>`:''}</div>`:''}
    ${untimed?'':`<div class="field"><span class="lab">Duración</span>${seg('data-cf-dur',[30,60,120,180,300].map(s=>[s,durLabel(s)]),CF.dur)}</div>`}
@@ -2436,6 +2455,7 @@ $('#sheetBody').addEventListener('change',e=>{
   if(e.target.id==='f_amb')avRefresh();
 });
 $('#sheetBody').addEventListener('input',e=>{
+  if(e.target.id==='cfDistIn'&&CF){const v=Math.round(+e.target.value);if(v>=20&&v<=800){setCfDist(v);document.querySelectorAll('[data-cf-dist]').forEach(x=>x.setAttribute('aria-pressed',+x.dataset.cfDist===v));setText('#cfDistInfo',distInfo());const d=G(CF.gid).lvDesc;setText('#cfDesc',d?d(CF.lv,CF.opt,CF.tf):'');}}
   if(e.target.id==='cfRange'&&CF){CF.lv=+e.target.value;setText('#cfLv',CF.lv);setText('#cfLvN',LVNAMES[CF.lv]);const d=G(CF.gid).lvDesc;setText('#cfDesc',d?d(CF.lv,CF.opt,CF.tf):'');}
 });
 $('#sheetBody').addEventListener('click',e=>{
@@ -2445,6 +2465,7 @@ $('#sheetBody').addEventListener('click',e=>{
   if(b.dataset.cfLvset){CF.lv=+b.dataset.cfLvset;renderConfig();return;}
   if(b.dataset.cfRed){P().redEye=b.dataset.cfRed;save();renderConfig();return;}
   if(b.dataset.cfMet!=null){CF.met=+b.dataset.cfMet;renderConfig();return;}
+  if(b.dataset.cfDist){setCfDist(+b.dataset.cfDist);renderConfig();return;}
   if(b.dataset.cfZone){CF.zone=b.dataset.cfZone;renderConfig();return;}
   if(b.id==='cfFix'){CF.fix=!(CF.fix!==false);b.setAttribute('aria-checked',CF.fix);return;}
   if(b.dataset.cfEx!=null){CF.ex=+b.dataset.cfEx;renderConfig();return;}
@@ -2452,8 +2473,8 @@ $('#sheetBody').addEventListener('click',e=>{
   if(b.dataset.cfDur){CF.dur=+b.dataset.cfDur;renderConfig();return;}
   if(b.id==='cfAd'){CF.adaptive=!CF.adaptive;b.setAttribute('aria-checked',CF.adaptive);return;}
   if(b.id==='cfCancel'){closeSheet();return;}
-  if(b.id==='cfGo'){const c={lv:CF.lv,dur:CF.dur,adaptive:CF.adaptive,tf:1,rt:CF.rt||0,ex:CF.ex||0,met:CF.met||0,zone:CF.zone||'full',fix:CF.fix!==false,opt:{...CF.opt}};closeSheet();launch(CF.gid,c,null);return;}
-  if(b.id==='cfSave'){const item={g:CF.gid,lv:CF.lv,dur:CF.dur,adaptive:CF.adaptive,tf:1,rt:CF.rt||0,ex:CF.ex||0,met:CF.met||0,zone:CF.zone||'full',fix:CF.fix!==false,opt:{...CF.opt}};const p=P();if(CF.mode==='planAdd')p.plan.push(item);else p.plan[CF.idx]=item;save();closeSheet();renderAll();toast('Plan actualizado');return;}
+  if(b.id==='cfGo'){const c={lv:CF.lv,dur:CF.dur,adaptive:CF.adaptive,tf:1,rt:CF.rt||0,ex:CF.ex||0,met:CF.met||0,zone:CF.zone||'full',fix:CF.fix!==false,dist:CF.dist||0,opt:{...CF.opt}};closeSheet();launch(CF.gid,c,null);return;}
+  if(b.id==='cfSave'){const item={g:CF.gid,lv:CF.lv,dur:CF.dur,adaptive:CF.adaptive,tf:1,rt:CF.rt||0,ex:CF.ex||0,met:CF.met||0,zone:CF.zone||'full',fix:CF.fix!==false,dist:CF.dist||0,opt:{...CF.opt}};const p=P();if(CF.mode==='planAdd')p.plan.push(item);else p.plan[CF.idx]=item;save();closeSheet();renderAll();toast('Plan actualizado');return;}
   if(b.dataset.pickGame){openConfig(b.dataset.pickGame,'planAdd');return;}
   if(b.dataset.patient){DB.active=b.dataset.patient;save();closeSheet();renderAll();toast(`Paciente: ${P().name}`);return;}
   if(b.id==='newPat'){const inp=$('#newPatName'),n=inp.value.trim();if(!n){inp.focus();return;}const p=newPatient(n);DB.patients.push(p);DB.active=p.id;save();closeSheet();renderAll();toast(`Paciente creado: ${n}`);return;}
@@ -2483,7 +2504,7 @@ const stage=$('#stage'),ov=$('#ov');let pending=null,cdTok=0;
 function showOv(html,clear){ov.innerHTML=html;ov.hidden=false;ov.classList.toggle('clear',!!clear);}
 function hideOv(){ov.hidden=true;ov.innerHTML='';}
 function launch(gid,conf,plan){
-  const def=G(gid);pending={def,conf,plan};cdTok++;closeTok++;speechStop();
+  const def=G(gid);pending={def,conf,plan};cdTok++;closeTok++;speechStop();VD=usesDist(def)?(conf.dist||0):0;
   if(cur){cur.running=false;cancelAnimationFrame(cur.raf);}cur=null;cancelAnimationFrame(postRaf);parts=[];floats=[];rings=[];confetti=[];
   openStageFx();stage.classList.toggle('k',!!def.anaglyph);document.body.style.overflow='hidden';irisStop();$('#ring').classList.remove('hot');
   setText('#hudTitle',def.name);setText('#hudInfo',def.ther);setText('#hudScore','0');$('#combo').classList.remove('on');
@@ -2495,7 +2516,7 @@ function launch(gid,conf,plan){
   showOv(`<div class="panel">${glyph(def.id,def.anaglyph)}<h2>${def.name}</h2><p class="th-line" style="--acc:${catColD(def)}">${def.ther}</p>${step}
     ${daily?'<p><span class="rec-b" style="animation-delay:.2s">Reto del día: doble de experiencia</span></p>':''}
     <div class="mbox"><canvas class="mcv sm" id="mIntro"></canvas><div class="bubble" id="bIntro"></div></div><p class="sk">${confText(def,conf)}</p>
-    ${def.anaglyph?`<p class="glasses">Ponte las gafas ${glassName()} con el lente rojo en el ojo ${eyeName(P().redEye)}.</p>`:''}${def.equip?`<p class="glasses equip">Necesitas ${def.equip}.</p>`:''}${def.sup?'<p class="sk">Conviene que lo acompañe un adulto o el especialista.</p>':''}
+    ${def.anaglyph?`<p class="glasses">Ponte las gafas ${glassName()} con el lente rojo en el ojo ${eyeName(P().redEye)}.</p>`:''}${usesDist(def)?`<p class="glasses dist">Coloca al paciente a <b>${distLabel(viewCm())}</b> de la pantalla, medidos desde los ojos.</p>`:''}${def.equip?`<p class="glasses equip">Necesitas ${def.equip}.</p>`:''}${def.sup?'<p class="sk">Conviene que lo acompañe un adulto o el especialista.</p>':''}
     ${needCal?'<p class="sk">Pantalla sin calibrar: las medidas clínicas serán aproximadas. Puedes calibrarla en Clínica.</p>':''}
     <div class="btns"><button class="btn btn-go" data-act="go">Empezar</button>${canSpeak?'<button class="btn btn-line" data-act="speak">Escuchar instrucciones</button>':''}${plan?'':'<button class="btn btn-line" data-act="cfg">Cambiar nivel u opciones</button>'}</div></div>`);
   {const gi=new Mascot($('#mIntro'),{mood:'thinking'});setTimeout(()=>gi.setMood(def.anaglyph?'surprised':'happy',1.5),1600);setTimeout(()=>typeSay($('#bIntro'),def.how,14),350);}
@@ -2524,7 +2545,7 @@ function startGame(){
   const {def,conf}=pending;resize();
   cur={def,opt:{...conf.opt},tf:1,rt:conf.rt||0,ex:conf.ex||0,lv:conf.lv,lv0:conf.lv,lvMax:conf.lv,adaptive:conf.adaptive,limit:conf.dur,untimed:isUntimed(def,conf.opt),
     elapsed:0,score:0,hits:0,misses:0,combo:0,maxCombo:0,info:'',running:true,paused:false,last:performance.now(),mouse:false,metrics:{},lastSec:-1};
-  Object.assign(cur,{met:def.ownMet?0:(conf.met||0),zone:def.noZone?'full':(conf.zone||'full'),fix:conf.fix!==false,metT:0,metFlash:0,beat:0});setZone();
+  VD=usesDist(def)?(conf.dist||0):0;Object.assign(cur,{dist:VD,cm:usesDist(def)?viewCm():0,met:def.ownMet?0:(conf.met||0),zone:def.noZone?'full':(conf.zone||'full'),fix:conf.fix!==false,metT:0,metFlash:0,beat:0});setZone();
   makeBg();const A_=makeApi();cur.rtm=A_.rtm;cur.g=def.create(A_);sfx.go();hud();timerHud();
   cur.raf=requestAnimationFrame(loop);
 }
@@ -2579,9 +2600,9 @@ function finishGame(){
   if(isBest)DB.best[pid][def.id]={score,unit,better};
   if(isBest&&prev){DB.recs=DB.recs||{};DB.recs[pid]=(DB.recs[pid]||0)+1;}
   const xpB=playerXP(),daily=def.id===dailyId()&&!dailyDone();
-  const sess={id:uid(),pid,g:def.id,date:new Date().toISOString(),met:cur.met,zone:cur.zone,dur:Math.round(cur.elapsed),lv:cur.lv0,lvEnd:cur.lv,adaptive:cur.adaptive,score,unit,acc,stars,clin:r.clin||{},opt:cur.opt,daily,tf:cur.tf,rt:cur.rt,ex:cur.ex};
+  const sess={id:uid(),pid,g:def.id,date:new Date().toISOString(),met:cur.met,zone:cur.zone,dur:Math.round(cur.elapsed),lv:cur.lv0,lvEnd:cur.lv,adaptive:cur.adaptive,score,unit,acc,stars,clin:r.clin||{},opt:cur.opt,daily,tf:cur.tf,rt:cur.rt,ex:cur.ex,cm:cur.cm||0};
   DB.sessions.push(sess);if(DB.sessions.length>60000)DB.sessions=DB.sessions.slice(-60000);
-  DB.last[pid]=DB.last[pid]||{};DB.last[pid][def.id]={met:cur.met,zone:cur.zone,fix:cur.fix,lv:cur.adaptive?clamp(Math.round(cur.lv),1,10):cur.lv0,dur:cur.limit,adaptive:cur.adaptive,opt:cur.opt,tf:cur.tf,rt:cur.rt,ex:cur.ex};
+  DB.last[pid]=DB.last[pid]||{};DB.last[pid][def.id]={dist:cur.dist||0,met:cur.met,zone:cur.zone,fix:cur.fix,lv:cur.adaptive?clamp(Math.round(cur.lv),1,10):cur.lv0,dur:cur.limit,adaptive:cur.adaptive,opt:cur.opt,tf:cur.tf,rt:cur.rt,ex:cur.ex};
   const gained=sessXP(sess),lb=lvlOf(xpB),la=lvlOf(xpB+gained),newAch=checkAch(cur.maxCombo);
   save();renderAll();
   const plan=pending&&pending.plan;if(plan)plan.results.push({g:def.id,score,unit,stars});
@@ -2590,6 +2611,7 @@ function finishGame(){
   const hist=mySessions().filter(s=>s.g===def.id).slice(-8);
   const mt=(r.metrics||[]).slice();
   if(acc!=null&&!mt.some(m=>/Precisi|Acierto/.test(m[0])))mt.push(['Precisión',`${acc}%`]);
+  if(cur.cm)mt.push(['Distancia a la pantalla',distLabel(cur.cm)]);
   if(cur.rt)mt.push(['Tiempo para responder',`${cur.rt} s`]);if(cur.ex)mt.push(['Tiempo visible',`${String(cur.ex).replace('.',',')} s`]);
   mt.push(['Nivel',cur.adaptive&&cur.lv!==cur.lv0?`${cur.lv0} → ${cur.lv}`:`${cur.lv0}`]);
   if(cur.maxCombo>=3)mt.push(['Mejor racha',`×${cur.maxCombo}`]);
@@ -2624,7 +2646,7 @@ function countUp(){
     el.textContent=fmt(x,u);if(k<1)requestAnimationFrame(f);};requestAnimationFrame(f);
 }
 function closeStage(){
-  cdTok++;speechStop();if(cur){cur.running=false;cancelAnimationFrame(cur.raf);}cancelAnimationFrame(postRaf);cur=null;pending=null;
+  cdTok++;speechStop();VD=0;if(cur){cur.running=false;cancelAnimationFrame(cur.raf);}cancelAnimationFrame(postRaf);cur=null;pending=null;
   const tok=++closeTok;const done=()=>{if(tok!==closeTok)return;stage.classList.remove('open');hideOv();irisStart();};
   document.body.style.overflow='';renderAll();
   if(canAnim()&&stage.classList.contains('open')){const a=stage.animate({clipPath:[`circle(${Math.hypot(innerWidth,innerHeight)/2+20}px at 50% 50%)`,'circle(0px at 50% 50%)'],opacity:[1,.5]},{duration:380,easing:'cubic-bezier(.5,0,.75,0)'});a.onfinish=done;}else done();
@@ -2759,7 +2781,7 @@ let dl=null;
 function seg(attr,opts,val){return `<div class="seg" data-n="${opts.length}" role="group">${opts.map(([v,l])=>`<button ${attr}="${v}" aria-pressed="${String(val)===String(v)}">${l}</button>`).join('')}</div>`;}
 /* ================= registro de pacientes ================= */
 const DIAGS=['Ambliopía','Estrabismo','Insuficiencia de convergencia','Exceso de convergencia','Disfunción acomodativa','Movimientos oculares','Rehabilitación neurovisual','Baja visión','Dificultades de aprendizaje','Entrenamiento deportivo','Otro'];
-function pfix(p){return Object.assign({birth:'',phone:'',email:'',tutor:'',diag:'',ambEye:'',domEye:'',avOD:'',avOI:'',notesLog:[],exams:[],archived:false,tf:1,rt:0,ex:0},p);}
+function pfix(p){return Object.assign({birth:'',phone:'',email:'',tutor:'',diag:'',ambEye:'',domEye:'',avOD:'',avOI:'',notesLog:[],exams:[],archived:false,tf:1,rt:0,ex:0,dist:0},p);}
 DB.patients=DB.patients.map(pfix);
 DB.cfg=Object.assign({opticName:'',proName:'',pin:'1234',idleMin:5,setupDone:false,glass:{type:'rc',red:[255,0,0],other:[0,255,255],cal:0}},DB.cfg);
 function ageOf(p){if(p.birth){const b=new Date(p.birth+'T12:00');if(!isNaN(b)){const n=new Date();let a=n.getFullYear()-b.getFullYear();if(n.getMonth()<b.getMonth()||(n.getMonth()===b.getMonth()&&n.getDate()<b.getDate()))a--;return a;}}return p.age||'';}
@@ -2960,6 +2982,7 @@ function openFicha(isNew){
     <div class="grid2"><div class="field"><label for="f_avod">Agudeza visual OD</label><input class="inp" id="f_avod" placeholder="20/20" value="${esc(p.avOD)}"></div><div class="field"><label for="f_avoi">Agudeza visual OI</label><input class="inp" id="f_avoi" placeholder="20/40" value="${esc(p.avOI)}"></div></div></section>
    <section class="fsec"><h3>Ajustes de los ejercicios</h3>
     <div class="grid2"><div class="field"><label for="f_rt">Tiempo de respuesta</label><select class="inp" id="f_rt">${tOpt(RT_OPTS,p.rt)}</select></div><div class="field"><label for="f_ex">Tiempo visible</label><select class="inp" id="f_ex">${tOpt(EX_OPTS,p.ex)}</select></div></div>
+    <div class="field"><label for="f_dist">Distancia a la pantalla</label><select class="inp" id="f_dist"><option value="0" ${!p.dist?'selected':''}>La de la consulta (${distLabel(DB.cfg.distCm)})</option>${DISTS.concat(p.dist&&!DISTS.some(([v])=>v===p.dist)?[[p.dist,distLabel(p.dist)]]:[]).map(([v,l])=>`<option value="${v}" ${p.dist===v?'selected':''}>${l}</option>`).join('')}</select><p class="help" style="margin-top:4px">De los ojos del paciente a la pantalla, como se sienta normalmente. Se puede cambiar en cada ejercicio.</p></div>
     <div class="toggle" style="margin:0 0 10px"><div><b>Solo su plan</b><div class="sub" style="margin:0">En modo paciente solo verá «Empezar plan de hoy»: sin catálogo, sin reto del día y sin cambiar nivel ni opciones.</div></div><button class="sw" id="f_lock" role="switch" aria-checked="${!!p.lock}" aria-label="Solo su plan"></button></div>
     <p class="help" style="margin:-4px 0 12px">Valores por defecto para todos sus ejercicios; se pueden cambiar en cada uno. «Auto» usa el tiempo de cada nivel. El tiempo visible se aplica en Taquistoscopio, Conteo, Destello, Patrones, Multiobjetos y Parejas.</p></section>
    <section class="fsec"><h3>Notas generales</h3><div class="field"><label for="f_notes" class="vh">Notas generales</label><textarea class="inp" id="f_notes" placeholder="Indicaciones, antecedentes, observaciones…">${esc(p.notes)}</textarea></div></section>
@@ -2976,7 +2999,7 @@ $('#sheetBody').addEventListener('click',e=>{
   if(b.id==='fichaSave'){
     const name=$('#f_name').value.trim();if(!name){$('#f_name').focus();toast('Escribe el nombre del paciente');return;}
     const p=FICHA_NEW?pfix(newPatient(name)):P();p.placeholder=false;
-    Object.assign(p,{name,birth:$('#f_birth').value,tutor:$('#f_tutor').value.trim(),phone:$('#f_phone').value.trim(),email:$('#f_email').value.trim(),diag:$('#f_diag').value,ambEye:$('#f_amb').value,domEye:$('#f_dom').value,avOD:$('#f_avod').value.trim(),avOI:$('#f_avoi').value.trim(),rt:+$('#f_rt').value||0,ex:+$('#f_ex').value||0,notes:$('#f_notes').value,color:AVED.col,av:{...AVED.av},lock:FICHA_LOCK});
+    Object.assign(p,{name,birth:$('#f_birth').value,tutor:$('#f_tutor').value.trim(),phone:$('#f_phone').value.trim(),email:$('#f_email').value.trim(),diag:$('#f_diag').value,ambEye:$('#f_amb').value,domEye:$('#f_dom').value,avOD:$('#f_avod').value.trim(),avOI:$('#f_avoi').value.trim(),rt:+$('#f_rt').value||0,dist:+$('#f_dist').value||0,ex:+$('#f_ex').value||0,notes:$('#f_notes').value,color:AVED.col,av:{...AVED.av},lock:FICHA_LOCK});
     {const rec=recFor(p.diag);if(FICHA_PLAN&&rec.length)p.plan=planFrom(rec,p);}
     if(p.ambEye==='Derecho'&&p.trainEye==='none')p.trainEye='right';if(p.ambEye==='Izquierdo'&&p.trainEye==='none')p.trainEye='left';
     if(FICHA_NEW){DB.patients.push(p);}DB.active=p.id;pruneGuest();patView=p.id;const planned=FICHA_PLAN&&recFor(p.diag).length;save();closeSheet();renderAll();toast((FICHA_NEW?`${firstName(name)} registrado`:'Ficha guardada')+(planned?' con su plan recomendado':''));
@@ -2996,7 +3019,7 @@ function renderSettings(){
     <div class="calib"><div class="card-sim" id="cardSim" style="width:${cardPx}px;max-width:100%"></div></div>
     <input type="range" id="calR" min="150" max="700" step="1" value="${cardPx}" aria-label="Ancho de la tarjeta en pantalla">
     <div style="display:flex;gap:10px;align-items:center;margin-top:6px"><span class="sub" style="margin:0;flex:1" id="calTxt">${DB.cfg.calibrated?`Calibrada: ${DB.cfg.pxPerCm.toFixed(1)} px por cm`:'Sin calibrar'}</span><button class="btn btn-main btn-sm" data-c="cal">Guardar calibración</button></div>
-    <div class="field"><span class="lab">Distancia de trabajo</span><p class="help">A qué distancia de los ojos se sostiene la pantalla durante los ejercicios.</p>${seg('data-dist',[[33,'33 cm'],[40,'40 cm'],[50,'50 cm'],[60,'60 cm'],[100,'1 m']],DB.cfg.distCm)}</div></div>
+    <div class="field"><span class="lab">Distancia de trabajo de la consulta</span><p class="help">De los ojos a la pantalla. Se usa con los pacientes que no tienen otra en su ficha; también se puede cambiar en cada ejercicio. Prismas, segundos de arco y tamaños de letra se calculan con ella.</p>${seg('data-dist',DISTS,DB.cfg.distCm)}</div></div>
   <div class="card"><p class="h4b">Gafas de filtros (anaglifo)</p><p class="sub">Elige las gafas de la consulta y calibra los colores para que cada ojo vea solo lo suyo. Se aplica a todos los ejercicios binoculares.</p>
     <div class="field"><span class="lab">Tipo de gafas</span>${seg('data-gl',[['rc','Rojo / cian'],['rg','Rojo / verde'],['rb','Rojo / azul']],glass().type)}</div>
     <div class="glprev"><span style="background:${rgb(glass().red)}"></span><span style="background:${rgb(glass().other)}"></span><small>${glass().cal?`Calibradas el ${new Date(glass().cal).toLocaleDateString('es')}`:'Colores de fábrica, sin calibrar'}</small></div>
@@ -3011,7 +3034,7 @@ function renderSettings(){
   <div class="card"><p class="h4b">Datos</p><p class="sub">Todo se guarda en esta tableta, sin internet. Haz copias de seguridad con frecuencia.</p><p class="sub" id="stoInfo"></p>
     <div style="display:grid;gap:8px"><button class="btn btn-main" data-c="backup">Copia de seguridad completa</button><button class="btn btn-soft" data-c="clinicCsv">Exportar toda la consulta (CSV)</button>
     <label class="btn btn-soft" style="cursor:pointer">Restaurar copia de seguridad<input type="file" accept="application/json,.json" id="restore" hidden></label></div></div>
-  <div class="card" style="text-align:center"><svg class="logo" viewBox="0 0 40 40" style="width:44px;height:44px"><circle cx="15" cy="20" r="12" fill="var(--red)"/><circle cx="25" cy="20" r="12" fill="var(--cyan)"/></svg><p style="margin:6px 0 0;font-family:var(--display);font-weight:700;font-size:20px">GiRo 6.2</p><p class="sub" style="margin:0">Terapia visual por GR Software TC</p></div>`;
+  <div class="card" style="text-align:center"><svg class="logo" viewBox="0 0 40 40" style="width:44px;height:44px"><circle cx="15" cy="20" r="12" fill="var(--red)"/><circle cx="25" cy="20" r="12" fill="var(--cyan)"/></svg><p style="margin:6px 0 0;font-family:var(--display);font-weight:700;font-size:20px">GiRo 6.2.1</p><p class="sub" style="margin:0">Terapia visual por GR Software TC</p></div>`;
   storageInfo();
 }
 function renderClinic(){renderPats();renderSettings();}
@@ -3122,7 +3145,7 @@ function reportHtml(){
 <h2>Resumen</h2><div class="k"><div><b>${ss.length}</b>ejercicios</div><div><b>${days}</b>días con práctica</div><div><b>${mins}</b>minutos</div><div><b>${streak()}</b>días de racha</div></div>
 ${(p.notesLog||[]).length?`<h2>Notas de evolución</h2><table>${p.notesLog.slice().reverse().map(n=>`<tr><th style="width:170px">${new Date(n.d).toLocaleString('es')}</th><td style="white-space:pre-wrap">${esc(n.t)}</td></tr>`).join('')}</table>`:''}
 <h2>Medidas clínicas más recientes</h2>${cl.length?`<table>${cl.map(([a,b])=>`<tr><th>${a}</th><td>${b}</td></tr>`).join('')}</table>`:'<p class="m">Sin medidas registradas.</p>'}
-<p class="m">Distancia de trabajo: ${DB.cfg.distCm} cm. Pantalla ${DB.cfg.calibrated?`calibrada (${DB.cfg.pxPerCm.toFixed(1)} px/cm)`:'sin calibrar: las medidas angulares son aproximadas'}.</p>
+<p class="m">Distancia de trabajo habitual: ${distLabel(p.dist||DB.cfg.distCm)}. Pantalla ${DB.cfg.calibrated?`calibrada (${DB.cfg.pxPerCm.toFixed(1)} px/cm)`:'sin calibrar: las medidas angulares son aproximadas'}.</p>
 ${reportExtras(p)}
 <h2>Evolución por ejercicio</h2><table><tr><th>Ejercicio</th><th>Terapia</th><th>Sesiones</th><th>Nivel</th><th>Mejor</th><th>Última</th><th>Estrellas medias</th></tr>${per}</table>
 <h2>Plan actual</h2><table>${p.plan.map((it,i)=>`<tr><td>${i+1}</td><td>${G(it.g).name}</td><td>${confText(G(it.g),it)}</td></tr>`).join('')}</table>
