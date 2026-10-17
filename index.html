@@ -38,7 +38,9 @@
 }
 *,*::before,*::after{box-sizing:inherit}
 html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%}
-body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.45;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.45;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+input,textarea,select,[contenteditable]{-webkit-touch-callout:default;-webkit-user-select:text;user-select:text}
+img,svg{-webkit-user-drag:none}
 button,input,select,textarea{font:inherit;color:inherit}
 :focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
 [hidden]{display:none!important}
@@ -805,6 +807,11 @@ function eyeColors(){
   if(p.trainEye==='left')ri=b;else if(p.trainEye==='right')li=b;
   return {L:L.map(c=>c*li),R:R.map(c=>c*ri)};
 }
+/* sin menú del navegador al mantener pulsado o con clic derecho (Actualizar, Guardar como, Imprimir…), salvo en los campos de texto */
+const typing=e=>e.target.closest&&e.target.closest('input,textarea,select,[contenteditable]');
+document.addEventListener('contextmenu',e=>{if(!typing(e))e.preventDefault();});
+document.addEventListener('selectstart',e=>{if(!typing(e))e.preventDefault();});
+document.addEventListener('dragstart',e=>{if(!typing(e))e.preventDefault();});
 const rgb=a=>`rgb(${a.map(Math.round).join(',')})`;
 const eyeName=e=>e==='left'?'izquierdo':'derecho';
 const pxToArcsec=px=>Math.round((px/DB.cfg.pxPerCm)/DB.cfg.distCm*206265);
@@ -1501,34 +1508,40 @@ GAMES.push({id:'atrapa',name:'Atrapa',skill:'Antisupresión',cat:'bino',anaglyph
 
 /* ---------- Profundidad (estereograma de puntos aleatorios) ---------- */
 GAMES.push({id:'estereo',name:'Profundidad',skill:'Estereopsis',cat:'bino',anaglyph:true,
- how:'Con las gafas puestas, alrededor de uno de los puntos blancos un círculo parece flotar delante del fondo. Tócalo. Si aciertas, la diferencia de profundidad se hace más pequeña.',
- opts:[{k:'grain',label:'Tamaño del punto',ch:[['3','Normal'],['2','Fino'],['4','Grueso']]},{k:'pos',label:'Posiciones',ch:[['4','4'],['2','2']]}],
+ how:'Con las gafas puestas, alrededor de uno de los puntos blancos aparece un círculo a otra profundidad: flota delante del fondo (o se hunde detrás, si así lo elige tu especialista). Tócalo. La posición cambia en cada intento y, si aciertas, la diferencia de profundidad se hace más pequeña.',
+ opts:[{k:'grain',label:'Tamaño del punto',ch:[['3','Normal'],['2','Fino'],['4','Grueso']]},{k:'pos',label:'Posiciones',ch:[['4','4'],['6','6'],['9','9'],['2','2']]},
+       {k:'depth',label:'Profundidad',ch:[['front','Delante del fondo'],['alt','Alterna delante y detrás'],['back','Detrás del fondo']]}],
  lvDesc:lv=>`Diferencia inicial de unos ${pxToArcsec(lerp(12,1.5,T_(lv)))} segundos de arco.`,
  create(api){
-  const two=api.opt.pos==='2',sDev=Math.max(1,Math.round(+(api.opt.grain||3)*DPR));
-  let disp=Math.max(1,Math.round(lerp(12,1.5,api.T)*DPR)),best=Infinity,target=0,chosen=-1,phase='look',t=0,streak=0,Wd=1,Hd=1,reveal=0;
+  const npos=+(api.opt.pos||4),dmode=api.opt.depth||'front',sDev=Math.max(1,Math.round(+(api.opt.grain||3)*DPR));
+  let disp=Math.max(1,Math.round(lerp(12,1.5,api.T)*DPR)),best=Infinity,target=0,chosen=-1,phase='look',t=0,streak=0,Wd=1,Hd=1,reveal=0,bag=[],front=true,fronts=[];
   const oc=document.createElement('canvas'),octx=oc.getContext('2d');
-  const slots=()=>(two?[[.3,.5],[.7,.5]]:[[.3,.3],[.7,.3],[.3,.7],[.7,.7]]).map(([a,b])=>({x:api.W*a,y:api.H*b}));
-  const rad=()=>Math.min(api.W*(two?.2:.17),api.H*.13),maxD=()=>Math.round(api.W*DPR*.08);
+  const GRID={2:[[.3,.5],[.7,.5]],4:[[.3,.3],[.7,.3],[.3,.7],[.7,.7]],6:[[.2,.3],[.5,.3],[.8,.3],[.2,.7],[.5,.7],[.8,.7]],9:[[.2,.22],[.5,.22],[.8,.22],[.2,.5],[.5,.5],[.8,.5],[.2,.78],[.5,.78],[.8,.78]]}[npos]||[[.3,.3],[.7,.3],[.3,.7],[.7,.7]];
+  const slots=()=>GRID.map(([a,b])=>({x:api.W*a,y:api.H*b}));
+  const rad=()=>npos===2?Math.min(api.W*.2,api.H*.13):npos===4?Math.min(api.W*.17,api.H*.13):npos===6?Math.min(api.W*.12,api.H*.13):Math.min(api.W*.11,api.H*.095),maxD=()=>Math.round(api.W*DPR*.08);
+  // bolsa barajada: todas las posiciones salen por igual y nunca dos veces seguidas en el mismo sitio
+  function nextSlot(){if(!bag.length){bag=shuffle([...GRID.keys()]);if(bag[0]===target&&bag.length>1)bag.push(bag.shift());}return bag.shift();}
   function build(){
    const ec=eyeColors();Wd=Math.ceil(api.W*DPR);Hd=Math.ceil(api.H*DPR);oc.width=Wd;oc.height=Hd;
    const dc=Math.ceil(Wd/sDev)+1,dr=Math.ceil(Hd/sDev)+1,dots=new Uint8Array(dc*dr);for(let i=0;i<dots.length;i++)dots[i]=Math.random()<.5?1:0;
-   const ss=slots();target=randi(0,ss.length-1);const s=ss[target],R=rad();
+   if(phase!=='resize'){target=nextSlot();front=dmode==='front'?true:dmode==='back'?false:(fronts.length>=2&&fronts[fronts.length-1]===fronts[fronts.length-2]?!fronts[fronts.length-1]:Math.random()<.5);fronts.push(front);}
+   const ss=slots(),s=ss[target],R=rad(),sh=front?disp:-disp;
    const im=octx.createImageData(Wd,Hd),d=im.data,L0=ec.L,R0=ec.R;
    for(let y=0;y<Hd;y++){const row=Math.floor(y/sDev)*dc,dyc=y/DPR-s.y;let xa=1e9,xb=-1;
     if(Math.abs(dyc)<R){const h=Math.sqrt(R*R-dyc*dyc)*DPR;xa=s.x*DPR-h;xb=s.x*DPR+h;}
-    for(let x=0;x<Wd;x++){const l=dots[row+Math.floor(x/sDev)],q=(x>=xa&&x<=xb)?dots[row+Math.floor(Math.min(Wd-1,x+disp)/sDev)]:l,k=(y*Wd+x)*4;
+    for(let x=0;x<Wd;x++){const l=dots[row+Math.floor(x/sDev)],q=(x>=xa&&x<=xb)?dots[row+Math.floor(clamp(x+sh,0,Wd-1)/sDev)]:l,k=(y*Wd+x)*4;
      d[k]=Math.min(255,l*L0[0]+q*R0[0]);d[k+1]=Math.min(255,l*L0[1]+q*R0[1]);d[k+2]=Math.min(255,l*L0[2]+q*R0[2]);d[k+3]=255;}}
-   octx.putImageData(im,0,0);phase='look';reveal=0;api.info(`Diferencia: ${pxToArcsec(disp/DPR)}″ de arco`);
+   octx.putImageData(im,0,0);phase='look';reveal=0;api.info(`${dmode==='alt'?'Busca el círculo delante o detrás · ':''}Diferencia: ${pxToArcsec(disp/DPR)}″ de arco`);
   }
   build();
   return {
-   resize(){build();},
+   resize(){phase='resize';build();},
    update(dt){if(api.rtm.tick(phase==='look')){chosen=-1;api.bad(api.W/2,api.H/2);disp=Math.min(maxD(),Math.max(disp+1,Math.round(disp*1.25)));streak=0;api.adapt(-.5);phase='fb';t=.9;}reveal=Math.min(1,reveal+dt/.4);if(phase==='fb'){t-=dt;if(t<=0)build();}},
    draw(c){
     c.imageSmoothingEnabled=false;c.globalAlpha=reveal;c.drawImage(oc,0,0,Wd/DPR,Hd/DPR);c.globalAlpha=1;c.imageSmoothingEnabled=true;
-    const ss=slots();c.fillStyle='#fff';for(const s of ss){c.beginPath();c.arc(s.x,s.y,3.5,0,TAU);c.fill();}
-    if(phase==='fb'){c.lineWidth=4;c.strokeStyle='#fff';c.setLineDash(chosen===target?[]:[9,9]);c.beginPath();c.arc(ss[target].x,ss[target].y,rad()+12,0,TAU);c.stroke();c.setLineDash([]);}
+    const ss=slots();c.fillStyle='#fff';c.strokeStyle='#000';c.lineWidth=2;for(const s of ss){c.beginPath();c.arc(s.x,s.y,4.5,0,TAU);c.stroke();c.fill();}
+    if(phase==='fb'){const s=ss[target];c.lineWidth=4;c.strokeStyle='#fff';c.setLineDash(chosen===target?[]:[9,9]);c.beginPath();c.arc(s.x,s.y,rad()+12,0,TAU);c.stroke();c.setLineDash([]);
+     if(dmode==='alt'){c.fillStyle='#fff';c.font=`700 15px ${FONT}`;c.textAlign='center';c.textBaseline='top';c.fillText(front?'Estaba delante':'Estaba detrás',s.x,Math.min(api.H-22,s.y+rad()+18));}}
    },
    down(x,y){
     if(phase!=='look')return;const ss=slots();let bi=0,bd=1e9;ss.forEach((s,i)=>{const d=Math.hypot(x-s.x,y-s.y);if(d<bd){bd=d;bi=i;}});chosen=bi;
@@ -1913,25 +1926,47 @@ GAMES.push({id:'burbujas',name:'Burbujas',skill:'Visión dicóptica',cat:'bino',
 
 /* ---------- Cuatro luces (Worth) ---------- */
 GAMES.push({id:'worth',name:'Cuatro luces',skill:'Prueba de fusión (Worth)',cat:'bino',anaglyph:true,untimed:()=>true,
- how:'Con las gafas puestas y los dos ojos abiertos, cuenta cuántas luces ves y toca el número. Se repite con tres tamaños. Es una prueba orientativa para tu especialista.',
- opts:[],lvDesc:()=>'Tres presentaciones: grande, mediana y pequeña. El nivel no cambia esta prueba.',
+ how:'Con las gafas puestas y los dos ojos abiertos, cuenta cuántas luces ves y toca el número. El número de luces cambia en cada presentación (2, 3, 4 o 5) y también su tamaño, así que cuenta cada vez. Es una prueba orientativa para tu especialista.',
+ opts:[{k:'n',label:'Presentaciones',ch:[['6','6 presentaciones'],['9','9 presentaciones'],['12','12 presentaciones'],['3','3 (solo la clásica de 4 luces)']]}],
+ lvDesc:(lv,o)=>{const n=+((o&&o.n)||6);return n===3?'Tres presentaciones clásicas de 4 luces: grande, mediana y pequeña.':`${n} presentaciones con 2 a 5 luces en tres tamaños. El nivel no cambia esta prueba.`;},
  create(api){
   const p=api.patient,ec=eyeColors(),redCol=rgb(p.redEye==='left'?ec.L:ec.R),cyCol=rgb(p.redEye==='left'?ec.R:ec.L),redEye=p.redEye,cyEye=p.redEye==='left'?'right':'left';
-  const sizes=[1,.6,.35],names=['Grande','Mediana','Pequeña'];let trial=0,ans=[],born=0,phase='look',t=0;
-  const opts=['2','3','4','5','?'],btn=i=>{const g=8,w=(Math.min(api.W,520)-16-g*4)/5,h=Math.min(64,api.H*.11),ox=(api.W-(w*5+g*4))/2;return {x:ox+i*(w+g),y:api.H-h-14,w,h};};
-  const mean=a=>a==='4'?'fusión':a==='2'?`supresión del ojo ${eyeName(cyEye)}`:a==='3'?`supresión del ojo ${eyeName(redEye)}`:a==='5'?'visión doble':'no concluyente';
+  const N=+(api.opt.n||6),sizes=[1,.62,.38],names=['Grande','Mediana','Pequeña'];
+  // r: luces que solo ve el ojo con filtro rojo · g: solo el otro ojo · w: blancas, las ven los dos
+  const CLASSIC={r:1,g:2,w:1},VAR=[{r:1,g:1,w:0},{r:1,g:1,w:1},{r:2,g:1,w:0},{r:1,g:2,w:0},{r:1,g:2,w:1},{r:2,g:1,w:1},{r:2,g:2,w:0},{r:1,g:1,w:2},{r:2,g:2,w:1},{r:1,g:2,w:2},{r:2,g:1,w:2}];
+  const tot=c=>c.r+c.g+c.w,plan=[];let bag=[];
+  for(let i=0;i<N;i++){
+   if(N===3||i===0||i===Math.floor(N/2)){plan.push(CLASSIC);continue;}
+   if(!bag.length)bag=shuffle(VAR.slice());let k=bag.findIndex(c=>tot(c)!==tot(plan[i-1]));if(k<0)k=0;plan.push(bag.splice(k,1)[0]);
+  }
+  const look=plan.map(c=>{const cols=shuffle([...Array(c.r).fill('r'),...Array(c.g).fill('g'),...Array(c.w).fill('w')]);
+   if(c===CLASSIC)return {cols:['r','g','w','g'],rot:0};return {cols,rot:tot(c)===2?pick([0,Math.PI/2]):rand(-.35,.35)};});
+  let trial=0,ans=[],born=0,phase='look',t=0;
+  const opts=['1','2','3','4','5','6','?'],nb=opts.length,btn=i=>{const g=8,w=(Math.min(api.W,640)-16-g*(nb-1))/nb,h=Math.min(64,api.H*.11),ox=(api.W-(w*nb+g*(nb-1)))/2;return {x:ox+i*(w+g),y:api.H-h-14,w,h};};
+  function judge(a,c){if(a==='?')return 'nc';const n=+a,T=tot(c);if(n===T)return 'fus';if(n>T)return 'dip';
+   if(c.r!==c.g){if(n===c.r+c.w)return 'sC';if(n===c.g+c.w)return 'sR';}else if(n===c.r+c.w)return 'sU';return 'nc';}
+  const MEAN={fus:'fusión',dip:'visión doble',sC:`supresión del ojo ${eyeName(cyEye)}`,sR:`supresión del ojo ${eyeName(redEye)}`,sU:'supresión de un ojo',nc:'no concluyente'};
   api.info('¿Cuántas luces ves?');
   return {
-   update(dt){if(phase==='fb'){t-=dt;if(t<=0){trial++;if(trial>=3){api.end();return;}phase='look';born=api.elapsed;}}},
-   draw(c){const k=clamp((api.elapsed-born)/.4,0,1),s=sizes[trial]*k,d=api.M*.17*sizes[trial],r=api.M*.065*s,x=api.W/2,y=(api.H-90)/2;
-    c.globalCompositeOperation='lighter';const dot=(px,py,col)=>{c.fillStyle=col;c.beginPath();c.arc(px,py,r,0,TAU);c.fill();};
-    dot(x,y-d,redCol);dot(x-d,y,cyCol);dot(x+d,y,cyCol);dot(x,y+d,'#fff');c.globalCompositeOperation='source-over';
-    c.fillStyle='rgba(255,255,255,.6)';c.font=`600 14px ${FONT}`;c.textAlign='center';c.textBaseline='top';c.fillText(`${names[trial]||''} (${Math.min(trial+1,3)} de 3)`,x,14);
-    opts.forEach((o,i)=>button(c,btn(i),o==='?'?'No sé':o,{fill:phase==='fb'&&ans[trial]===o?'rgba(255,255,255,.95)':'rgba(255,255,255,.12)',ink:phase==='fb'&&ans[trial]===o?'#000':'#fff',size:o==='?'?16:24}));},
+   update(dt){if(phase==='fb'){t-=dt;if(t<=0){trial++;if(trial>=N){api.end();return;}phase='look';born=api.elapsed;}}},
+   draw(c){const i=Math.min(trial,N-1),cf=plan[i],lk=look[i],n=lk.cols.length,k=clamp((api.elapsed-born)/.4,0,1),sz=sizes[i%3];
+    const top=40,bot=btn(0).y-16,cx=api.W/2,cy=(top+bot)/2,avail=Math.min(api.W*.42,(bot-top)/2);
+    // separación: la distancia entre luces vecinas es al menos 1,4 veces su diámetro, también en el tamaño pequeño
+    const r0=Math.min(api.M*.065,avail/5.2)*sz,ring=n<2?0:Math.max(api.M*.17*sz,r0*2.4/Math.sin(Math.PI/n)),r=r0*k;
+    c.globalCompositeOperation='lighter';
+    lk.cols.forEach((q,j)=>{const a=-Math.PI/2+lk.rot+j/n*TAU;c.fillStyle=q==='r'?redCol:q==='g'?cyCol:'#fff';c.beginPath();c.arc(cx+Math.cos(a)*ring,cy+Math.sin(a)*ring,r,0,TAU);c.fill();});
+    c.globalCompositeOperation='source-over';
+    c.fillStyle='rgba(255,255,255,.6)';c.font=`600 14px ${FONT}`;c.textAlign='center';c.textBaseline='top';c.fillText(`${names[i%3]} · ${i+1} de ${N}`,cx,14);
+    opts.forEach((o,j)=>button(c,btn(j),o==='?'?'No sé':o,{fill:phase==='fb'&&ans[i]===o?'rgba(255,255,255,.95)':'rgba(255,255,255,.12)',ink:phase==='fb'&&ans[i]===o?'#000':'#fff',size:o==='?'?15:24}));},
    down(x,y){if(phase!=='look')return;const i=opts.findIndex((_,k)=>inBox(btn(k),x,y));if(i<0)return;ans[trial]=opts[i];const b=btn(i);
-    if(opts[i]==='4')api.good(b.x+b.w/2,b.y,{noFloat:true,silent:true,noCombo:true});else api.bad(null,null,{quiet:true});sfx.tick();phase='fb';t=.6;},
-   result(){const fused=ans.filter(a=>a==='4').length,summary=ans.map((a,i)=>`${names[i]}: ${mean(a)}`).join('. ');
-    return {score:fused,unit:'pts',rating:fused/3,stat:`${summary}. Resultado orientativo; confírmalo con tu especialista.`,metrics:ans.map((a,i)=>[names[i],`${a==='?'?'—':a+' luces'}`]),clin:{worth:fused===3?'Fusión':summary}};}
+    if(judge(opts[i],plan[trial])==='fus')api.good(b.x+b.w/2,b.y,{noFloat:true,silent:true,noCombo:true});else api.bad(null,null,{quiet:true});sfx.tick();phase='fb';t=.6;},
+   result(){const js=ans.map((a,i)=>judge(a,plan[i])),n=js.length,fused=js.filter(j=>j==='fus').length,cnt={};js.forEach(j=>{cnt[j]=(cnt[j]||0)+1;});
+    const parts=Object.keys(MEAN).filter(k=>cnt[k]).map(k=>`${MEAN[k]} en ${cnt[k]} de ${n}`),summary=parts.join('; ');
+    const bySize=names.map((nm,s)=>{const ix=js.map((j,i)=>i).filter(i=>i%3===s);return ix.length?[nm,`${ix.filter(i=>js[i]==='fus').length} de ${ix.length} con fusión`]:null;}).filter(Boolean);
+    const miss=js.map((j,i)=>j==='fus'?null:`${i+1}: vio ${ans[i]==='?'?'—':ans[i]} de ${tot(plan[i])}`).filter(Boolean);
+    return {score:fused,unit:'pts',rating:n?fused/n:0,stat:`${summary.charAt(0).toUpperCase()+summary.slice(1)}.${miss.length?` Fallos (presentación: luces vistas de las mostradas): ${miss.join(', ')}.`:''} Resultado orientativo; confírmalo con tu especialista.`,
+     metrics:[['Presentaciones con fusión',`${fused} de ${n}`],...bySize,...['sC','sR','sU','dip'].filter(k=>cnt[k]).map(k=>[MEAN[k].charAt(0).toUpperCase()+MEAN[k].slice(1),`${cnt[k]} de ${n}`])],
+     clin:{worth:n&&fused===n?'Fusión':summary}};}
   };
  }});
 
@@ -2053,33 +2088,45 @@ function fuseTarget(c,x,y,R,col,isL){
 
 /* ---------- Flexibilidad de vergencias (facilidad de vergencias) ---------- */
 GAMES.push({id:'vfac',name:'Flexibilidad de vergencias',skill:'Facilidad de vergencias',cat:'bino',anaglyph:true,
- how:'Con las gafas puestas, junta la diana en una sola imagen nítida y toca el botón. La diana cambia entre convergencia y divergencia: cada vez que vuelvas a verla una y nítida, tócalo otra vez. Arriba debes ver un triángulo y un cuadrado; si falta alguno, toca «Falta una marca».',
- opts:[{k:'dem',label:'Demanda',ch:[['auto','Según nivel'],['3-12','3Δ BI / 12Δ BO (prueba clínica)'],['2-8','2Δ BI / 8Δ BO'],['4-16','4Δ BI / 16Δ BO']]}],
- lvDesc:(lv,o)=>{if(o&&o.dem&&o.dem!=='auto'){const [a,b]=o.dem.split('-');return `Alterna ${a} Δ de divergencia y ${b} Δ de convergencia. El nivel no cambia la demanda fija.`;}const t=T_(lv);return `Alterna ${lerp(1.5,4,t).toFixed(1).replace('.',',')} Δ de divergencia y ${lerp(6,16,t).toFixed(1).replace('.',',')} Δ de convergencia.`;},
+ how:'Con las gafas puestas, primero junta la diana en una sola imagen y toca el botón. Después la diana se abre hacia convergencia (cruzar un poco los ojos) y hacia divergencia (relajar la mirada, como mirar lejos), una y otra vez: cada vez que vuelvas a verla una y nítida, tócalo. Arriba debes ver un triángulo y un cuadrado; si falta alguno, toca «Falta una marca».',
+ opts:[{k:'dem',label:'Demanda',ch:[['auto','Según nivel (se ajusta sola)'],['3-12','3Δ BI / 12Δ BO (prueba clínica)'],['2-8','2Δ BI / 8Δ BO'],['1-4','1Δ BI / 4Δ BO (inicio)'],['4-16','4Δ BI / 16Δ BO']]},
+       {k:'chg',label:'Cambio de demanda',ch:[['grad','Gradual (más fácil)'],['jump','De golpe (prueba clínica)']]}],
+ lvDesc:(lv,o)=>{if(o&&o.dem&&o.dem!=='auto'){const [a,b]=o.dem.split('-');return `Alterna ${a} Δ de divergencia y ${b} Δ de convergencia. El nivel no cambia la demanda fija.`;}const t=T_(lv);return `Alterna ${lerp(1,4,t).toFixed(1).replace('.',',')} Δ de divergencia y ${lerp(3,14,t).toFixed(1).replace('.',',')} Δ de convergencia; baja sola si cuesta juntarla.`;},
  create(api){
-  const ec=eyeColors(),lc=rgb(ec.L),rcol=rgb(ec.R),o=api.opt.dem||'auto';
-  const dem=()=>o==='auto'?{bi:lerp(1.5,4,api.T),bo:lerp(6,16,api.T)}:{bi:+o.split('-')[0],bo:+o.split('-')[1]};
-  let dir='bo',t0=0,taps=0,lat={bo:[],bi:[]},supp=0,clamped=false,flash=0;
+  const ec=eyeColors(),lc=rgb(ec.L),rcol=rgb(ec.R),o=api.opt.dem||'auto',grad=(api.opt.chg||'grad')==='grad',auto=o==='auto';
+  let k=1;// en modo automático la demanda baja si tarda mucho en juntarla
+  const dem=()=>auto?{bi:lerp(1,4,api.T)*k,bo:lerp(3,14,api.T)*k}:{bi:+o.split('-')[0],bo:+o.split('-')[1]};
+  // pr: prisma mostrado con signo (+ convergencia, − divergencia); goal: el que se pide ahora
+  let phase='lock',dir='bo',pr=0,goal=0,t0=0,taps=0,lat={bo:[],bi:[]},supp=0,clamped=false,flash=0,eased=0,hint=0,rs=6;
+  const goalOf=d=>{const d0=dem();return d==='bo'?d0.bo:-d0.bi;};
   const btn=()=>{const w=Math.min(300,api.W*.66),h=58;return {x:(api.W-w)/2,y:api.H-h-16,w,h};};
   const sbtn=()=>{const w=Math.min(220,api.W*.52),h=40;return {x:(api.W-w)/2,y:api.H-58-16-h-10,w,h};};
-  api.info('Junta la diana: convergencia');
+  const moving=()=>Math.abs(pr-goal)>.05;
+  function go(d){dir=d;goal=goalOf(d);rs=Math.max(6,Math.abs(goal-pr)/.9);if(!grad)pr=goal;t0=api.elapsed;hint=0;api.info(d==='bo'?'Convergencia: cruza un poco los ojos hasta verla una':'Divergencia: relaja la mirada hasta verla una');}
+  api.info('Junta la diana en una sola imagen');
   return {
-   update(dt){if(flash>0)flash-=dt;},
-   draw(c){const d0=dem(),pr=dir==='bo'?d0.bo:d0.bi;let px=prismToPx(pr);const mx=api.W*.55;if(px>mx){px=mx;clamped=true;}
-    const d=px*(dir==='bo'?1:-1),R=Math.min(api.W*.2,api.H*.16),x=api.W/2,y=api.H*.4;
+   update(dt){if(flash>0)flash-=dt;
+    if(moving()){pr+=clamp(goal-pr,-rs*dt,rs*dt);if(!moving()){pr=goal;t0=api.elapsed;}}
+    else if(phase==='run'){hint+=dt;if(auto&&hint>12&&k>.35){k=Math.max(.35,k*.75);eased++;goal=goalOf(dir);rs=6;hint=0;api.info('Bajamos la demanda: intenta juntarla otra vez');}}},
+   draw(c){let px=prismToPx(Math.abs(pr));const mx=api.W*.5;if(px>mx){px=mx;clamped=true;}
+    const d=px*Math.sign(pr),R=Math.min(api.W*.14,api.H*.15,120),x=api.W/2,y=Math.min(api.H*.42,sbtn().y-R*1.15);
     c.globalCompositeOperation='lighter';fuseTarget(c,x+d/2,y,R,lc,true);fuseTarget(c,x-d/2,y,R,rcol,false);c.globalCompositeOperation='source-over';
-    c.fillStyle='rgba(255,255,255,.6)';c.font=`600 13px ${FONT}`;c.textBaseline='top';c.textAlign='left';c.fillText(`${pr.toFixed(1).replace('.',',')} Δ ${dir==='bo'?'BO':'BI'}`,14,12);
+    c.fillStyle='rgba(255,255,255,.6)';c.font=`600 13px ${FONT}`;c.textBaseline='top';c.textAlign='left';
+    c.fillText(phase==='lock'?'0 Δ · fusión inicial':`${Math.abs(pr).toFixed(1).replace('.',',')} Δ ${pr>=0?'BO · convergencia':'BI · divergencia'}`,14,12);
     c.textAlign='right';c.fillText(`${Math.floor(taps/2)} ciclos`,api.W-14,12);
-    button(c,btn(),'La veo una y nítida',{fill:flash>0?'rgba(61,220,151,.95)':'rgba(255,255,255,.92)',ink:'#000',size:18});
+    const busy=phase==='run'&&moving();
+    button(c,btn(),phase==='lock'?'Ya la veo una':busy?'Espera…':'La veo una y nítida',{fill:flash>0?'rgba(61,220,151,.95)':busy?'rgba(255,255,255,.35)':'rgba(255,255,255,.92)',ink:'#000',size:18});
     button(c,sbtn(),'Falta una marca',{fill:'rgba(255,255,255,.14)',size:15});},
    down(x,y){
     if(inBox(sbtn(),x,y)){supp++;api.bad(api.W/2,api.H*.2);api.info('Parpadea y busca las dos marcas');return;}
-    if(!inBox(btn(),x,y))return;const l=api.elapsed-t0,b=btn();if(l<.3)return;lat[dir].push(l);taps++;flash=.18;t0=api.elapsed;
-    api.good(b.x+b.w/2,b.y,{noFloat:true,n:10});if(l<2)api.adapt(.25);else if(l>5)api.adapt(-.25);
-    dir=dir==='bo'?'bi':'bo';api.info(dir==='bo'?'Ahora convergencia':'Ahora divergencia');},
+    if(!inBox(btn(),x,y))return;const b=btn();
+    if(phase==='lock'){phase='run';flash=.18;sfx.tick();go('bo');return;}
+    if(moving())return;const l=api.elapsed-t0;if(l<.3)return;lat[dir].push(l);taps++;flash=.18;
+    api.good(b.x+b.w/2,b.y,{noFloat:true,n:10});if(l<2)api.adapt(.25);else if(l>5)api.adapt(-.25);if(auto&&l<3&&k<1)k=Math.min(1,k/.85);
+    go(dir==='bo'?'bi':'bo');},
    result(){const mins=Math.max(api.elapsed,1)/60,cyc=Math.floor(taps/2),cpm=+(cyc/mins).toFixed(1),av=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:0,d0=dem(),f=v=>v.toFixed(1).replace('.',',');
     return {score:cpm,unit:'cpm',rating:clamp(cpm/15,0,1)*(supp?Math.max(.4,1-supp*.1):1),
-     stat:`${cyc} ciclos en ${durLabel(Math.round(api.elapsed))} con ${f(d0.bi)} Δ BI / ${f(d0.bo)} Δ BO.${supp?` Avisó ${supp} ${supp===1?'vez':'veces'} de que le faltaba una marca.`:''}${clamped?' La pantalla limitó la demanda: usa una pantalla más grande o acércala.':''}`,
+     stat:`${cyc} ciclos en ${durLabel(Math.round(api.elapsed))} con ${f(d0.bi)} Δ BI / ${f(d0.bo)} Δ BO${grad?' (cambio gradual)':''}.${supp?` Avisó ${supp} ${supp===1?'vez':'veces'} de que le faltaba una marca.`:''}${eased?' La demanda se bajó porque costaba juntar la diana.':''}${clamped?' La pantalla limitó la demanda: usa una pantalla más grande o acércala.':''}`,
      metrics:[['Ciclos por minuto',f(cpm)],['Fusión en convergencia',lat.bo.length?`${f(av(lat.bo))} s de media`:'—'],['Fusión en divergencia',lat.bi.length?`${f(av(lat.bi))} s de media`:'—'],['Avisos de supresión',supp]],clin:{vfac:cpm}};}
   };
  }});
@@ -2201,10 +2248,13 @@ GAMES.push({id:'campo',name:'Mapa del campo',skill:'Campo visual periférico',ca
 /* ---------- Letras escondidas (control de supresión) ---------- */
 GAMES.push({id:'escondidas',name:'Letras escondidas',skill:'Control de supresión',cat:'bino',anaglyph:true,
  how:'Con las gafas puestas, busca y toca todas las letras iguales a la de arriba. La mitad de las letras las ve un ojo y la otra mitad el otro: si un ojo «se apaga», sus letras desaparecen. Al terminar la página pasarás a otra.',
- opts:[{k:'set',label:'Símbolos',ch:[['var','Letras variadas'],['sim','Letras parecidas (b d p q)'],['num','Números']]},{k:'mix',label:'Reparto entre los ojos',ch:[['alt','Alterno'],['col','Por columnas'],['rnd','Al azar']]}],
- lvDesc:lv=>`${Math.round(lerp(4,8,T_(lv)))} filas de ${Math.round(lerp(6,11,T_(lv)))} símbolos.`,
+ opts:[{k:'set',label:'Símbolos',ch:[['var','Letras variadas'],['sim','Letras parecidas (b d p q)'],['num','Números']]},{k:'mix',label:'Reparto entre los ojos',ch:[['alt','Alterno'],['col','Por columnas'],['rnd','Al azar']]},
+       {k:'fs',label:'Tamaño de letra',ch:[['auto','Según nivel'],['l','Grande'],['m','Mediana'],['s','Pequeña'],['xs','Muy pequeña']]}],
+ lvDesc:(lv,o)=>`${Math.round(lerp(4,8,T_(lv)))} filas de ${Math.round(lerp(6,11,T_(lv)))} símbolos${(!o||!o.fs||o.fs==='auto')?', más pequeños y separados al subir de nivel':''}.`,
  create(api){
   const POOL={var:'ABCDEFGHKLMNPRSTUVXZ',sim:'bdpqnu',num:'0123456789'}[api.opt.set||'var'].split(''),mix=api.opt.mix||'alt',ec=eyeColors(),col={L:rgb(ec.L),R:rgb(ec.R)};
+  // proporción de la letra dentro de su casilla: cuanto más pequeña, más espacio libre entre letras
+  const fsK=()=>({l:.6,m:.44,s:.32,xs:.24}[api.opt.fs]||lerp(.5,.3,api.T));
   let rows,cols,cells=[],target,need=0,L,appear=0,nextT=0,pages=0;const st={L:{f:0,n:0},R:{f:0,n:0}};
   function layout(){const top=58,ah=api.H-top-16,cw=(api.W-32)/cols,ch=Math.min(ah/rows,cw*1.4);L={ox:(api.W-cw*cols)/2,oy:top+(ah-ch*rows)/2,cw,ch};}
   function page(){
@@ -2218,10 +2268,10 @@ GAMES.push({id:'escondidas',name:'Letras escondidas',skill:'Control de supresió
    update(dt){appear+=dt;for(const q of cells){if(q.done)q.anim=Math.min(1,q.anim+dt*4);if(q.bad>0)q.bad-=dt;}if(nextT>0){nextT-=dt;if(nextT<=0){pages++;page();}}},
    draw(c){c.strokeStyle='rgba(255,255,255,.45)';c.lineWidth=2;c.strokeRect(8,8,api.W-16,api.H-16);
     c.fillStyle='#fff';c.font=`700 22px ${FONT}`;c.textAlign='center';c.textBaseline='middle';c.fillText(`Busca: ${target}`,api.W/2,32);
-    const fs=Math.min(L.cw*.62,L.ch*.6);c.font=`700 ${fs}px ${FONT}`;
+    const fs=Math.max(10,Math.min(L.cw,L.ch)*fsK());c.font=`700 ${fs}px ${FONT}`;
     cells.forEach((q,i)=>{const r=Math.floor(i/cols),k=i%cols,x=L.ox+(k+.5)*L.cw,y=L.oy+(r+.5)*L.ch,a=clamp((appear-r*.05)/.3,0,1);if(a<=0)return;
      c.globalAlpha=a*(q.done?.35:1);c.fillStyle=col[q.e];c.fillText(q.ch,x,y+1);c.globalAlpha=1;
-     if(q.done){c.strokeStyle='#fff';c.lineWidth=2.5;c.beginPath();c.arc(x,y,fs*.62,-Math.PI/2,-Math.PI/2+TAU*easeOut(q.anim));c.stroke();}
+     if(q.done){c.strokeStyle='#fff';c.lineWidth=2.5;c.beginPath();c.arc(x,y,Math.max(fs*.7,14),-Math.PI/2,-Math.PI/2+TAU*easeOut(q.anim));c.stroke();}
      if(q.bad>0){c.strokeStyle='#fff';c.lineWidth=2;c.setLineDash([4,4]);c.strokeRect(x-L.cw*.4,y-L.ch*.4,L.cw*.8,L.ch*.8);c.setLineDash([]);}});},
    down(x,y){if(nextT>0)return;const k=Math.floor((x-L.ox)/L.cw),r=Math.floor((y-L.oy)/L.ch);if(k<0||r<0||k>=cols||r>=rows)return;const q=cells[r*cols+k];if(!q||q.done)return;
     const cx2=L.ox+(k+.5)*L.cw,cy2=L.oy+(r+.5)*L.ch;
@@ -2961,7 +3011,7 @@ function renderSettings(){
   <div class="card"><p class="h4b">Datos</p><p class="sub">Todo se guarda en esta tableta, sin internet. Haz copias de seguridad con frecuencia.</p><p class="sub" id="stoInfo"></p>
     <div style="display:grid;gap:8px"><button class="btn btn-main" data-c="backup">Copia de seguridad completa</button><button class="btn btn-soft" data-c="clinicCsv">Exportar toda la consulta (CSV)</button>
     <label class="btn btn-soft" style="cursor:pointer">Restaurar copia de seguridad<input type="file" accept="application/json,.json" id="restore" hidden></label></div></div>
-  <div class="card" style="text-align:center"><svg class="logo" viewBox="0 0 40 40" style="width:44px;height:44px"><circle cx="15" cy="20" r="12" fill="var(--red)"/><circle cx="25" cy="20" r="12" fill="var(--cyan)"/></svg><p style="margin:6px 0 0;font-family:var(--display);font-weight:700;font-size:20px">GiRo 6.1.1</p><p class="sub" style="margin:0">Terapia visual por GR Software TC</p></div>`;
+  <div class="card" style="text-align:center"><svg class="logo" viewBox="0 0 40 40" style="width:44px;height:44px"><circle cx="15" cy="20" r="12" fill="var(--red)"/><circle cx="25" cy="20" r="12" fill="var(--cyan)"/></svg><p style="margin:6px 0 0;font-family:var(--display);font-weight:700;font-size:20px">GiRo 6.2</p><p class="sub" style="margin:0">Terapia visual por GR Software TC</p></div>`;
   storageInfo();
 }
 function renderClinic(){renderPats();renderSettings();}
