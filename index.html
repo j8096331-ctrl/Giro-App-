@@ -2398,7 +2398,7 @@ const initials=n=>(n||'?').trim().split(/\s+/).map(w=>w[0]).slice(0,2).join('').
 /* ================= hoja inferior ================= */
 const sheet=$('#sheet'),scrim=$('#scrim');let sheetClose=null;
 function openSheet(html,onClose){$('#sheetBody').innerHTML=html;sheet.hidden=false;scrim.hidden=false;requestAnimationFrame(()=>{sheet.classList.add('show');scrim.classList.add('show');});sheetClose=onClose||null;sheet.scrollTop=0;}
-function closeSheet(){sheet.classList.remove('show');scrim.classList.remove('show');setTimeout(()=>{sheet.hidden=true;scrim.hidden=true;},300);if(sheetClose)sheetClose();sheetClose=null;}
+function closeSheet(){sheet.classList.remove('show');scrim.classList.remove('show');setTimeout(()=>{sheet.hidden=true;scrim.hidden=true;applyUpdate();},300);if(sheetClose)sheetClose();sheetClose=null;}
 scrim.addEventListener('click',closeSheet);
 
 /* ---------- configuración de un ejercicio ---------- */
@@ -2647,7 +2647,7 @@ function countUp(){
 }
 function closeStage(){
   cdTok++;speechStop();VD=0;if(cur){cur.running=false;cancelAnimationFrame(cur.raf);}cancelAnimationFrame(postRaf);cur=null;pending=null;
-  const tok=++closeTok;const done=()=>{if(tok!==closeTok)return;stage.classList.remove('open');hideOv();irisStart();};
+  const tok=++closeTok;const done=()=>{if(tok!==closeTok)return;stage.classList.remove('open');hideOv();irisStart();applyUpdate();};
   document.body.style.overflow='';renderAll();
   if(canAnim()&&stage.classList.contains('open')){const a=stage.animate({clipPath:[`circle(${Math.hypot(innerWidth,innerHeight)/2+20}px at 50% 50%)`,'circle(0px at 50% 50%)'],opacity:[1,.5]},{duration:380,easing:'cubic-bezier(.5,0,.75,0)'});a.onfinish=done;}else done();
 }
@@ -3034,7 +3034,7 @@ function renderSettings(){
   <div class="card"><p class="h4b">Datos</p><p class="sub">Todo se guarda en esta tableta, sin internet. Haz copias de seguridad con frecuencia.</p><p class="sub" id="stoInfo"></p>
     <div style="display:grid;gap:8px"><button class="btn btn-main" data-c="backup">Copia de seguridad completa</button><button class="btn btn-soft" data-c="clinicCsv">Exportar toda la consulta (CSV)</button>
     <label class="btn btn-soft" style="cursor:pointer">Restaurar copia de seguridad<input type="file" accept="application/json,.json" id="restore" hidden></label></div></div>
-  <div class="card" style="text-align:center"><svg class="logo" viewBox="0 0 40 40" style="width:44px;height:44px"><circle cx="15" cy="20" r="12" fill="var(--red)"/><circle cx="25" cy="20" r="12" fill="var(--cyan)"/></svg><p style="margin:6px 0 0;font-family:var(--display);font-weight:700;font-size:20px">GiRo 6.2.1</p><p class="sub" style="margin:0">Terapia visual por GR Software TC</p></div>`;
+  <div class="card" style="text-align:center"><svg class="logo" viewBox="0 0 40 40" style="width:44px;height:44px"><circle cx="15" cy="20" r="12" fill="var(--red)"/><circle cx="25" cy="20" r="12" fill="var(--cyan)"/></svg><p style="margin:6px 0 0;font-family:var(--display);font-weight:700;font-size:20px">GiRo 6.2.2</p><p class="sub" style="margin:0">Terapia visual por GR Software TC</p><button class="btn btn-soft btn-sm" data-c="upd" style="margin-top:10px">Buscar actualización</button></div>`;
   storageInfo();
 }
 function renderClinic(){renderPats();renderSettings();}
@@ -3086,6 +3086,7 @@ function clinicClick(e){
     case 'cal':DB.cfg.pxPerCm=+$('#calR').value/8.56;DB.cfg.calibrated=true;save();renderSettings();toast('Calibración guardada');break;
     case 'pin':{const v=$('#s_pin').value.trim();if(!/^\d{4}$/.test(v)){toast('El PIN debe tener 4 cifras');return;}DB.cfg.pin=v;save();$('#s_pin').value='';toast('PIN actualizado');break;}
     case 'welcome':showWelcome();break;
+    case 'upd':checkUpdate(true);break;
     case 'report':saveFile(`informe-${slug(p.name)}-${new Date().toISOString().slice(0,10)}.html`,reportHtml());break;
     case 'csv':saveFile(`sesiones-${slug(p.name)}.csv`,csv());break;
     case 'backup':doBackup();renderSettings();break;
@@ -3660,7 +3661,17 @@ $('#sheetBody').addEventListener('click',e=>{
 /* ================= arranque ================= */
 updateRole();renderAll();goTab('home');runSplash();
 (async()=>{try{if(window.claude&&typeof window.claude.use==='function'){dl=await window.claude.use('downloads');if(dl)renderSettings();}}catch(e){dl=null;}})();
-if('serviceWorker' in navigator&&/^https?:/.test(location.protocol)&&!window.Capacitor){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}
+/* actualizaciones: al publicar una versión nueva la app la descarga sola y se recarga en cuanto no hay un ejercicio ni una ficha abiertos */
+let UPD=false,swReg=null;
+function applyUpdate(){if(!UPD||stage.classList.contains('open')||!sheet.hidden)return;UPD=false;try{save();}catch(e){}setTimeout(()=>location.reload(),250);}
+function checkUpdate(manual){if(!swReg){if(manual)location.reload();return;}if(manual)toast('Buscando la versión más reciente…');
+  swReg.update().then(()=>{if(manual&&!swReg.installing&&!swReg.waiting)setTimeout(()=>{if(!UPD)toast('Ya tienes la versión más reciente');},1500);}).catch(()=>{if(manual)toast('Sin conexión: inténtalo más tarde');});}
+if('serviceWorker' in navigator&&/^https?:/.test(location.protocol)&&!window.Capacitor){
+  const hadCtrl=!!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!hadCtrl||UPD)return;UPD=true;toast('Hay una versión nueva de GiRo: se aplicará en un momento');applyUpdate();});
+  window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{swReg=r;r.update().catch(()=>{});setInterval(()=>r.update().catch(()=>{}),20*60e3);}).catch(()=>{}));
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&swReg)swReg.update().catch(()=>{});});
+}
 </script>
 </body>
 </html>
